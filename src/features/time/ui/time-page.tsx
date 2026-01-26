@@ -4,8 +4,8 @@ import { isNil } from 'lodash-es'
 
 import { Skeleton } from '@/components/ui/skeleton'
 import { Weather } from '@/features/time/components/weather'
-import { useSyncedNow } from '@/features/time/hook/useSyncedNow'
-import { useWeatherNow } from '@/features/time/hook/useWeatherNow'
+import { useSyncedNow } from '@/features/time/hook/use-synced-now'
+import { useWeatherNow } from '@/features/time/hook/use-weather-now'
 import { getClock12, getKoreanDateLine } from '@/lib'
 
 export default function TimePage() {

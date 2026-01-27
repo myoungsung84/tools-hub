@@ -119,6 +119,20 @@ pnpm lint
 pnpm lint:fix
 ```
 
+### Docker
+
+```bash
+# Docker 이미지 빌드 및 실행
+pnpm docker
+
+# 또는 개별 실행
+pnpm docker:build  # 이미지 빌드
+pnpm docker:run    # 컨테이너 실행
+pnpm docker:stop   # 컨테이너 중지
+```
+
+컨테이너가 실행되면 [http://localhost:3000](http://localhost:3000)에서 접근할 수 있습니다.
+
 ## 🎨 UI 컴포넌트
 
 이 프로젝트는 [shadcn/ui](https://ui.shadcn.com/)를 사용합니다. 새로운 컴포넌트를 추가하려면:

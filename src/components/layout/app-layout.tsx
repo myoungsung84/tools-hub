@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -15,8 +16,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <div className='min-h-dvh flex flex-col'>
       {/* Top Navbar */}
       <header className='h-14 border-b px-6 flex items-center gap-6'>
-        <Link href='/' className='text-sm font-semibold'>
-          Tools
+        {/* Logo */}
+        <Link href='/' className='flex items-center gap-2'>
+          <Image src='/logo.svg' alt='Tools Hub' width={18} height={18} priority />
+          <span className='text-sm font-semibold'>Tools Hub</span>
         </Link>
 
         <nav className='flex items-center gap-1'>

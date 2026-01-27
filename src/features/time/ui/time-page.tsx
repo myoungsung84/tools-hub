@@ -6,14 +6,21 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Weather } from '@/features/time/components/weather'
 import { useSyncedNow } from '@/features/time/hook/use-synced-now'
 import { useWeatherNowMany } from '@/features/time/hook/use-weather-now'
-import { getClock12, getKoreanDateLine } from '@/lib/shared'
+import { clockParts, currentDate } from '@/lib/shared'
 
 export default function TimePage() {
   const now = useSyncedNow()
 
-  const { data, regionList } = useWeatherNowMany({
-    regions: ['SEOUL', 'BUSAN', 'INCHEON', 'DAEGU', 'GWANGJU', 'DAEJEON', 'ULSAN', 'JEJU'],
-  })
+  const { data, regionList } = useWeatherNowMany([
+    'SEOUL',
+    'BUSAN',
+    'INCHEON',
+    'DAEGU',
+    'GWANGJU',
+    'DAEJEON',
+    'ULSAN',
+    'JEJU',
+  ])
 
   if (isNil(now)) {
     return (
@@ -23,14 +30,14 @@ export default function TimePage() {
     )
   }
 
-  const { ampm, hh, mm, ss } = getClock12(now)
-  const dateLine = getKoreanDateLine(now)
+  const { meridiem, hh, mm, ss } = clockParts(now)
+  const dateLine = currentDate(now)
 
   return (
     <div className='flex w-full flex-col items-center justify-center gap-8 text-center'>
       {/* AM / PM */}
       <div className='text-s font-medium uppercase tracking-[0.32em] text-muted-foreground'>
-        {ampm}
+        {meridiem}
       </div>
 
       {/* Clock */}

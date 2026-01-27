@@ -4,8 +4,8 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 const TOOLS_NAV = [
-  { href: '/time', label: 'Time' },
-  { href: '/json', label: 'JSON' },
+  { href: '/time', label: '현재시간' },
+  { href: '/ip', label: '나의 아이피' },
 ] as const
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {

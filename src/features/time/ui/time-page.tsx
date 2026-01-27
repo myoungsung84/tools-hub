@@ -5,20 +5,15 @@ import { isNil } from 'lodash-es'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Weather } from '@/features/time/components/weather'
 import { useSyncedNow } from '@/features/time/hook/use-synced-now'
-import { useWeatherNow } from '@/features/time/hook/use-weather-now'
-import { getClock12, getKoreanDateLine } from '@/lib'
+import { useWeatherNowMany } from '@/features/time/hook/use-weather-now'
+import { getClock12, getKoreanDateLine } from '@/lib/shared'
 
 export default function TimePage() {
   const now = useSyncedNow()
 
-  const { data: seoul } = useWeatherNow('SEOUL')
-  const { data: busan } = useWeatherNow('BUSAN')
-  const { data: incheon } = useWeatherNow('INCHEON')
-  const { data: daegu } = useWeatherNow('DAEGU')
-  const { data: gwangju } = useWeatherNow('GWANGJU')
-  const { data: daejeon } = useWeatherNow('DAEJEON')
-  const { data: ulsan } = useWeatherNow('ULSAN')
-  const { data: jeju } = useWeatherNow('JEJU')
+  const { data, regionList } = useWeatherNowMany({
+    regions: ['SEOUL', 'BUSAN', 'INCHEON', 'DAEGU', 'GWANGJU', 'DAEJEON', 'ULSAN', 'JEJU'],
+  })
 
   if (isNil(now)) {
     return (
@@ -32,7 +27,7 @@ export default function TimePage() {
   const dateLine = getKoreanDateLine(now)
 
   return (
-    <div className='flex min-h-screen w-full flex-col items-center justify-center gap-8 text-center'>
+    <div className='flex w-full flex-col items-center justify-center gap-8 text-center'>
       {/* AM / PM */}
       <div className='text-s font-medium uppercase tracking-[0.32em] text-muted-foreground'>
         {ampm}
@@ -57,14 +52,9 @@ export default function TimePage() {
       {/* Weather */}
       <div className='mt-2 w-[800px] max-w-[92vw]'>
         <div className='grid grid-cols-4 gap-2'>
-          <Weather weather={seoul} />
-          <Weather weather={busan} />
-          <Weather weather={incheon} />
-          <Weather weather={daegu} />
-          <Weather weather={gwangju} />
-          <Weather weather={daejeon} />
-          <Weather weather={ulsan} />
-          <Weather weather={jeju} />
+          {regionList.map(r => (
+            <Weather key={r} weather={data[r] ?? null} />
+          ))}
         </div>
       </div>
     </div>

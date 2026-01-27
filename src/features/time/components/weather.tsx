@@ -1,7 +1,7 @@
 'use client'
 
 import { Skeleton } from '@/components/ui/skeleton'
-import type { WeatherNow } from '@/features/time/hook/use-weather-now'
+import type { WeatherNow } from '@/features/time/types/weather-now.types'
 
 type Props = { weather: WeatherNow | null }
 

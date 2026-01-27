@@ -1,15 +1,32 @@
 import dayjs from 'dayjs'
-import { round } from 'lodash-es'
+import { isNil, round } from 'lodash-es'
 
 import type { Coords, WeatherNowApiResponse } from '@/features/time/types/weather-now.types'
 import { ApiErrors } from '@/lib/server'
+import { createTtlCache } from '@/lib/server/cache'
+
+type WeatherNowFromOpenMeteo = Omit<WeatherNowApiResponse, 'fetchedAt' | 'locationLabel'>
+
+const weatherCache = createTtlCache<WeatherNowFromOpenMeteo>(5 * 60 * 1000)
+
+function cacheKey(coords: Coords, timezone: string) {
+  const latitude = round(coords.latitude, 2)
+  const longitude = round(coords.longitude, 2)
+  return `${latitude},${longitude}|${timezone}`
+}
 
 export async function fetchWeatherNowFromOpenMeteo(
   coords: Coords,
   opts: { timezone: string; signal?: AbortSignal; revalidateSec?: number }
-): Promise<Omit<WeatherNowApiResponse, 'fetchedAt' | 'locationLabel'>> {
+): Promise<WeatherNowFromOpenMeteo> {
   const latitude = round(coords.latitude, 2)
   const longitude = round(coords.longitude, 2)
+
+  const key = cacheKey(coords, opts.timezone)
+  const cached = weatherCache.get(key)
+  if (!isNil(cached)) {
+    return cached
+  }
 
   const url =
     `https://api.open-meteo.com/v1/forecast` +
@@ -77,11 +94,15 @@ export async function fetchWeatherNowFromOpenMeteo(
     return '변덕'
   })()
 
-  return {
+  const out: WeatherNowFromOpenMeteo = {
     tempC,
     feelsLikeC,
     windMs,
     code,
     label,
   }
+
+  weatherCache.set(key, out)
+
+  return out
 }

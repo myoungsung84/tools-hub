@@ -1,0 +1,23 @@
+# deps
+node_modules
+.pnpm-store
+
+# build outputs
+.next
+out
+dist
+
+# git
+.git
+
+# env
+.env*
+*.local
+
+# deploy/docker meta
+deploy
+docker
+
+# os
+.DS_Store
+Thumbs.db

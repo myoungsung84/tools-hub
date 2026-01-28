@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tools-hub
+spec:
+  type: ClusterIP
+  selector:
+    app: tools-hub
+  ports:
+    - name: http
+      port: 80
+      targetPort: 3000

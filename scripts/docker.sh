@@ -2,7 +2,8 @@
 set -e
 
 IMAGE_NAME=tools-hub
-TAG=local
+TAG=${TAG:-local}                 # 기본 local, 필요 시 TAG=latest
+REGISTRY=192.168.0.38:5000
 CONTAINER_NAME=tools-hub-local
 PORT=3000
 DOCKERFILE=docker/dockerfile
@@ -41,6 +42,18 @@ shell() {
     sh
 }
 
+push() {
+  TAG=latest build
+
+  echo "▶ Tag image for registry: $REGISTRY/$IMAGE_NAME:latest"
+  docker tag $IMAGE_NAME:latest $REGISTRY/$IMAGE_NAME:latest
+
+  echo "▶ Push image: $REGISTRY/$IMAGE_NAME:latest"
+  docker push $REGISTRY/$IMAGE_NAME:latest
+
+  echo "✔ Push complete"
+}
+
 case "$cmd" in
   build)
     build
@@ -54,8 +67,11 @@ case "$cmd" in
   shell)
     shell
     ;;
+  push)
+    push
+    ;;
   *)
-    echo "Usage: $0 {build|run|stop|shell}"
+    echo "Usage: $0 {build|run|stop|shell|push}"
     exit 1
     ;;
 esac

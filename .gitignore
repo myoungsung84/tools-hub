@@ -71,3 +71,9 @@ Desktop.ini
 .cache/
 .parcel-cache/
 .eslintcache
+
+# env
+*.env
+
+# kustomize live overlay (contains private infra values)
+deploy/k8s/overlays/live/

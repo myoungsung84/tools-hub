@@ -96,3 +96,9 @@ export function isPrivateIp(ip: string): boolean {
 
   return false
 }
+
+export function pickCountry(headers: Headers) {
+  const v = headers.get('cf-ipcountry')?.trim()
+  if (!v || v.toUpperCase() === 'XX') return 'Unknown'
+  return v.toUpperCase()
+}

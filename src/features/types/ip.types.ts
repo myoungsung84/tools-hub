@@ -1,9 +1,3 @@
-export type IpGeo = {
-  country_name?: string
-  city?: string
-  org?: string
-}
-
 export type IpUserAgent = {
   raw: string
   browser: 'Chrome' | 'Edge' | 'Safari' | 'Unknown'
@@ -14,7 +8,7 @@ export type IpUserAgent = {
 export type IpInfo = {
   ip: string
   isPrivate: boolean
-  geo: IpGeo
+  country: string
   ua: IpUserAgent
 }
 

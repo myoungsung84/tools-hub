@@ -17,9 +17,7 @@ export default function IpPage() {
     }
   )
 
-  const country = data?.geo?.country_name ?? '-'
-  const city = data?.geo?.city ?? '-'
-  const org = data?.geo?.org ?? '-'
+  const country = data?.country ?? '-'
 
   const browser = data?.ua?.browser ?? 'Unknown'
   const os = data?.ua?.os ?? 'Unknown'
@@ -63,11 +61,7 @@ export default function IpPage() {
           <div className='text-8xl font-bold tracking-tight leading-none tabular-nums'>
             {data.ip}
           </div>
-          <div className='text-sm text-muted-foreground'>
-            {data.isPrivate
-              ? '로컬/사설 네트워크에서 접속 중입니다.'
-              : `접속한 국가는 ${country} (${city}) 입니다.`}
-          </div>
+          <div className='text-sm text-muted-foreground'>{`접속한 국가는 ${country} 입니다.`}</div>
         </div>
 
         <div className='w-4/5 rounded-xl border bg-neutral-900/40 p-6 text-left'>
@@ -77,26 +71,13 @@ export default function IpPage() {
               <div className='text-[12px] text-muted-foreground'>Network</div>
 
               {data.isPrivate ? (
-                <span className='rounded-md border px-2 py-0.5 text-[12px] text-muted-foreground'>
-                  Private
-                </span>
+                <span className='text-[12px] text-muted-foreground'>Private</span>
               ) : (
-                <span className='rounded-md border px-2 py-0.5 text-[12px] text-muted-foreground'>
-                  Public
-                </span>
+                <span className='text-[12px] text-muted-foreground'>Public</span>
               )}
             </div>
 
             <div className='grid gap-6 sm:grid-cols-2'>
-              {/* Geo */}
-              <div className='flex flex-col gap-0.5'>
-                <div className='text-[12px] text-muted-foreground'>Geo</div>
-                <div className='text-sm'>
-                  {country} · {city}
-                </div>
-                <div className='text-xs text-muted-foreground'>{org}</div>
-              </div>
-
               {/* UA summary */}
               <div className='flex flex-col gap-0.5'>
                 <div className='text-[12px] text-muted-foreground'>User Agent</div>

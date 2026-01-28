@@ -1,5 +1,6 @@
 import dayjs from 'dayjs'
 import { isNil, round } from 'lodash-es'
+import { Agent, fetch as undiciFetch } from 'undici'
 
 import type { Coords, WeatherNowApiResponse } from '@/features/time/types/weather-now.types'
 import { ApiErrors } from '@/lib/server'
@@ -15,6 +16,10 @@ function cacheKey(coords: Coords, timezone: string) {
   return `${latitude},${longitude}|${timezone}`
 }
 
+const openMeteoAgent = new Agent({
+  connect: { family: 4 },
+})
+
 export async function fetchWeatherNowFromOpenMeteo(
   coords: Coords,
   opts: { timezone: string; signal?: AbortSignal; revalidateSec?: number }
@@ -25,6 +30,7 @@ export async function fetchWeatherNowFromOpenMeteo(
   const key = cacheKey(coords, opts.timezone)
   const cached = weatherCache.get(key)
   if (!isNil(cached)) {
+    console.log(`[weather-now.source] cache hit for open-meteo: ${key}`)
     return cached
   }
 
@@ -37,11 +43,11 @@ export async function fetchWeatherNowFromOpenMeteo(
 
   const requestedAtIso = dayjs().toISOString()
 
-  let res: Response
+  let res
   try {
-    res = await fetch(url, {
+    res = await undiciFetch(url, {
       signal: opts.signal,
-      next: { revalidate: opts.revalidateSec ?? 300 },
+      dispatcher: openMeteoAgent,
     })
   } catch {
     throw ApiErrors.upstream(`open-meteo fetch failed (${requestedAtIso})`)
@@ -103,6 +109,5 @@ export async function fetchWeatherNowFromOpenMeteo(
   }
 
   weatherCache.set(key, out)
-
   return out
 }

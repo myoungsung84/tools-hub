@@ -94,9 +94,13 @@ export function useWeatherNowMany(regions: WeatherRegion[]) {
                 locationLabel: cfg.label,
               },
               ac.signal
-            ).then(w => {
-              next[region] = w
-            })
+            )
+              .then(w => {
+                next[region] = w
+              })
+              .catch(() => {
+                console.warn(`[useWeatherNowMany] fetch failed for region: ${region}`)
+              })
           )
         }
 

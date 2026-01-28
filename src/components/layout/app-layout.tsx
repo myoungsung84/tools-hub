@@ -46,7 +46,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Main */}
-      <main className='flex flex-1'>{children}</main>
+      <main className='flex flex-1 overflow-auto p-4'>{children}</main>
     </div>
   )
 }

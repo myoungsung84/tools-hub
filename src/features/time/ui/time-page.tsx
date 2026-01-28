@@ -5,8 +5,9 @@ import { isNil } from 'lodash-es'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Weather } from '@/features/time/components/weather'
 import { useSyncedNow } from '@/features/time/hook/use-synced-now'
-import { useWeatherNowMany } from '@/features/time/hook/use-weather-now'
 import { clockParts, currentDate } from '@/lib/shared'
+
+import { useWeatherNowMany } from '../hook/use-weather-now'
 
 export default function TimePage() {
   const now = useSyncedNow()
@@ -14,18 +15,18 @@ export default function TimePage() {
   const { data, regionList } = useWeatherNowMany([
     'SEOUL',
     'BUSAN',
-    'INCHEON',
-    'DAEGU',
+    // 'INCHEON',
+    // 'DAEGU',
     'GWANGJU',
-    'DAEJEON',
-    'ULSAN',
+    // 'DAEJEON',
+    // 'ULSAN',
     'JEJU',
   ])
 
   if (isNil(now)) {
     return (
-      <div className='flex min-h-screen w-full items-center justify-center'>
-        <Skeleton className='h-36 w-[520px]' />
+      <div className='flex w-full flex-1 items-center justify-center px-4'>
+        <Skeleton className='h-36 w-full max-w-[520px]' />
       </div>
     )
   }
@@ -34,31 +35,35 @@ export default function TimePage() {
   const dateLine = currentDate(now)
 
   return (
-    <div className='flex w-full flex-col items-center justify-center gap-8 text-center'>
+    <div className='mx-auto flex w-full max-w-[1100px] flex-1 flex-col items-center justify-center gap-6 px-4 text-center sm:gap-8'>
       {/* AM / PM */}
-      <div className='text-s font-medium uppercase tracking-[0.32em] text-muted-foreground'>
+      <div className='text-xs font-medium uppercase tracking-[0.32em] text-muted-foreground sm:text-sm'>
         {meridiem}
       </div>
 
       {/* Clock */}
-      <div className='flex flex-col items-center gap-6 font-mono tabular-nums text-[104px] leading-none sm:text-[120px]'>
-        <div className='flex items-center justify-center gap-4'>
-          <span>{hh}</span>
-          <span className='translate-y-[2px] text-muted-foreground/70'>:</span>
-          <span>{mm}</span>
-          <span className='translate-y-[2px] text-muted-foreground/70'>:</span>
-          <span>{ss}</span>
+      <div className='flex flex-col items-center gap-4 font-mono tabular-nums leading-none sm:gap-6'>
+        <div className='flex items-center justify-center gap-2 sm:gap-4'>
+          <span className='text-[clamp(56px,12vw,120px)]'>{hh}</span>
+          <span className='translate-y-[2px] text-[clamp(40px,8vw,84px)] text-muted-foreground/70'>
+            :
+          </span>
+          <span className='text-[clamp(56px,12vw,120px)]'>{mm}</span>
+          <span className='translate-y-[2px] text-[clamp(40px,8vw,84px)] text-muted-foreground/70'>
+            :
+          </span>
+          <span className='text-[clamp(56px,12vw,120px)]'>{ss}</span>
         </div>
 
-        <div className='h-px w-[800px] max-w-full bg-gradient-to-r from-transparent via-border to-transparent' />
+        <div className='h-px w-full max-w-[800px] bg-gradient-to-r from-transparent via-border to-transparent' />
       </div>
 
       {/* Date */}
-      <div className='text-s text-muted-foreground'>{dateLine}</div>
+      <div className='text-xs text-muted-foreground sm:text-sm'>{dateLine}</div>
 
       {/* Weather */}
-      <div className='mt-2 w-[800px] max-w-[92vw]'>
-        <div className='grid grid-cols-4 gap-2'>
+      <div className='mt-2 w-full max-w-[800px]'>
+        <div className='grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4'>
           {regionList.map(r => (
             <Weather key={r} weather={data[r] ?? null} />
           ))}

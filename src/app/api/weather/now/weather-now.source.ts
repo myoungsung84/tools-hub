@@ -8,7 +8,7 @@ import { createTtlCache } from '@/lib/server/cache'
 
 type WeatherNowFromOpenMeteo = Omit<WeatherNowApiResponse, 'fetchedAt' | 'locationLabel'>
 
-const weatherCache = createTtlCache<WeatherNowFromOpenMeteo>(5 * 60 * 1000)
+const weatherCache = createTtlCache<WeatherNowFromOpenMeteo>(30 * 60 * 1000)
 
 function cacheKey(coords: Coords, timezone: string) {
   const latitude = round(coords.latitude, 2)
@@ -49,7 +49,8 @@ export async function fetchWeatherNowFromOpenMeteo(
       signal: opts.signal,
       dispatcher: openMeteoAgent,
     })
-  } catch {
+  } catch (e) {
+    console.error('[open-meteo] fetch failed', { requestedAtIso, url, err: String(e) })
     throw ApiErrors.upstream(`open-meteo fetch failed (${requestedAtIso})`)
   }
 

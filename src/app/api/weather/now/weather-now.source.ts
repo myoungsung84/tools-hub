@@ -4,16 +4,14 @@ import { Agent, fetch as undiciFetch } from 'undici'
 
 import type { Coords, WeatherNowApiResponse } from '@/features/time/types/weather-now.types'
 import { ApiErrors } from '@/lib/server'
-import { createTtlCache } from '@/lib/server/cache'
+import { cacheGetJson, cacheSetJson } from '@/lib/server/cache'
 
 type WeatherNowFromOpenMeteo = Omit<WeatherNowApiResponse, 'fetchedAt' | 'locationLabel'>
-
-const weatherCache = createTtlCache<WeatherNowFromOpenMeteo>(30 * 60 * 1000)
 
 function cacheKey(coords: Coords, timezone: string) {
   const latitude = round(coords.latitude, 2)
   const longitude = round(coords.longitude, 2)
-  return `${latitude},${longitude}|${timezone}`
+  return `weather:now:${timezone}:${latitude},${longitude}`
 }
 
 const openMeteoAgent = new Agent({
@@ -27,10 +25,13 @@ export async function fetchWeatherNowFromOpenMeteo(
   const latitude = round(coords.latitude, 2)
   const longitude = round(coords.longitude, 2)
 
+  const ttlSec = opts.revalidateSec ?? 30 * 60
   const key = cacheKey(coords, opts.timezone)
-  const cached = weatherCache.get(key)
+
+  // 1️⃣ Redis cache lookup
+  const cached = await cacheGetJson<WeatherNowFromOpenMeteo>(key)
   if (!isNil(cached)) {
-    console.log(`[weather-now.source] cache hit for open-meteo: ${key}`)
+    console.log(`[weather-now.source] redis cache hit: ${key}`)
     return cached
   }
 
@@ -109,6 +110,7 @@ export async function fetchWeatherNowFromOpenMeteo(
     label,
   }
 
-  weatherCache.set(key, out)
+  // 2️⃣ Redis cache set
+  await cacheSetJson(key, out, ttlSec)
   return out
 }

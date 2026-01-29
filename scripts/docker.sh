@@ -2,18 +2,28 @@
 set -e
 
 IMAGE_NAME=tools-hub
-TAG=${TAG:-local}                 # 기본 local, 필요 시 TAG=latest
+TAG=${TAG:-local}
 REGISTRY=192.168.0.38:5000
 CONTAINER_NAME=tools-hub-local
 PORT=3000
 DOCKERFILE=docker/dockerfile
+ENV_FILE=${ENV_FILE:-.env.production}
 
 cmd=${1:-run}
 
+load_env() {
+  if [ -f "$ENV_FILE" ]; then
+    export $(grep -v '^[[:space:]]*#' "$ENV_FILE" | grep -v '^[[:space:]]*$' | xargs)
+  fi
+}
+
 build() {
+  load_env
+
   echo "▶ Docker build: $IMAGE_NAME:$TAG"
   docker build \
     --no-cache \
+    --build-arg NEXT_PUBLIC_SITE_URL="${NEXT_PUBLIC_SITE_URL:-}" \
     -f $DOCKERFILE \
     -t $IMAGE_NAME:$TAG \
     .
@@ -55,21 +65,11 @@ push() {
 }
 
 case "$cmd" in
-  build)
-    build
-    ;;
-  run)
-    run
-    ;;
-  stop)
-    stop
-    ;;
-  shell)
-    shell
-    ;;
-  push)
-    push
-    ;;
+  build) build ;;
+  run) run ;;
+  stop) stop ;;
+  shell) shell ;;
+  push) push ;;
   *)
     echo "Usage: $0 {build|run|stop|shell|push}"
     exit 1

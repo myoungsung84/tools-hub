@@ -19,6 +19,9 @@ const fontMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'Tools Hub',
   description: 'Internal tools',
+  other: {
+    'google-site-verification': 'yNjgAXkPNLEvsdqMQZj5fmUCd408ueZe3JwN2XVNfKU',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

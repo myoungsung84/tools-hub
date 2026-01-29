@@ -14,10 +14,14 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# ✅ next가 진짜 설치됐는지 바로 확인
+# build-time env (for robots/sitemap static outputs)
+ARG NEXT_PUBLIC_SITE_URL
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+
 RUN ls -la node_modules/next/dist/bin || (echo "❌ next not found in node_modules" && exit 1)
 
 RUN pnpm build
+
 
 FROM node:20-alpine AS run
 WORKDIR /app

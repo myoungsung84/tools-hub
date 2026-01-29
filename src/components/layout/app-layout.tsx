@@ -1,5 +1,6 @@
 'use client'
 
+import { Cat } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -43,6 +44,22 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className='ml-auto' />
+
+        {/* GitHub */}
+        <a
+          href='https://github.com/myoungsung84/tools-hub'
+          target='_blank'
+          rel='noreferrer'
+          aria-label='GitHub'
+          className='ml-2 inline-flex h-9 w-9 items-center justify-center
+           rounded-full
+           bg-muted/30
+           text-foreground
+           transition
+           hover:bg-muted/60'
+        >
+          <Cat className='h-4 w-4' />
+        </a>
       </header>
 
       {/* Main */}

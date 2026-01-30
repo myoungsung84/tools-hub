@@ -17,7 +17,7 @@
 - 사용자 IP 주소 확인
 - User Agent 정보 표시
 - IP 위치 정보 조회 (국가, 도시, ASN/ISP)
-- Redis TTL 캐싱으로 성능 최적화 (옵션)
+- Redis TTL 캐싱으로 성능 최적화 (캐시 사용 시 필수)
 
 ## 🛠️ 기술 스택
 
@@ -48,7 +48,7 @@
 ### Backend & Infra
 - **API Client**: undici
 - **Weather**: Open-Meteo
-- **Cache (Optional)**: Redis (ioredis)
+- **Cache**: Redis (ioredis, 캐시 사용 시 필수)
 
 ## 📁 프로젝트 구조
 
@@ -112,8 +112,8 @@ pnpm install
 | --- | --- | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | 사이트 기본 URL (robots/sitemap) | 아니오 | `https://tools.yourdomain.com` |
 | `GEO_API_BASE` | IP Geo API 베이스 URL | 예 | `https://geo.yourdomain.com` |
-| `REDIS_URL` | Redis 연결 문자열 | 아니오 | `redis://localhost:6379` |
-| `REDIS_PREFIX` | Redis 키 프리픽스 | 아니오 | `tools-hub` |
+| `REDIS_URL` | Redis 연결 문자열 (캐시 사용 시 필수) | 아니오 | `redis://localhost:6379` |
+| `REDIS_PREFIX` | Redis 키 프리픽스 (캐시 사용 시 필수) | 아니오 | `tools-hub` |
 
 ### 개발 서버 실행
 

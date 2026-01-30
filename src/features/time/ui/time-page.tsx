@@ -1,6 +1,7 @@
 'use client'
 
 import { isNil } from 'lodash-es'
+import { useMemo } from 'react'
 
 import { Skeleton } from '@/components/ui/skeleton'
 import { Weather } from '@/features/time/components/weather'
@@ -12,16 +13,9 @@ import { useWeatherNowMany } from '../hook/use-weather-now'
 export default function TimePage() {
   const now = useSyncedNow()
 
-  const { data, regionList } = useWeatherNowMany([
-    'SEOUL',
-    'BUSAN',
-    // 'INCHEON',
-    // 'DAEGU',
-    'GWANGJU',
-    // 'DAEJEON',
-    // 'ULSAN',
-    'JEJU',
-  ])
+  const regions = useMemo(() => ['SEOUL', 'BUSAN', 'GWANGJU', 'JEJU'] as const, [])
+
+  const { data, regionList } = useWeatherNowMany([...regions])
 
   if (isNil(now)) {
     return (

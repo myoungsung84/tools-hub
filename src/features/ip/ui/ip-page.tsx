@@ -57,7 +57,7 @@ export default function IpPage() {
         <div className='flex w-full flex-col items-center gap-4 sm:gap-6'>
           <div className='text-xs text-muted-foreground sm:text-sm'>Your IP Address</div>
 
-          <div className='font-bold leading-none tracking-tight tabular-nums text-[clamp(50px,11vw,120px)]'>
+          <div className='font-bold leading-tight tracking-tight tabular-nums text-[clamp(32px,8vw,96px)] break-all text-center max-w-full'>
             {data.ip}
           </div>
 

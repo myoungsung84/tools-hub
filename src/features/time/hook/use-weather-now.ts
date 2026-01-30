@@ -98,9 +98,7 @@ export function useWeatherNowMany(regions: WeatherRegion[]) {
               .then(w => {
                 next[region] = w
               })
-              .catch(() => {
-                console.warn(`[useWeatherNowMany] fetch failed for region: ${region}`)
-              })
+              .catch(() => {})
           )
         }
 

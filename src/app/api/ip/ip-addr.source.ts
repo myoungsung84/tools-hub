@@ -1,3 +1,17 @@
+import { isNil } from 'lodash-es'
+
+import { ApiErrors } from '@/lib/server'
+
+type SourceInfo = {
+  key: 'mmdb-city' | 'mmdb-asn'
+  enabled: boolean
+  updatedAt: string | null
+  updatedText: string
+  builtAt: string | null
+  builtText: string
+  dbType: string | null
+}
+
 type IpAddrGeoResponse = {
   ip: string
   geo: {
@@ -14,10 +28,21 @@ type IpAddrGeoResponse = {
     asn: number | null
     org: string | null
   } | null
+  sources: SourceInfo[]
+}
+
+type ApiEnvelope<T> = {
+  ok: boolean
+  data?: T
   meta?: {
-    hasCityDb?: boolean
-    hasAsnDb?: boolean
-  } | null
+    respondedAt?: string
+    status?: number
+  }
+  error?: {
+    code?: string
+    message?: string
+    details?: unknown
+  }
 }
 
 const GEO_API_BASE = process.env.GEO_API_BASE ?? ''
@@ -26,25 +51,26 @@ export async function fetchIpAddrGeo(
   ip: string,
   signal?: AbortSignal
 ): Promise<IpAddrGeoResponse | null> {
-  if (!ip || ip === 'unknown') return null
+  if (isNil(ip) || ip === '' || ip === 'unknown') return null
 
   const res = await fetch(`${GEO_API_BASE}/geo?ip=${encodeURIComponent(ip)}`, {
     signal,
     headers: { accept: 'application/json' },
   })
 
-  if (!res.ok) throw new Error(`geo-api failed: ${res.status}`)
-
-  const json = (await res.json()) as {
-    ok: boolean
-    data?: IpAddrGeoResponse
-    meta?: { ts?: string }
-    error?: { message?: string }
+  if (!res.ok) {
+    throw ApiErrors.upstream(`geo-api bad response: ${res.status}`)
   }
+
+  const json = (await res.json()) as ApiEnvelope<IpAddrGeoResponse>
 
   if (!json.ok) {
-    throw new Error(json.error?.message ?? 'geo-api returned ok=false')
+    throw ApiErrors.upstream(
+      `geo-api error: ${json.error?.code ?? 'UNKNOWN'} - ${json.error?.message ?? ''}`
+    )
   }
 
-  return json.data ?? null
+  if (isNil(json.data)) return null
+
+  return json.data
 }

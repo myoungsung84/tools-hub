@@ -19,6 +19,7 @@ const fontMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'Tools Hub',
   description: 'Internal tools',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL!),
   other: {
     'google-site-verification': 'yNjgAXkPNLEvsdqMQZj5fmUCd408ueZe3JwN2XVNfKU',
   },

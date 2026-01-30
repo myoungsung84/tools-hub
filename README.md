@@ -7,13 +7,17 @@
 ### ⏰ 시간 도구 (Time)
 - 실시간 시계 표시 (12시간 형식)
 - 한국어 날짜 표시
-- 전국 주요 도시 날씨 정보 (서울, 부산, 인천, 대구, 광주, 대전, 울산, 제주)
+- 주요 도시 날씨 정보 (서울, 부산, 광주, 제주)
+
+### 🎯 살까 말까 결정 (Decide)
+- 룰렛으로 구매 결정을 도와주는 랜덤 결정기
+- 애니메이션/컨페티 효과 제공
 
 ### 🌍 IP 주소 조회 (IP)
 - 사용자 IP 주소 확인
 - User Agent 정보 표시
-- IP 위치 정보 조회 (국가, 도시, ISP)
-- TTL 캐싱으로 성능 최적화
+- IP 위치 정보 조회 (국가, 도시, ASN/ISP)
+- Redis TTL 캐싱으로 성능 최적화 (옵션)
 
 ## 🛠️ 기술 스택
 
@@ -26,6 +30,8 @@
 - **Theme**: next-themes (다크 모드 지원)
 - **Notifications**: Sonner
 - **Data Fetching**: SWR (stale-while-revalidate)
+- **Animation**: Framer Motion
+- **Date/Time**: dayjs
 
 ### Development Tools
 - **Linting**: ESLint 9
@@ -39,6 +45,11 @@
   - Popover, Scroll Area, Select, Separator
   - Slot, Switch, Tabs, Tooltip
 
+### Backend & Infra
+- **API Client**: undici
+- **Weather**: Open-Meteo
+- **Cache (Optional)**: Redis (ioredis)
+
 ## 📁 프로젝트 구조
 
 ```
@@ -46,6 +57,7 @@ tools-hub/
 ├── src/
 │   ├── app/                    # Next.js App Router
 │   │   ├── (tools)/           # 도구 그룹 라우팅
+│   │   │   ├── decide/        # 살까 말까 결정 페이지
 │   │   │   ├── ip/            # IP 주소 조회 페이지
 │   │   │   └── time/          # 시간 도구 페이지
 │   │   ├── api/               # API Routes
@@ -58,6 +70,7 @@ tools-hub/
 │   │   ├── layout/            # 레이아웃 컴포넌트
 │   │   └── ui/                # shadcn/ui 컴포넌트
 │   ├── features/              # 기능별 모듈
+│   │   ├── decide/            # 살까 말까 결정 기능
 │   │   ├── ip/                # IP 주소 관련 기능
 │   │   └── time/              # 시간 관련 기능
 │   │       ├── components/    # 시간 기능 컴포넌트
@@ -90,6 +103,17 @@ tools-hub/
 # 의존성 설치
 pnpm install
 ```
+
+### 환경 변수
+
+다음 환경 변수를 설정할 수 있습니다.
+
+| 변수 | 설명 | 필수 | 예시 |
+| --- | --- | --- | --- |
+| `NEXT_PUBLIC_SITE_URL` | 사이트 기본 URL (robots/sitemap) | 아니오 | `https://tools.yourdomain.com` |
+| `GEO_API_BASE` | IP Geo API 베이스 URL | 예 | `https://geo.yourdomain.com` |
+| `REDIS_URL` | Redis 연결 문자열 | 아니오 | `redis://localhost:6379` |
+| `REDIS_PREFIX` | Redis 키 프리픽스 | 아니오 | `tools-hub` |
 
 ### 개발 서버 실행
 

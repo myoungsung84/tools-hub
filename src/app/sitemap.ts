@@ -5,12 +5,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date()
 
   // ✅ 여기만 늘리면 됨 (툴 추가할 때)
-  const routes = ['/time', '/ip']
+  const routes = ['/time', '/ip', '/decide']
 
   return routes.map(path => ({
     url: `${baseUrl}${path}`,
     lastModified: now,
     changeFrequency: 'daily',
-    priority: path === '/time' ? 0.9 : 0.7,
+    priority: path === '/time' ? 0.9 : path === '/decide' ? 0.8 : 0.7,
   }))
 }

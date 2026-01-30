@@ -1,11 +1,6 @@
+import { fetchIpAddrGeo } from '@/app/api/ip/ip-addr.source'
 import { handleApi, success } from '@/lib/server'
-import {
-  isPrivateIp,
-  normalizeUserAgent,
-  pickClientIp,
-  pickCountry,
-  readUserAgent,
-} from '@/lib/server/ip-utils'
+import { isPrivateIp, normalizeUserAgent, pickClientIp, readUserAgent } from '@/lib/server/ip-utils'
 
 async function handler(req: Request) {
   const headers = req.headers
@@ -13,15 +8,16 @@ async function handler(req: Request) {
   const ip = pickClientIp(headers)
   const uaRaw = readUserAgent(headers)
   const ua = normalizeUserAgent(uaRaw)
-  const country = pickCountry(headers)
 
   const isPrivate = ip === 'unknown' ? false : isPrivateIp(ip)
+  const result = isPrivate ? null : await fetchIpAddrGeo(ip, req.signal)
 
   return success({
     ip,
     isPrivate,
-    country: country,
-    ua: ua,
+    geo: result?.geo ?? null,
+    asn: result?.asn ?? null,
+    ua,
   })
 }
 

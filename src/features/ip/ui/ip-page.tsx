@@ -38,11 +38,17 @@ export default function IpPage() {
   const asn = data.asn
 
   return (
-    <div className={wrapClass}>
-      <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px] -z-10 pointer-events-none' />
+    <div className={`${wrapClass} relative overflow-x-hidden`}>
+      <div
+        className='pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+                 w-[320px] sm:w-[500px]
+                 h-[320px] sm:h-[500px]
+                 bg-blue-500/10 rounded-full
+                 blur-[100px] sm:blur-[120px]
+                 -z-10'
+      />
 
       <div className='mx-auto flex w-full max-w-[800px] flex-col items-center gap-12'>
-        {/* Main IP Section */}
         <div className='flex flex-col items-center gap-4'>
           <div className='inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-medium border border-blue-500/20'>
             <Shield className='w-3.5 h-3.5' />
@@ -68,9 +74,7 @@ export default function IpPage() {
           </p>
         </div>
 
-        {/* Info Grid */}
         <div className='grid w-full gap-4 sm:grid-cols-2'>
-          {/* Location Card */}
           <InfoCard
             icon={<MapPin className='w-4 h-4 text-rose-400' />}
             title='Location'
@@ -79,7 +83,6 @@ export default function IpPage() {
             badge={`TZ: ${geo?.timezone ?? '-'}`}
           />
 
-          {/* Network/ASN Card */}
           <InfoCard
             icon={<Globe className='w-4 h-4 text-emerald-400' />}
             title='Network & ASN'
@@ -88,7 +91,6 @@ export default function IpPage() {
             badge={data.isPrivate ? 'Private' : 'Public Network'}
           />
 
-          {/* Browser/OS Card */}
           <InfoCard
             icon={<Monitor className='w-4 h-4 text-blue-400' />}
             title='Device & OS'
@@ -96,7 +98,6 @@ export default function IpPage() {
             sub={data.ua?.isMobile ? 'Mobile Device' : 'Desktop / Laptop'}
           />
 
-          {/* Hardware/Accuracy Card */}
           <InfoCard
             icon={<Cpu className='w-4 h-4 text-purple-400' />}
             title='Connection Detail'
@@ -104,8 +105,7 @@ export default function IpPage() {
             sub='Based on MaxMind / IP Data'
           />
 
-          {/* User Agent Raw - Full Width */}
-          <div className='sm:col-span-2 group relative overflow-hidden rounded-2xl border bg-neutral-900/40 p-5 text-left transition-all hover:bg-neutral-900/60'>
+          <div className='sm:col-span-2 group relative overflow-hidden rounded-2xl border bg-neutral-900/40 p-5 text-left transition-all sm:hover:bg-neutral-900/60'>
             <div className='flex items-center gap-2 mb-2'>
               <Info className='w-4 h-4 text-muted-foreground' />
               <span className='text-[11px] font-bold uppercase tracking-wider text-muted-foreground'>

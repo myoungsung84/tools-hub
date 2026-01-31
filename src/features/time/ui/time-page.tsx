@@ -37,9 +37,16 @@ export default function TimePage() {
   const dateLine = currentDate(now)
 
   return (
-    <div className='relative mx-auto flex w-full max-w-[1100px] flex-1 flex-col items-center justify-center gap-8 px-6 py-12 text-center'>
-      {/* Background Glow */}
-      <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-indigo-500/5 rounded-full blur-[120px] -z-10' />
+    <div className='relative mx-auto flex w-full max-w-[1100px] flex-1 flex-col items-center justify-center gap-8 px-6 py-12 text-center overflow-x-hidden'>
+      {/* Background Glow (mobile-safe) */}
+      <div
+        className='pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+                 w-[360px] sm:w-[600px]
+                 h-[260px] sm:h-[400px]
+                 bg-indigo-500/5 rounded-full
+                 blur-[100px] sm:blur-[120px]
+                 -z-10'
+      />
 
       {/* AM/PM Badge */}
       <div className='inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary/50 border border-border/50 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground backdrop-blur-md'>
@@ -67,26 +74,31 @@ export default function TimePage() {
           </span>
         </div>
 
-        {/* Decorative Divider */}
+        {/* Divider */}
         <div className='relative h-px w-full max-w-[600px]'>
           <div className='absolute inset-0 bg-gradient-to-r from-transparent via-border to-transparent' />
           <div className='absolute inset-0 bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent blur-sm' />
         </div>
       </div>
 
-      {/* Date Display */}
+      {/* Date */}
       <div className='flex items-center gap-2 text-sm font-medium text-muted-foreground/80 sm:text-base'>
         <CalendarDays className='w-4 h-4' />
         {dateLine}
       </div>
 
-      {/* Weather Dashboard Section */}
+      {/* Weather Dashboard */}
       <div className='mt-10 w-full max-w-[940px] animate-in fade-in slide-in-from-bottom-6 duration-1000'>
         <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'>
           {regionList.map(r => (
             <div
               key={r}
-              className='group relative overflow-hidden rounded-[22px] border border-white/[0.05] bg-neutral-950/20 p-0 transition-all duration-500 hover:border-white/20 hover:bg-neutral-900/40 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] hover:-translate-y-1.5'
+              className='group relative overflow-hidden rounded-[22px]
+                       border border-white/[0.05] bg-neutral-950/20
+                       p-0 transition-all duration-500
+                       sm:hover:border-white/20 sm:hover:bg-neutral-900/40
+                       sm:hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]
+                       sm:hover:-translate-y-1.5'
             >
               <div className='absolute inset-0 rounded-[22px] ring-1 ring-inset ring-white/[0.02] group-hover:ring-white/[0.1] transition-all' />
               <WeatherTalk weather={data[r] ?? null} />

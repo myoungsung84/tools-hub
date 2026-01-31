@@ -1,6 +1,6 @@
 'use client'
 
-import { Cat, Clock, Dice5, Globe, Menu } from 'lucide-react'
+import { Cat, Clock, Dice5, Globe, Menu, QrCode } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -25,6 +25,11 @@ const TOOLS_NAV = [
     href: '/ip',
     label: { ko: '나의 아이피', en: 'IP Address' },
     icon: Globe,
+  },
+  {
+    href: '/qr',
+    label: { ko: 'QR 코드', en: 'QR Code' },
+    icon: QrCode,
   },
   {
     href: '/decide',

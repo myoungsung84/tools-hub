@@ -4,8 +4,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
   const now = new Date()
 
-  // ✅ 여기만 늘리면 됨 (툴 추가할 때)
-  const routes = ['/time', '/ip', '/decide']
+  const routes = ['/time', '/ip', '/count', '/qr', '/decide']
 
   return routes.map(path => ({
     url: `${baseUrl}${path}`,

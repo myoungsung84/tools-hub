@@ -1,7 +1,17 @@
 'use client'
 
 import { debounce, isNil } from 'lodash-es'
-import { Check, Download, Info, Loader2, Palette, QrCode, RotateCcw, Square } from 'lucide-react'
+import {
+  AlertCircle,
+  Check,
+  Download,
+  Info,
+  Loader2,
+  Palette,
+  QrCode,
+  RotateCcw,
+  Square,
+} from 'lucide-react'
 import * as React from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -24,12 +34,20 @@ import {
   buildQrFileName,
   buildQrPngDataUrl,
   buildQrSvgText,
+  COLOR_PRESETS,
   downloadPng,
   downloadSvg,
   QR_SIZE_MAP,
   QrOptions,
   QrSize,
 } from '../lib/qr'
+
+// QR 코드 권장 최대 길이 (에러 보정 레벨 M 기준, 안전하게 스캔 가능한 범위)
+// Version 40 QR (최대): ~2953자 (숫자), ~1852자 (영문), ~1273자 (한글 포함 바이너리)
+// 하지만 실용성을 고려하면 500~800자 권장 (스캔 안정성 + 복잡도)
+const MAX_TEXT_LENGTH = 800
+// 경고 표시 임계값 (이 이상부터는 QR이 복잡해져 스캔 어려움)
+const WARNING_TEXT_LENGTH = 500
 
 const DEFAULTS: { text: string; options: QrOptions } = {
   text: '',
@@ -41,29 +59,6 @@ const DEFAULTS: { text: string; options: QrOptions } = {
     bgColor: '#ffffff',
   },
 }
-
-const COLOR_PRESETS: Array<{ name: string; fg: string; bg: string }> = [
-  { name: 'Classic', fg: '#000000', bg: '#ffffff' }, // 밝은
-  { name: 'Dark', fg: '#ffffff', bg: '#1e293b' }, // 어두운 (slate-800)
-  { name: 'Blue', fg: '#1e3a8a', bg: '#eff6ff' }, // 밝은 (blue-900 / blue-50)
-  { name: 'Navy', fg: '#f0f9ff', bg: '#0c4a6e' }, // 어두운 (sky-50 / sky-900)
-  { name: 'Red', fg: '#991b1b', bg: '#fef2f2' }, // 밝은 (red-800 / red-50)
-  { name: 'Crimson', fg: '#fef2f2', bg: '#7f1d1d' }, // 어두운 (red-50 / red-900)
-  { name: 'Green', fg: '#15803d', bg: '#f0fdf4' }, // 밝은 (green-700 / green-50)
-  { name: 'Forest', fg: '#ecfdf5', bg: '#064e3b' }, // 어두운 (emerald-50 / emerald-900)
-  { name: 'Purple', fg: '#6d28d9', bg: '#faf5ff' }, // 밝은 (violet-700 / violet-50)
-  { name: 'Plum', fg: '#f5f3ff', bg: '#4c1d95' }, // 어두운 (violet-50 / violet-900)
-  { name: 'Orange', fg: '#c2410c', bg: '#fff7ed' }, // 밝은 (orange-700 / orange-50)
-  { name: 'Bronze', fg: '#fffbeb', bg: '#78350f' }, // 어두운 (amber-50 / amber-900)
-  { name: 'Teal', fg: '#0f766e', bg: '#f0fdfa' }, // 밝은 (teal-700 / teal-50)
-  { name: 'Ocean', fg: '#ecfeff', bg: '#164e63' }, // 어두운 (cyan-50 / cyan-900)
-  { name: 'Pink', fg: '#be185d', bg: '#fdf2f8' }, // 밝은 (pink-700 / pink-50)
-  { name: 'Magenta', fg: '#fdf4ff', bg: '#701a75' }, // 어두운 (fuchsia-50 / fuchsia-900)
-  { name: 'Indigo', fg: '#4338ca', bg: '#eef2ff' }, // 밝은 (indigo-700 / indigo-50)
-  { name: 'Midnight', fg: '#e0e7ff', bg: '#312e81' }, // 어두운 (indigo-100 / indigo-900)
-  { name: 'Lime', fg: '#4d7c0f', bg: '#f7fee7' }, // 밝은 (lime-700 / lime-50)
-  { name: 'Slate', fg: '#f1f5f9', bg: '#0f172a' }, // 어두운 (slate-100 / slate-900)
-]
 
 function IconTip(props: { text: string }) {
   return (
@@ -92,6 +87,9 @@ export default function QrPage() {
 
   const trimmed = text.trim()
   const hasInput = trimmed.length > 0
+  const textLength = trimmed.length
+  const isTextTooLong = textLength > MAX_TEXT_LENGTH
+  const shouldShowWarning = textLength > WARNING_TEXT_LENGTH && textLength <= MAX_TEXT_LENGTH
 
   const updateOption = React.useCallback(
     <K extends keyof QrOptions>(key: K, value: QrOptions[K]) => {
@@ -114,6 +112,16 @@ export default function QrPage() {
       if (nextTrimmed.length === 0) {
         setPngDataUrl(null)
         setError(null)
+        setIsBuilding(false)
+        return
+      }
+
+      // 텍스트 길이 체크
+      if (nextTrimmed.length > MAX_TEXT_LENGTH) {
+        setPngDataUrl(null)
+        setError(
+          `텍스트가 너무 깁니다. 최대 ${MAX_TEXT_LENGTH.toLocaleString()}자까지 지원됩니다. (현재: ${nextTrimmed.length.toLocaleString()}자)`
+        )
         setIsBuilding(false)
         return
       }
@@ -143,7 +151,7 @@ export default function QrPage() {
   }, [text, options, buildPng])
 
   const canDownloadPng = !isNil(pngDataUrl) && pngDataUrl !== '' && !isBuilding && !error
-  const canDownloadSvg = hasInput && !error
+  const canDownloadSvg = hasInput && !error && !isTextTooLong
 
   const onDownloadPng = React.useCallback(async () => {
     if (!pngDataUrl) return
@@ -153,12 +161,12 @@ export default function QrPage() {
   }, [pngDataUrl])
 
   const onDownloadSvg = React.useCallback(async () => {
-    if (!hasInput) return
+    if (!hasInput || isTextTooLong) return
     const svg = await buildQrSvgText({ text: trimmed, opts: options })
     downloadSvg({ svgText: svg, filename: buildQrFileName({ ext: 'svg' }) })
     setJustDownloaded('svg')
     setTimeout(() => setJustDownloaded(null), 2000)
-  }, [hasInput, trimmed, options])
+  }, [hasInput, trimmed, options, isTextTooLong])
 
   const onReset = React.useCallback(() => {
     setText(DEFAULTS.text)
@@ -170,11 +178,12 @@ export default function QrPage() {
 
   const status = React.useMemo(() => {
     if (!hasInput) return { label: '입력 대기', dot: 'bg-muted-foreground/40' }
+    if (isTextTooLong) return { label: '텍스트 초과', dot: 'bg-destructive' }
     if (isBuilding) return { label: '생성 중...', dot: 'bg-primary animate-pulse' }
     if (pngDataUrl && !error) return { label: '준비 완료', dot: 'bg-green-500' }
     if (error) return { label: '오류', dot: 'bg-destructive' }
     return { label: '대기', dot: 'bg-muted-foreground/60' }
-  }, [hasInput, isBuilding, pngDataUrl, error])
+  }, [hasInput, isBuilding, pngDataUrl, error, isTextTooLong])
 
   return (
     <TooltipProvider>
@@ -206,11 +215,55 @@ export default function QrPage() {
                   value={text}
                   onChange={e => setText(e.target.value)}
                   placeholder='https://example.com'
-                  className='min-h-[120px] resize-none text-base transition-shadow focus-visible:shadow-sm'
+                  className={cn(
+                    'min-h-[120px] resize-none text-base transition-shadow focus-visible:shadow-sm',
+                    isTextTooLong && 'border-destructive focus-visible:ring-destructive'
+                  )}
                 />
-                <div className='mt-2 text-xs text-muted-foreground'>
-                  공백만 있으면 생성되지 않습니다. 너무 긴 텍스트는 스캔이 어려울 수 있어요.
+
+                {/* 텍스트 길이 표시 */}
+                <div className='mt-2 flex items-center justify-between'>
+                  <div className='text-xs text-muted-foreground'>
+                    공백만 있으면 생성되지 않습니다. 너무 긴 텍스트는 스캔이 어려울 수 있어요.
+                  </div>
+                  <div
+                    className={cn(
+                      'text-xs font-medium',
+                      isTextTooLong && 'text-destructive',
+                      shouldShowWarning && 'text-orange-500',
+                      !shouldShowWarning && !isTextTooLong && 'text-muted-foreground'
+                    )}
+                  >
+                    {textLength.toLocaleString()} / {MAX_TEXT_LENGTH.toLocaleString()}자
+                  </div>
                 </div>
+
+                {/* 경고 메시지 */}
+                {shouldShowWarning && (
+                  <div className='mt-3 flex items-start gap-2 rounded-lg border border-orange-200 bg-orange-50 p-3 text-sm text-orange-800 dark:border-orange-800 dark:bg-orange-950 dark:text-orange-200'>
+                    <AlertCircle className='h-4 w-4 flex-shrink-0 mt-0.5' />
+                    <div>
+                      <div className='font-medium'>텍스트가 깁니다</div>
+                      <div className='text-xs mt-1'>
+                        {MAX_TEXT_LENGTH - textLength}자 남았습니다. QR 코드가 복잡해져 스캔이
+                        어려울 수 있어요.
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 에러 메시지 */}
+                {isTextTooLong && (
+                  <div className='mt-3 flex items-start gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive'>
+                    <AlertCircle className='h-4 w-4 flex-shrink-0 mt-0.5' />
+                    <div>
+                      <div className='font-medium'>최대 길이 초과</div>
+                      <div className='text-xs mt-1'>
+                        텍스트를 {(textLength - MAX_TEXT_LENGTH).toLocaleString()}자 줄여주세요.
+                      </div>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -416,7 +469,7 @@ export default function QrPage() {
                   </Button>
                 </div>
 
-                {error ? (
+                {error && !isTextTooLong ? (
                   <div className='rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive'>
                     {error}
                   </div>

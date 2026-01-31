@@ -138,3 +138,22 @@ export function safeDivide(a: number, b: number, fallback: number | null = null)
   if (!isFinite(a) || !isFinite(b) || b === 0) return fallback
   return a / b
 }
+
+/**
+ * 숫자 값을 로케일 기준으로 포맷팅합니다.
+ * @param {number | string | null | undefined} value - 포맷팅할 값
+ * @param {string} [locale='ko-KR'] - 로케일 (기본값: ko-KR)
+ * @returns {string} 포맷팅된 문자열을 반환합니다.
+ */
+export function formatNumber(
+  value: number | string | null | undefined,
+  locale: string = 'ko-KR'
+): string {
+  if (value === null || value === undefined) return '0'
+
+  const num = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN
+
+  if (!Number.isFinite(num)) return '0'
+
+  return new Intl.NumberFormat(locale).format(num)
+}

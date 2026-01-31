@@ -1,4 +1,5 @@
 export * from '../client/cn'
 export * from './api-contract'
 export * from './datetime'
+export * from './number-utils'
 export * from './zod'

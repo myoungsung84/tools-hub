@@ -36,6 +36,7 @@ async function handler(req: Request) {
           updatedText: asnUpdatedText,
         },
     ua: {
+      raw: uaRaw,
       browser: ua.browser,
       os: ua.os,
       isMobile: ua.isMobile,

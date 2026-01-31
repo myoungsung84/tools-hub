@@ -1,6 +1,7 @@
 'use client'
 
 import { isNil } from 'lodash-es'
+import { Cpu, Globe, Info, MapPin, Monitor, Shield } from 'lucide-react'
 import useSWR from 'swr'
 
 import { Skeleton } from '@/components/ui/skeleton'
@@ -14,18 +15,20 @@ export default function IpPage() {
     { revalidateOnFocus: false, shouldRetryOnError: false }
   )
 
-  // ✅ 부모(main)의 남은 영역을 그대로 사용
   const wrapClass =
-    'mx-auto flex w-full max-w-[900px] flex-1 flex-col items-center justify-center px-4 text-center sm:px-6'
+    'relative mx-auto flex w-full max-w-[1000px] flex-1 flex-col items-center justify-center px-6 py-12 text-center'
 
   if (isLoading || error || isNil(data)) {
     return (
       <div className={wrapClass}>
-        <div className='w-full max-w-[640px] space-y-4'>
-          <Skeleton className='mx-auto h-10 w-48 sm:h-14 sm:w-72' />
-          <Skeleton className='mx-auto h-4 w-full max-w-[520px]' />
-          <Skeleton className='mx-auto h-4 w-full max-w-[480px]' />
-          <Skeleton className='mx-auto h-28 w-full max-w-[640px]' />
+        <div className='w-full max-w-[640px] space-y-6'>
+          <Skeleton className='mx-auto h-12 w-64 rounded-2xl' />
+          <Skeleton className='mx-auto h-24 w-full rounded-3xl' />
+          <div className='grid gap-4 sm:grid-cols-2 mt-8'>
+            {[1, 2, 3, 4].map(i => (
+              <Skeleton key={i} className='h-32 w-full rounded-2xl' />
+            ))}
+          </div>
         </div>
       </div>
     )
@@ -34,92 +37,126 @@ export default function IpPage() {
   const geo = data.geo
   const asn = data.asn
 
-  const countryLabel = geo ? `${geo.country}${geo.countryName ? ` · ${geo.countryName}` : ''}` : '-'
-
-  const locationLabel = geo ? [geo.region, geo.city].filter(Boolean).join(' · ') || '-' : '-'
-
-  const coordsLabel = geo ? `${geo.lat.toFixed(4)}, ${geo.lon.toFixed(4)}` : '-'
-  const tzLabel = geo?.timezone ?? '-'
-  const accLabel = geo?.accuracyRadiusKm != null ? `${geo.accuracyRadiusKm}km` : '-'
-
-  const browser = data.ua?.browser ?? 'Unknown'
-  const os = data.ua?.os ?? 'Unknown'
-  const isMobile = data.ua?.isMobile ?? false
-  const uaRaw = data.ua?.raw ?? '-'
-
-  const asnLabel = asn?.asn != null ? `AS${asn.asn}` : '-'
-  const orgLabel = asn?.org ?? '-'
-
   return (
     <div className={wrapClass}>
-      <div className='mx-auto flex w-full max-w-[640px] flex-col items-center gap-10 sm:gap-12'>
-        {/* IP */}
-        <div className='flex w-full flex-col items-center gap-4 sm:gap-6'>
-          <div className='text-xs text-muted-foreground sm:text-sm'>Your IP Address</div>
+      {/* Background Decor - 세련된 분위기를 위한 배경 효과 */}
+      <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px] -z-10 pointer-events-none' />
 
-          <div className='font-bold leading-tight tracking-tight tabular-nums text-[clamp(32px,8vw,96px)] break-all text-center max-w-full'>
+      <div className='mx-auto flex w-full max-w-[800px] flex-col items-center gap-12'>
+        {/* Main IP Section */}
+        <div className='flex flex-col items-center gap-4'>
+          <div className='inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-medium border border-blue-500/20'>
+            <Shield className='w-3.5 h-3.5' />
+            Your Public IP Address
+          </div>
+
+          <h1 className='font-black leading-none tracking-tight tabular-nums text-[clamp(40px,10vw,100px)] bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent break-all'>
             {data.ip}
-          </div>
+          </h1>
 
-          <div className='text-xs text-muted-foreground sm:text-sm'>
-            {geo ? `접속한 국가는 ${countryLabel} 입니다.` : '로컬/사설 IP 환경입니다.'}
-          </div>
+          <p className='text-sm text-muted-foreground font-medium'>
+            {geo ? (
+              <span className='flex items-center gap-1.5 justify-center'>
+                <Globe className='w-4 h-4' />
+                접속 위치:{' '}
+                <span className='text-foreground'>
+                  {geo.countryName} ({geo.country})
+                </span>
+              </span>
+            ) : (
+              '로컬/사설 IP 환경에서 접속 중입니다.'
+            )}
+          </p>
         </div>
 
-        {/* Detail card */}
-        <div className='w-full rounded-xl border bg-neutral-900/40 p-4 sm:p-6 text-left'>
-          <div className='flex flex-col gap-6'>
-            {/* Network */}
-            <div className='flex items-center gap-2'>
-              <div className='text-[11px] text-muted-foreground'>Network</div>
-              <span className='text-[11px] text-muted-foreground'>
-                {data.isPrivate ? 'Private' : 'Public'}
+        {/* Info Grid */}
+        <div className='grid w-full gap-4 sm:grid-cols-2'>
+          {/* Location Card */}
+          <InfoCard
+            icon={<MapPin className='w-4 h-4 text-rose-400' />}
+            title='Location'
+            main={`${geo?.region ?? '-'} · ${geo?.city ?? '-'}`}
+            sub={`Coordinates: ${geo?.lat?.toFixed(4) ?? '-'}, ${geo?.lon?.toFixed(4) ?? '-'}`}
+            badge={`TZ: ${geo?.timezone ?? '-'}`}
+          />
+
+          {/* Network/ASN Card */}
+          <InfoCard
+            icon={<Globe className='w-4 h-4 text-emerald-400' />}
+            title='Network & ASN'
+            main={asn?.org ?? 'Unknown Provider'}
+            sub={asn?.asn ? `AS${asn.asn}` : 'No ASN Info'}
+            badge={data.isPrivate ? 'Private' : 'Public Network'}
+          />
+
+          {/* Browser/OS Card */}
+          <InfoCard
+            icon={<Monitor className='w-4 h-4 text-blue-400' />}
+            title='Device & OS'
+            main={`${data.ua?.browser ?? 'Unknown'} on ${data.ua?.os ?? 'Unknown'}`}
+            sub={data.ua?.isMobile ? 'Mobile Device' : 'Desktop / Laptop'}
+          />
+
+          {/* Hardware/Accuracy Card */}
+          <InfoCard
+            icon={<Cpu className='w-4 h-4 text-purple-400' />}
+            title='Connection Detail'
+            main={`Accuracy: ${geo?.accuracyRadiusKm ?? '0'}km`}
+            sub='Based on MaxMind / IP Data'
+          />
+
+          {/* User Agent Raw - Full Width */}
+          <div className='sm:col-span-2 group relative overflow-hidden rounded-2xl border bg-neutral-900/40 p-5 text-left transition-all hover:bg-neutral-900/60'>
+            <div className='flex items-center gap-2 mb-2'>
+              <Info className='w-4 h-4 text-muted-foreground' />
+              <span className='text-[11px] font-bold uppercase tracking-wider text-muted-foreground'>
+                Raw User Agent
               </span>
             </div>
-
-            <div className='grid gap-6 sm:grid-cols-2'>
-              {/* Geo */}
-              <div className='flex flex-col gap-0.5'>
-                <div className='text-[11px] text-muted-foreground'>Geo</div>
-                <div className='text-sm'>{countryLabel}</div>
-                <div className='text-xs text-muted-foreground'>{locationLabel}</div>
-              </div>
-
-              {/* ASN */}
-              <div className='flex flex-col gap-0.5'>
-                <div className='text-[11px] text-muted-foreground'>ASN</div>
-                <div className='text-sm'>
-                  {asnLabel}
-                  {orgLabel !== '-' ? ` · ${orgLabel}` : ''}
-                </div>
-              </div>
-
-              {/* Coords */}
-              <div className='flex flex-col gap-0.5'>
-                <div className='text-[11px] text-muted-foreground'>Coordinates</div>
-                <div className='text-sm tabular-nums'>{coordsLabel}</div>
-                <div className='text-xs text-muted-foreground'>
-                  TZ {tzLabel} · Accuracy {accLabel}
-                </div>
-              </div>
-
-              {/* UA summary */}
-              <div className='flex flex-col gap-0.5'>
-                <div className='text-[11px] text-muted-foreground'>User Agent</div>
-                <div className='text-sm'>
-                  {browser} · {os}
-                  {isMobile ? ' · Mobile' : ''}
-                </div>
-              </div>
-
-              {/* UA raw */}
-              <div className='flex flex-col gap-0.5 sm:col-span-2'>
-                <div className='text-[11px] text-muted-foreground'>UA Raw</div>
-                <div className='break-words text-xs text-muted-foreground'>{uaRaw}</div>
-              </div>
-            </div>
+            <p className='break-all text-xs leading-relaxed text-muted-foreground/80 font-mono'>
+              {data.ua.raw ?? '-'}
+            </p>
           </div>
         </div>
+      </div>
+    </div>
+  )
+}
+
+/* Reusable Card Component */
+function InfoCard({
+  icon,
+  title,
+  main,
+  sub,
+  badge,
+}: {
+  icon: React.ReactNode
+  title: string
+  main: string
+  sub: string
+  badge?: string
+}) {
+  return (
+    <div className='group relative overflow-hidden rounded-2xl border bg-neutral-900/40 p-5 text-left transition-all hover:border-white/20 hover:bg-neutral-900/60'>
+      <div className='flex items-center justify-between mb-4'>
+        <div className='flex items-center gap-2'>
+          <div className='p-2 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors'>
+            {icon}
+          </div>
+          <span className='text-[11px] font-bold uppercase tracking-wider text-muted-foreground'>
+            {title}
+          </span>
+        </div>
+        {badge && (
+          <span className='text-[10px] px-2 py-0.5 rounded-md bg-white/5 text-muted-foreground'>
+            {badge}
+          </span>
+        )}
+      </div>
+      <div>
+        <div className='text-base font-semibold text-white/90 truncate'>{main}</div>
+        <div className='text-xs text-muted-foreground mt-1'>{sub}</div>
       </div>
     </div>
   )

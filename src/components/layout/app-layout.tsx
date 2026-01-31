@@ -163,7 +163,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </Sheet>
       </header>
 
-      <main className='flex flex-1 overflow-auto p-4'>{children}</main>
+      <main className='flex flex-1 justify-center'>
+        <div className='flex flex-1 max-w-[1100px] px-6 pt-12 pb-24'>{children}</div>
+      </main>
     </div>
   )
 }

@@ -75,14 +75,14 @@ export default function DecidePage() {
 
   if (!mounted) {
     return (
-      <div className='mx-auto flex max-w-4xl flex-col items-center justify-center px-2 py-2'>
+      <div className='flex flex-col items-center justify-center'>
         <div className='text-muted-foreground'>로딩 중...</div>
       </div>
     )
   }
 
   return (
-    <div className='relative mx-auto flex max-w-4xl flex-col items-center justify-center gap-6 px-2 py-2 text-center sm:gap-8 sm:py-12'>
+    <div className='relative w-full flex flex-col items-center justify-center gap-6 text-center sm:gap-8 sm:py-12'>
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}

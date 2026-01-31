@@ -15,8 +15,7 @@ export default function IpPage() {
     { revalidateOnFocus: false, shouldRetryOnError: false }
   )
 
-  const wrapClass =
-    'relative mx-auto flex w-full max-w-[1000px] flex-1 flex-col items-center justify-center px-6 py-12 text-center'
+  const wrapClass = 'w-full flex flex-1 flex-col items-center justify-center'
 
   if (isLoading || error || isNil(data)) {
     return (

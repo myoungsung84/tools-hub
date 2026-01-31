@@ -37,7 +37,7 @@ export default function TimePage() {
   const dateLine = currentDate(now)
 
   return (
-    <div className='relative mx-auto flex w-full max-w-[1100px] flex-1 flex-col items-center justify-center gap-8 px-6 py-12 text-center overflow-x-hidden'>
+    <div className='relative w-full flex flex-1 flex-col items-center justify-center gap-8'>
       {/* Background Glow (mobile-safe) */}
       <div
         className='pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2

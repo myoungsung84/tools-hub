@@ -4,6 +4,7 @@ import { debounce, isNil } from 'lodash-es'
 import { ClipboardPaste, Eraser, Type } from 'lucide-react'
 import * as React from 'react'
 
+import PageHeader from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
@@ -114,27 +115,14 @@ export default function TextCountPage() {
     showSelection && (result.selection?.from ?? 0) !== (result.selection?.to ?? 0)
 
   return (
-    <div className='mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-10'>
-      {/* header */}
-      <div className='flex items-start justify-between gap-4'>
-        <div className='space-y-2'>
-          <div className='flex items-center gap-2 text-sm text-zinc-400'>
-            <Type className='h-4 w-4 opacity-70' />
-            <span className='font-semibold tracking-wide'>TEXT COUNT</span>
-          </div>
+    <div className='flex w-full flex-col gap-6'>
+      <PageHeader
+        icon={Type}
+        kicker='글자수 세기'
+        title='텍스트를 쉽고 빠르게 분석하세요'
+        description='입력한 텍스트의 글자 수, 단어 수, 줄 수, 바이트 수를 즉시 계산합니다.'
+      />
 
-          <h1 className='text-3xl font-extrabold tracking-tight text-zinc-50 lg:text-4xl'>
-            글자수 세기
-          </h1>
-          <p className='max-w-2xl text-sm text-zinc-400 sm:text-base'>
-            입력한 텍스트의 <span className='font-medium text-zinc-200'>공백 포함/제외</span>,{' '}
-            <span className='font-medium text-zinc-200'>단어·줄</span>,{' '}
-            <span className='font-medium text-zinc-200'>UTF-8 바이트</span>를 즉시 계산합니다.
-          </p>
-        </div>
-      </div>
-
-      {/* ✅ lg에서 좌/우 컬럼 높이 동일 */}
       <div className='grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-stretch'>
         {/* left */}
         <Card className='h-full w-full border-zinc-800 bg-zinc-900/50'>

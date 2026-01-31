@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import * as React from 'react'
 
+import PageHeader from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -187,20 +188,13 @@ export default function QrPage() {
 
   return (
     <TooltipProvider>
-      <div className='mx-auto w-full max-w-6xl px-4 py-10'>
-        {/* Header */}
-        <div className='mb-8 flex flex-col gap-2'>
-          <div className='flex items-center gap-2 text-primary'>
-            <QrCode className='h-6 w-6' />
-            <span className='font-bold uppercase tracking-wider'>QR Generator</span>
-          </div>
-          <h1 className='text-3xl font-extrabold tracking-tight lg:text-4xl'>
-            나만의 QR 코드를 쉽고 빠르게.
-          </h1>
-          <p className='text-muted-foreground'>
-            URL이나 텍스트를 입력하고, 테마/색상/옵션을 조정해보세요.
-          </p>
-        </div>
+      <div>
+        <PageHeader
+          icon={QrCode}
+          kicker='QR 코드 생성기'
+          title='나만의 QR 코드를 쉽고 빠르게.'
+          description='URL이나 텍스트를 입력하고, 테마/색상/옵션을 조정해보세요.'
+        />
 
         <div className='grid gap-8 lg:grid-cols-12'>
           {/* Left: Settings */}

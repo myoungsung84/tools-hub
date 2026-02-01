@@ -1,15 +1,15 @@
 import type { MetadataRoute } from 'next'
 
+import { TOOLS_NAV } from '@/lib/constants/tools-nav'
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL!
   const now = new Date()
 
-  const routes = ['/time', '/ip', '/count', '/qr', '/decide']
-
-  return routes.map(path => ({
-    url: `${baseUrl}${path}`,
+  return TOOLS_NAV.map(item => ({
+    url: `${baseUrl}${item.href}`,
     lastModified: now,
     changeFrequency: 'daily',
-    priority: path === '/time' ? 0.9 : path === '/decide' ? 0.8 : 0.7,
+    priority: item.priority,
   }))
 }

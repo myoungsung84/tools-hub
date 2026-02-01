@@ -1,6 +1,6 @@
 'use client'
 
-import { CalendarDays, Cat, Clock, Dice5, Globe, Menu, QrCode, Type } from 'lucide-react'
+import { Cat, Menu } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -14,39 +14,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { cn } from '@/lib/client'
-
-const TOOLS_NAV = [
-  {
-    href: '/time',
-    label: { ko: '현재시간', en: 'Time' },
-    icon: Clock,
-  },
-  {
-    href: '/ip',
-    label: { ko: '나의 아이피', en: 'IP Address' },
-    icon: Globe,
-  },
-  {
-    href: '/count',
-    label: { ko: '글자수 세기', en: 'Text Count' },
-    icon: Type,
-  },
-  {
-    href: '/qr',
-    label: { ko: 'QR 코드', en: 'QR Code' },
-    icon: QrCode,
-  },
-  {
-    href: '/age',
-    label: { ko: '나이 계산기', en: 'Age Calculator' },
-    icon: CalendarDays,
-  },
-  {
-    href: '/decide',
-    label: { ko: '살까말까', en: 'Decide' },
-    icon: Dice5,
-  },
-] as const
+import { TOOLS_NAV } from '@/lib/constants/tools-nav'
 
 function getActiveLabel(pathname: string) {
   const hit = TOOLS_NAV.find(x => x.href === pathname)

@@ -9,6 +9,11 @@
 - 한국어 날짜 표시
 - 주요 도시 날씨 정보 (서울, 부산, 광주, 제주)
 
+### 🧮 나이 계산 (Age)
+- 만나이/한국나이 계산
+- 띠/간지 정보 제공
+- 음력/절기 기준 보정
+
 ### 🎯 살까 말까 결정 (Decide)
 - 룰렛으로 구매 결정을 도와주는 랜덤 결정기
 - 애니메이션/컨페티 효과 제공
@@ -18,6 +23,14 @@
 - User Agent 정보 표시
 - IP 위치 정보 조회 (국가, 도시, ASN/ISP)
 - Redis TTL 캐싱으로 성능 최적화 (캐시 사용 시 필수)
+
+### 🔤 글자 수 세기 (Count)
+- 텍스트 길이/단어 수 통계
+- 빠른 복사와 리셋
+
+### 🧩 QR 코드 (QR)
+- 입력 텍스트 기반 QR 생성
+- 다운로드 지원
 
 ## 🛠️ 기술 스택
 
@@ -32,6 +45,7 @@
 - **Data Fetching**: SWR (stale-while-revalidate)
 - **Animation**: Framer Motion
 - **Date/Time**: dayjs
+- **Calendar**: @fullstackfamily/manseryeok, korean-lunar-calendar
 
 ### Development Tools
 - **Linting**: ESLint 9
@@ -57,8 +71,11 @@ tools-hub/
 ├── src/
 │   ├── app/                    # Next.js App Router
 │   │   ├── (tools)/           # 도구 그룹 라우팅
+│   │   │   ├── age/           # 나이 계산 페이지
+│   │   │   ├── count/         # 글자 수 세기 페이지
 │   │   │   ├── decide/        # 살까 말까 결정 페이지
 │   │   │   ├── ip/            # IP 주소 조회 페이지
+│   │   │   ├── qr/            # QR 코드 페이지
 │   │   │   └── time/          # 시간 도구 페이지
 │   │   ├── api/               # API Routes
 │   │   │   ├── ip/            # IP 주소 API
@@ -70,6 +87,9 @@ tools-hub/
 │   │   ├── layout/            # 레이아웃 컴포넌트
 │   │   └── ui/                # shadcn/ui 컴포넌트
 │   ├── features/              # 기능별 모듈
+│   │   ├── age/               # 나이 계산 기능
+│   │   ├── text-count/        # 글자 수 세기 기능
+│   │   ├── qr/                # QR 코드 기능
 │   │   ├── decide/            # 살까 말까 결정 기능
 │   │   ├── ip/                # IP 주소 관련 기능
 │   │   └── time/              # 시간 관련 기능

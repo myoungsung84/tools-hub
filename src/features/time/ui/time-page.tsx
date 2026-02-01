@@ -8,8 +8,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useSyncedNow } from '@/features/time/hook/use-synced-now'
 import { clockParts, currentDate } from '@/lib/shared'
 
-import { WeatherTalk } from '../components/weather-talk'
 import { useWeatherNowMany } from '../hook/use-weather-now'
+import { WeatherTalk } from './components/weather-talk'
 
 export default function TimePage() {
   const now = useSyncedNow()

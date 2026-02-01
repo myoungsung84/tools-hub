@@ -1,6 +1,6 @@
 'use client'
 
-import { Cat, Clock, Dice5, Globe, Menu, QrCode, Type } from 'lucide-react'
+import { CalendarDays, Cat, Clock, Dice5, Globe, Menu, QrCode, Type } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -35,6 +35,11 @@ const TOOLS_NAV = [
     href: '/qr',
     label: { ko: 'QR 코드', en: 'QR Code' },
     icon: QrCode,
+  },
+  {
+    href: '/age',
+    label: { ko: '나이 계산기', en: 'Age Calculator' },
+    icon: CalendarDays,
   },
   {
     href: '/decide',

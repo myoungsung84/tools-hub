@@ -8,6 +8,16 @@ import { cn } from '@/lib/client'
 
 import type { ZodiacBasis } from '../../lib/schema/age.schema'
 
+const dateInputClass = cn(
+  'h-11 w-full rounded-md border border-border bg-background px-3 text-sm',
+  'focus:outline-none focus:ring-2 focus:ring-primary/40',
+  '[color-scheme:dark]',
+  'appearance-none',
+  '[&::-webkit-calendar-picker-indicator]:opacity-0',
+  '[&::-webkit-calendar-picker-indicator]:appearance-none',
+  'sm:[&::-webkit-calendar-picker-indicator]:opacity-100'
+)
+
 export default function AgeInputCard({
   birth,
   setBirth,
@@ -30,7 +40,7 @@ export default function AgeInputCard({
   return (
     <Card>
       <CardHeader>
-        <div className='flex items-start justify-between gap-4'>
+        <div className='flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4'>
           <div className='min-w-0 flex flex-col gap-1'>
             <CardTitle>입력</CardTitle>
             <CardDescription>생년월일과 기준일을 선택해주세요.</CardDescription>
@@ -40,8 +50,9 @@ export default function AgeInputCard({
             type='button'
             onClick={onReset}
             className={cn(
-              'inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm',
-              'bg-background hover:bg-muted/40 transition-colors'
+              'inline-flex w-full items-center justify-center gap-2 rounded-md border border-border px-3 py-2 text-sm',
+              'bg-background hover:bg-muted/40 transition-colors',
+              'whitespace-nowrap shrink-0 sm:w-auto'
             )}
           >
             <RotateCcw className='h-4 w-4' />
@@ -63,11 +74,7 @@ export default function AgeInputCard({
               onChange={e => setBirth(e.target.value)}
               min='1900-01-01'
               max='2100-12-31'
-              className={cn(
-                'h-11 w-full rounded-md border border-border bg-background px-3 text-sm',
-                'focus:outline-none focus:ring-2 focus:ring-primary/40',
-                '[color-scheme:dark]'
-              )}
+              className={dateInputClass}
             />
             <p className='text-xs text-muted-foreground'>언제 태어나셨나요?</p>
           </div>
@@ -83,18 +90,14 @@ export default function AgeInputCard({
               onChange={e => setAsOf(e.target.value)}
               min='1900-01-01'
               max='2100-12-31'
-              className={cn(
-                'h-11 w-full rounded-md border border-border bg-background px-3 text-sm',
-                'focus:outline-none focus:ring-2 focus:ring-primary/40',
-                '[color-scheme:dark]'
-              )}
+              className={dateInputClass}
             />
             <p className='text-xs text-muted-foreground'>언제 기준으로 계산할까요? (기본: 오늘)</p>
           </div>
         </div>
 
         <div className='flex flex-col gap-3'>
-          <div className='flex items-baseline justify-between gap-3'>
+          <div className='flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3'>
             <span className='text-sm font-medium'>🐉 띠 계산 기준</span>
             <span className='text-xs text-muted-foreground'>{basisLabel[zodiacBasis]}</span>
           </div>
@@ -115,6 +118,7 @@ export default function AgeInputCard({
                   onClick={() => setZodiacBasis(opt.value)}
                   className={cn(
                     'h-11 rounded-md border px-4 text-sm transition-colors text-left',
+                    'whitespace-nowrap',
                     active
                       ? 'border-primary/50 bg-primary/10'
                       : 'border-border bg-background hover:bg-muted/40'

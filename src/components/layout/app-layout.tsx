@@ -31,23 +31,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const activeLabel = getActiveLabel(pathname)
 
   return (
-    <div className='min-h-dvh flex flex-col'>
-      <header className='h-14 border-b px-4 sm:px-6 flex items-center gap-3'>
+    <div className='h-[100svh] overflow-hidden flex flex-col'>
+      <header className='h-14 shrink-0 border-b px-4 sm:px-6 flex items-center gap-3'>
         <Sheet>
-          {/* Left Trigger */}
           <SheetTrigger asChild>
             <button type='button' aria-label='Open menu' className={cn(headerIconBtn)}>
               <Menu className='h-4 w-4' />
             </button>
           </SheetTrigger>
 
-          {/* Logo */}
           <Link href='/' className='flex items-center gap-2 shrink-0'>
             <Image src='/logo.svg' alt='Tools Hub' width={18} height={18} priority />
             <span className='text-sm font-semibold'>Tools Hub</span>
           </Link>
 
-          {/* Current page label opens menu */}
           <SheetTrigger asChild>
             <button
               type='button'
@@ -64,7 +61,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
           <div className='ml-auto' />
 
-          {/* GitHub */}
           <a
             href='https://github.com/myoungsung84/tools-hub'
             target='_blank'
@@ -75,7 +71,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <Cat className='h-4 w-4' />
           </a>
 
-          {/* Drawer Content */}
           <SheetContent
             side='left'
             className='w-[280px]'
@@ -136,8 +131,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </Sheet>
       </header>
 
-      <main className='flex flex-1 justify-center'>
-        <div className='flex flex-1 max-w-[1100px] px-6 pt-12 pb-24'>{children}</div>
+      <main className='flex-1 overflow-y-auto [webkit-overflow-scrolling:touch]'>
+        <div className='mx-auto flex min-h-full w-full max-w-[1100px] px-6 pt-12 pb-24'>
+          <div className='flex w-full flex-1 flex-col'>{children}</div>
+        </div>
       </main>
     </div>
   )

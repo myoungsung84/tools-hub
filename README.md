@@ -45,7 +45,7 @@
 - **Data Fetching**: SWR (stale-while-revalidate)
 - **Animation**: Framer Motion
 - **Date/Time**: dayjs
-- **Calendar**: @fullstackfamily/manseryeok, korean-lunar-calendar
+- **Calendar**: manseryeok
 
 ### Development Tools
 - **Linting**: ESLint 9

@@ -18,7 +18,7 @@ function cacheKey(year: number, month: number) {
 export async function fetchCalendarAnniversariesExternal(params: {
   year: number
   month: number
-  revalidateSec: number
+  revalidateSec?: number
 }): Promise<ExternalAnniversaryItem[]> {
   const { year, month } = params
   const ttlSec = params.revalidateSec ?? 60 * 60 * 12

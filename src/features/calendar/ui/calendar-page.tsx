@@ -2,7 +2,7 @@
 
 import dayjs from 'dayjs'
 import { CalendarDays, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import PageHeader from '@/components/layout/page-header'
 import { Badge } from '@/components/ui/badge'
@@ -15,9 +15,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 
-import { BuiltinKrHolidayProvider } from '../lib/providers/holiday-provider'
+import {
+  CompositeHolidayProvider,
+  ExternalAnniversaryProvider,
+  ExternalPublicHolidayProvider,
+  ExternalSundryProvider,
+  type HolidayProvider,
+} from '../lib/providers/holiday-provider'
 import { buildCalendarMonthData } from '../lib/services/calendar-builder'
+import type { HolidayMap } from '../lib/types/calendar-holiday-api.types'
 
 const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'] as const
 
@@ -36,15 +44,60 @@ const YEAR_ITEMS = Array.from({ length: YEAR_MAX - YEAR_MIN + 1 }, (_, i) => {
 
 export default function CalendarPage() {
   const [cursor, setCursor] = useState(() => dayjs().startOf('month'))
+  const [showPublic, setShowPublic] = useState(true)
+  const [showAnniversary, setShowAnniversary] = useState(true)
+  const [showSundry, setShowSundry] = useState(true)
+  const [holidayMap, setHolidayMap] = useState<HolidayMap>({})
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const providers: HolidayProvider[] = []
+    if (showPublic) providers.push(new ExternalPublicHolidayProvider())
+    if (showAnniversary) providers.push(new ExternalAnniversaryProvider())
+    if (showSundry) providers.push(new ExternalSundryProvider())
+
+    const controller = new AbortController()
+    const composite = new CompositeHolidayProvider(providers)
+
+    const request =
+      providers.length === 0
+        ? Promise.resolve<HolidayMap>({})
+        : composite.getMonth({
+            year: cursor.year(),
+            month: cursor.month() + 1,
+            signal: controller.signal,
+          })
+
+    request
+      .then(next => {
+        if (!controller.signal.aborted) {
+          setHolidayMap(next)
+        }
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) {
+          setHolidayMap({})
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setIsLoading(false)
+        }
+      })
+
+    return () => {
+      controller.abort()
+    }
+  }, [cursor, showAnniversary, showPublic, showSundry])
 
   const calendar = useMemo(
     () =>
       buildCalendarMonthData({
         year: cursor.year(),
         month: cursor.month() + 1,
-        holidayProvider: new BuiltinKrHolidayProvider(),
+        holidayMap,
       }),
-    [cursor]
+    [cursor, holidayMap]
   )
 
   const yearValue = String(cursor.year())
@@ -56,21 +109,21 @@ export default function CalendarPage() {
         icon={CalendarDays}
         kicker='Calendar'
         title='양력·음력·절기·공휴일 캘린더'
-        description='월 이동과 모바일 대응이 가능한 기본 UX를 먼저 구성했습니다. 이후 외부 공휴일 API를 연결할 수 있습니다.'
+        description='월 이동과 모바일 대응이 가능한 기본 UX를 먼저 구성했습니다. 외부 API 공휴일/기념일/잡절을 선택적으로 합쳐 표시합니다.'
       />
 
       <Card>
         <CardHeader>
           <CardTitle>설계 요약</CardTitle>
           <CardDescription>
-            1) 날짜 그리드 생성, 2) 음력/절기 enrich, 3) 공휴일 provider 주입 순서로 확장합니다.
+            1) 날짜 그리드 생성, 2) 음력/절기 enrich, 3) 월 단위 holidayMap 주입으로 렌더링합니다.
           </CardDescription>
         </CardHeader>
         <CardContent className='grid gap-3 sm:grid-cols-2 lg:grid-cols-4'>
           <Badge variant='secondary'>dayjs: month/week grid</Badge>
           <Badge variant='secondary'>manseryeok: solar↔lunar</Badge>
           <Badge variant='secondary'>manseryeok: 24절기</Badge>
-          <Badge variant='secondary'>holiday provider: built-in + external</Badge>
+          <Badge variant='secondary'>holiday provider: composite merge</Badge>
         </CardContent>
       </Card>
 
@@ -86,9 +139,10 @@ export default function CalendarPage() {
               <div className='flex items-center gap-2'>
                 <Select
                   value={yearValue}
-                  onValueChange={value =>
+                  onValueChange={value => {
+                    setIsLoading(true)
                     setCursor(prev => prev.year(Number(value)).startOf('month'))
-                  }
+                  }}
                 >
                   <SelectTrigger className='h-9 w-[104px]'>
                     <SelectValue placeholder='년도' />
@@ -104,9 +158,10 @@ export default function CalendarPage() {
 
                 <Select
                   value={monthValue}
-                  onValueChange={value =>
+                  onValueChange={value => {
+                    setIsLoading(true)
                     setCursor(prev => prev.month(Number(value) - 1).startOf('month'))
-                  }
+                  }}
                 >
                   <SelectTrigger className='h-9 w-[88px]'>
                     <SelectValue placeholder='월' />
@@ -127,7 +182,10 @@ export default function CalendarPage() {
                   variant='outline'
                   size='icon'
                   aria-label='이전 달'
-                  onClick={() => setCursor(prev => prev.subtract(1, 'month'))}
+                  onClick={() => {
+                    setIsLoading(true)
+                    setCursor(prev => prev.subtract(1, 'month'))
+                  }}
                 >
                   <ChevronLeft className='h-4 w-4' />
                 </Button>
@@ -136,7 +194,10 @@ export default function CalendarPage() {
                   type='button'
                   variant='outline'
                   size='sm'
-                  onClick={() => setCursor(dayjs().startOf('month'))}
+                  onClick={() => {
+                    setIsLoading(true)
+                    setCursor(dayjs().startOf('month'))
+                  }}
                 >
                   오늘
                 </Button>
@@ -146,12 +207,49 @@ export default function CalendarPage() {
                   variant='outline'
                   size='icon'
                   aria-label='다음 달'
-                  onClick={() => setCursor(prev => prev.add(1, 'month'))}
+                  onClick={() => {
+                    setIsLoading(true)
+                    setCursor(prev => prev.add(1, 'month'))
+                  }}
                 >
                   <ChevronRight className='h-4 w-4' />
                 </Button>
               </div>
             </div>
+          </div>
+
+          <div className='flex flex-wrap items-center gap-4 text-sm'>
+            <label className='flex items-center gap-2'>
+              <Switch
+                checked={showPublic}
+                onCheckedChange={checked => {
+                  setIsLoading(true)
+                  setShowPublic(checked)
+                }}
+              />
+              <span>공휴일</span>
+            </label>
+            <label className='flex items-center gap-2'>
+              <Switch
+                checked={showAnniversary}
+                onCheckedChange={checked => {
+                  setIsLoading(true)
+                  setShowAnniversary(checked)
+                }}
+              />
+              <span>기념일</span>
+            </label>
+            <label className='flex items-center gap-2'>
+              <Switch
+                checked={showSundry}
+                onCheckedChange={checked => {
+                  setIsLoading(true)
+                  setShowSundry(checked)
+                }}
+              />
+              <span>잡절</span>
+            </label>
+            <span className='text-xs text-muted-foreground'>{isLoading ? '불러오는 중…' : '완료'}</span>
           </div>
 
           <CardDescription>
@@ -169,7 +267,10 @@ export default function CalendarPage() {
           </div>
 
           <div className='overflow-x-auto'>
-            <div className='grid min-w-[720px] grid-cols-7 gap-1 text-xs sm:gap-2 sm:text-sm'>
+            <div
+              className='grid min-w-[720px] grid-cols-7 gap-1 text-xs transition-opacity sm:gap-2 sm:text-sm'
+              style={{ opacity: isLoading ? 0.75 : 1 }}
+            >
               {calendar.weeks.flatMap(week =>
                 week.map(cell => (
                   <div
@@ -181,7 +282,7 @@ export default function CalendarPage() {
                     <div className='text-muted-foreground'>{cell.lunar?.label ?? '-'}</div>
                     {cell.solarTerm && <div className='text-blue-500'>{cell.solarTerm.name}</div>}
                     {cell.holidays.map(holiday => (
-                      <div key={`${cell.key}-${holiday.name}`} className='text-rose-500'>
+                      <div key={`${cell.key}-${holiday.name}-${holiday.kind}`} className='text-rose-500'>
                         {holiday.name}
                       </div>
                     ))}

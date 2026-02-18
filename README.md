@@ -1,40 +1,55 @@
 # 🛠️ Tools Hub
 
-개발자를 위한 유용한 도구 모음 웹 애플리케이션입니다.
+개발자를 위한 유용한 도구 모음 웹 애플리케이션입니다.  
+자주 쓰는 계산/조회 도구를 빠르게 실행하고, 결과를 한 화면에서 확인할 수 있도록 구성했습니다.
 
 ## ✨ 주요 기능
 
 ### ⏰ 시간 도구 (Time)
+
 - 실시간 시계 표시 (12시간 형식)
 - 한국어 날짜 표시
 - 주요 도시 날씨 정보 (서울, 부산, 광주, 제주)
 
 ### 🧮 나이 계산 (Age)
+
 - 만나이/한국나이 계산
 - 띠/간지 정보 제공
 - 음력/절기 기준 보정
 
+### 📅 달력 (Calendar)
+
+- 양력/음력/절기 정보를 한 화면에서 확인
+- 공휴일/기념일/잡절을 선택적으로 표시(스위치)
+- 월 이동(이전/다음/오늘) + 년/월 선택 지원
+- 모바일 대응 UI
+
 ### 🎯 살까 말까 결정 (Decide)
+
 - 룰렛으로 구매 결정을 도와주는 랜덤 결정기
 - 애니메이션/컨페티 효과 제공
 
 ### 🌍 IP 주소 조회 (IP)
+
 - 사용자 IP 주소 확인
 - User Agent 정보 표시
 - IP 위치 정보 조회 (국가, 도시, ASN/ISP)
-- Redis TTL 캐싱으로 성능 최적화 (캐시 사용 시 필수)
+- Redis TTL 캐싱으로 성능 최적화 (캐시 사용 시 권장)
 
 ### 🔤 글자 수 세기 (Count)
+
 - 텍스트 길이/단어 수 통계
 - 빠른 복사와 리셋
 
 ### 🧩 QR 코드 (QR)
+
 - 입력 텍스트 기반 QR 생성
 - 다운로드 지원
 
 ## 🛠️ 기술 스택
 
 ### Frontend
+
 - **Framework**: Next.js 16.1.4 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS 4.0
@@ -48,21 +63,25 @@
 - **Calendar**: manseryeok
 
 ### Development Tools
+
 - **Linting**: ESLint 9
-- **Code Quality**: 
+- **Code Quality**:
   - eslint-plugin-simple-import-sort
   - eslint-plugin-unused-imports
 
 ### UI Libraries
+
 - **Radix UI**: 접근성 중심의 UI 컴포넌트
   - Checkbox, Dropdown Menu, Label, Navigation Menu
   - Popover, Scroll Area, Select, Separator
   - Slot, Switch, Tabs, Tooltip
 
 ### Backend & Infra
+
 - **API Client**: undici
 - **Weather**: Open-Meteo
-- **Cache**: Redis (ioredis, 캐시 사용 시 필수)
+- **Calendar Holiday API**: apis.data.go.kr (공공데이터포털)
+- **Cache**: Redis (ioredis, 캐시 사용 시 권장)
 
 ## 📁 프로젝트 구조
 
@@ -72,14 +91,17 @@ tools-hub/
 │   ├── app/                    # Next.js App Router
 │   │   ├── (tools)/           # 도구 그룹 라우팅
 │   │   │   ├── age/           # 나이 계산 페이지
+│   │   │   ├── calendar/      # 캘린더 페이지
 │   │   │   ├── count/         # 글자 수 세기 페이지
 │   │   │   ├── decide/        # 살까 말까 결정 페이지
 │   │   │   ├── ip/            # IP 주소 조회 페이지
 │   │   │   ├── qr/            # QR 코드 페이지
 │   │   │   └── time/          # 시간 도구 페이지
 │   │   ├── api/               # API Routes
+│   │   │   ├── calendar/      # 캘린더(공휴일/기념일/잡절) API
 │   │   │   ├── ip/            # IP 주소 API
-│   │   │   └── weather/       # 날씨 API
+│   │   │   ├── weather/       # 날씨 API
+│   │   │   └── health/        # 헬스 체크
 │   │   ├── layout.tsx         # 루트 레이아웃
 │   │   ├── page.tsx           # 홈 페이지
 │   │   └── globals.css        # 전역 스타일
@@ -87,33 +109,24 @@ tools-hub/
 │   │   ├── layout/            # 레이아웃 컴포넌트
 │   │   └── ui/                # shadcn/ui 컴포넌트
 │   ├── features/              # 기능별 모듈
-│   │   ├── age/               # 나이 계산 기능
-│   │   ├── text-count/        # 글자 수 세기 기능
-│   │   ├── qr/                # QR 코드 기능
-│   │   ├── decide/            # 살까 말까 결정 기능
-│   │   ├── ip/                # IP 주소 관련 기능
-│   │   └── time/              # 시간 관련 기능
-│   │       ├── components/    # 시간 기능 컴포넌트
-│   │       ├── constants/     # 상수 정의
-│   │       ├── hook/          # 커스텀 훅
-│   │       ├── mappers/       # 데이터 매퍼
-│   │       ├── types/         # 타입 정의
-│   │       └── ui/            # UI 컴포넌트
+│   │   ├── age/
+│   │   ├── calendar/
+│   │   ├── decide/
+│   │   ├── ip/
+│   │   ├── qr/
+│   │   ├── text-count/
+│   │   └── time/
 │   ├── hooks/                 # 커스텀 훅
 │   └── lib/                   # 공통 유틸리티
-│       ├── client/            # 클라이언트 유틸리티
-│       ├── server/            # 서버 유틸리티
-│       │   ├── core/          # API 핸들러 코어
-│       │   ├── cache.ts       # TTL 캐시
-│       │   └── ip-utils.ts    # IP 유틸리티
-│       └── shared/            # 공유 유틸리티
-├── public/                    # 정적 파일
-└── components.json            # shadcn/ui 설정
+│       ├── client/
+│       ├── server/
+│       └── shared/
 ```
 
 ## 🚀 시작하기
 
 ### 필수 요구사항
+
 - Node.js 20 이상
 - pnpm 10.28.2 이상
 
@@ -128,12 +141,16 @@ pnpm install
 
 다음 환경 변수를 설정할 수 있습니다.
 
-| 변수 | 설명 | 필수 | 예시 |
-| --- | --- | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | 사이트 기본 URL (robots/sitemap) | 아니오 | `https://tools.yourdomain.com` |
-| `GEO_API_BASE` | IP Geo API 베이스 URL | 예 | `https://geo.yourdomain.com` |
-| `REDIS_URL` | Redis 연결 문자열 (캐시 사용 시 필수) | 아니오 | `redis://localhost:6379` |
-| `REDIS_PREFIX` | Redis 키 프리픽스 (캐시 사용 시 필수) | 아니오 | `tools-hub` |
+| 변수                   | 설명                                    | 필수               | 예시                           |
+| ---------------------- | --------------------------------------- | ------------------ | ------------------------------ |
+| `NEXT_PUBLIC_SITE_URL` | 사이트 기본 URL (robots/sitemap)        | 아니오             | `https://tools.yourdomain.com` |
+| `GEO_API_BASE`         | IP Geo API 베이스 URL                   | 예                 | `https://geo.yourdomain.com`   |
+| `PUBLIC_DATA_API_KEY`  | apis.data.go.kr 서비스키(캘린더/공휴일) | 예(캘린더 사용 시) | `...`                          |
+| `REDIS_URL`            | Redis 연결 문자열 (캐시 사용 시 권장)   | 아니오             | `redis://localhost:6379`       |
+| `REDIS_PREFIX`         | Redis 키 프리픽스 (캐시 사용 시 권장)   | 아니오             | `tools-hub`                    |
+
+> `PUBLIC_DATA_API_KEY`는 공공데이터포털(ap is.data.go.kr) 서비스키를 사용합니다.  
+> (운영 환경에서는 `.env.production` 또는 k8s ConfigMap/Secret로 주입하는 것을 권장)
 
 ### 개발 서버 실행
 
@@ -141,7 +158,7 @@ pnpm install
 pnpm dev
 ```
 
-브라우저에서 [http://localhost:3000](http://localhost:3000)을 열어 결과를 확인하세요.
+브라우저에서 http://localhost:3000 을 열어 확인하세요.
 
 ### 빌드
 
@@ -175,11 +192,11 @@ pnpm docker:run    # 컨테이너 실행
 pnpm docker:stop   # 컨테이너 중지
 ```
 
-컨테이너가 실행되면 [http://localhost:3000](http://localhost:3000)에서 접근할 수 있습니다.
+컨테이너가 실행되면 http://localhost:3000 에서 접근할 수 있습니다.
 
 ## 🎨 UI 컴포넌트
 
-이 프로젝트는 [shadcn/ui](https://ui.shadcn.com/)를 사용합니다. 새로운 컴포넌트를 추가하려면:
+이 프로젝트는 shadcn/ui를 사용합니다. 새로운 컴포넌트를 추가하려면:
 
 ```bash
 npx shadcn@latest add [component-name]

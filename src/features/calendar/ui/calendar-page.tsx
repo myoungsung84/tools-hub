@@ -5,9 +5,8 @@ import { CalendarDays, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 
 import PageHeader from '@/components/layout/page-header'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Select,
   SelectContent,
@@ -25,11 +24,12 @@ import {
   type HolidayProvider,
 } from '../lib/providers/holiday-provider'
 import { buildCalendarMonthData } from '../lib/services/calendar-builder'
-import type { HolidayMap } from '../lib/types/calendar-holiday-api.types'
+import type { CalendarDayCell } from '../lib/types/calendar.types'
+import type { HolidayKind, HolidayMap } from '../lib/types/calendar-holiday-api.types'
 
 const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'] as const
 
-const YEAR_MIN = 1950
+const YEAR_MIN = 2000
 const YEAR_MAX = 2100
 
 const MONTH_ITEMS = Array.from({ length: 12 }, (_, i) => {
@@ -42,6 +42,37 @@ const YEAR_ITEMS = Array.from({ length: YEAR_MAX - YEAR_MIN + 1 }, (_, i) => {
   return { value: String(year), label: String(year) }
 })
 
+function getDayNumberClass(colIndex: number, inCurrentMonth: boolean) {
+  if (!inCurrentMonth) return 'text-muted-foreground/40'
+  if (colIndex === 0) return 'text-rose-500'
+  if (colIndex === 6) return 'text-blue-500'
+  return ''
+}
+
+function getCellBgClass(cell: CalendarDayCell, colIndex: number) {
+  if (!cell.inCurrentMonth) return 'bg-muted/20'
+  const hasHoliday = cell.holidays.some(h => h.isHoliday)
+  if (hasHoliday) return 'bg-rose-500/5'
+  if (colIndex === 0) return 'bg-rose-500/[0.03]'
+  if (colIndex === 6) return 'bg-blue-500/[0.03]'
+  return 'bg-card/60'
+}
+
+function getHolidayClass(kind: HolidayKind) {
+  switch (kind) {
+    case 'public':
+      return 'text-rose-500 font-medium'
+    case 'anniversary':
+      return 'text-amber-500'
+    case 'sundry':
+      return 'text-muted-foreground'
+  }
+}
+
+function isTodayCell(cell: CalendarDayCell, todayKey: string) {
+  return cell.key === todayKey
+}
+
 export default function CalendarPage() {
   const [cursor, setCursor] = useState(() => dayjs().startOf('month'))
   const [showPublic, setShowPublic] = useState(true)
@@ -49,6 +80,8 @@ export default function CalendarPage() {
   const [showSundry, setShowSundry] = useState(true)
   const [holidayMap, setHolidayMap] = useState<HolidayMap>({})
   const [isLoading, setIsLoading] = useState(true)
+
+  const todayKey = dayjs().format('YYYY-MM-DD')
 
   useEffect(() => {
     const providers: HolidayProvider[] = []
@@ -109,23 +142,8 @@ export default function CalendarPage() {
         icon={CalendarDays}
         kicker='Calendar'
         title='양력·음력·절기·공휴일 캘린더'
-        description='월 이동과 모바일 대응이 가능한 기본 UX를 먼저 구성했습니다. 외부 API 공휴일/기념일/잡절을 선택적으로 합쳐 표시합니다.'
+        description='한 달의 날짜를 양력과 음력, 절기까지 함께 살펴볼 수 있습니다. 공휴일·기념일·잡절은 필요에 따라 선택해 표시할 수 있어요.'
       />
-
-      <Card>
-        <CardHeader>
-          <CardTitle>설계 요약</CardTitle>
-          <CardDescription>
-            1) 날짜 그리드 생성, 2) 음력/절기 enrich, 3) 월 단위 holidayMap 주입으로 렌더링합니다.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className='grid gap-3 sm:grid-cols-2 lg:grid-cols-4'>
-          <Badge variant='secondary'>dayjs: month/week grid</Badge>
-          <Badge variant='secondary'>manseryeok: solar↔lunar</Badge>
-          <Badge variant='secondary'>manseryeok: 24절기</Badge>
-          <Badge variant='secondary'>holiday provider: composite merge</Badge>
-        </CardContent>
-      </Card>
 
       <Card>
         <CardHeader className='gap-3'>
@@ -192,7 +210,7 @@ export default function CalendarPage() {
 
                 <Button
                   type='button'
-                  variant='outline'
+                  variant='secondary'
                   size='sm'
                   onClick={() => {
                     setIsLoading(true)
@@ -227,7 +245,10 @@ export default function CalendarPage() {
                   setShowPublic(checked)
                 }}
               />
-              <span>공휴일</span>
+              <span className='flex items-center gap-1.5'>
+                <span className='inline-block h-2 w-2 rounded-full bg-rose-500' />
+                공휴일
+              </span>
             </label>
             <label className='flex items-center gap-2'>
               <Switch
@@ -237,7 +258,10 @@ export default function CalendarPage() {
                   setShowAnniversary(checked)
                 }}
               />
-              <span>기념일</span>
+              <span className='flex items-center gap-1.5'>
+                <span className='inline-block h-2 w-2 rounded-full bg-amber-500' />
+                기념일
+              </span>
             </label>
             <label className='flex items-center gap-2'>
               <Switch
@@ -247,20 +271,26 @@ export default function CalendarPage() {
                   setShowSundry(checked)
                 }}
               />
-              <span>잡절</span>
+              <span className='flex items-center gap-1.5'>
+                <span className='inline-block h-2 w-2 rounded-full bg-muted-foreground/60' />
+                잡절
+              </span>
             </label>
-            <span className='text-xs text-muted-foreground'>{isLoading ? '불러오는 중…' : '완료'}</span>
+            <span className='text-xs text-muted-foreground'>
+              {isLoading ? '불러오는 중…' : '완료'}
+            </span>
           </div>
-
-          <CardDescription>
-            모바일에서는 좌우 스크롤이 가능하고, 각 셀에 음력/절기/공휴일을 함께 보여줍니다.
-          </CardDescription>
         </CardHeader>
 
         <CardContent className='space-y-2'>
-          <div className='grid grid-cols-7 gap-1 text-center text-xs font-medium text-muted-foreground sm:gap-2'>
-            {WEEKDAY_LABELS.map(label => (
-              <div key={label} className='py-1'>
+          <div className='grid grid-cols-7 gap-1 text-center text-xs font-medium sm:gap-2'>
+            {WEEKDAY_LABELS.map((label, i) => (
+              <div
+                key={label}
+                className={`py-1 ${
+                  i === 0 ? 'text-rose-500' : i === 6 ? 'text-blue-500' : 'text-muted-foreground'
+                }`}
+              >
                 {label}
               </div>
             ))}
@@ -271,23 +301,47 @@ export default function CalendarPage() {
               className='grid min-w-[720px] grid-cols-7 gap-1 text-xs transition-opacity sm:gap-2 sm:text-sm'
               style={{ opacity: isLoading ? 0.75 : 1 }}
             >
-              {calendar.weeks.flatMap(week =>
-                week.map(cell => (
-                  <div
-                    key={cell.key}
-                    className='rounded-md border p-2 min-h-24 sm:min-h-28 flex flex-col gap-1 bg-card/60'
-                    style={{ opacity: cell.inCurrentMonth ? 1 : 0.45 }}
-                  >
-                    <div className='font-semibold'>{cell.day}</div>
-                    <div className='text-muted-foreground'>{cell.lunar?.label ?? '-'}</div>
-                    {cell.solarTerm && <div className='text-blue-500'>{cell.solarTerm.name}</div>}
-                    {cell.holidays.map(holiday => (
-                      <div key={`${cell.key}-${holiday.name}-${holiday.kind}`} className='text-rose-500'>
-                        {holiday.name}
+              {calendar.weeks.flatMap((week, _wi) =>
+                week.map((cell, di) => {
+                  const colIndex = di % 7
+                  const isToday = isTodayCell(cell, todayKey)
+
+                  return (
+                    <div
+                      key={cell.key}
+                      className={`rounded-md border p-2 min-h-24 sm:min-h-28 flex flex-col gap-1 ${getCellBgClass(
+                        cell,
+                        colIndex
+                      )}`}
+                      style={{ opacity: cell.inCurrentMonth ? 1 : 0.45 }}
+                    >
+                      <div className='flex items-start justify-between gap-2'>
+                        <div
+                          className={`font-semibold ${getDayNumberClass(colIndex, cell.inCurrentMonth)}`}
+                        >
+                          {cell.day}
+                        </div>
+
+                        {isToday && (
+                          <span className='text-[10px] leading-none px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium'>
+                            오늘
+                          </span>
+                        )}
                       </div>
-                    ))}
-                  </div>
-                ))
+
+                      <div className='text-muted-foreground'>{cell.lunar?.label ?? '-'}</div>
+                      {cell.solarTerm && <div className='text-blue-500'>{cell.solarTerm.name}</div>}
+                      {cell.holidays.map(holiday => (
+                        <div
+                          key={`${cell.key}-${holiday.name}-${holiday.kind}`}
+                          className={getHolidayClass(holiday.kind)}
+                        >
+                          {holiday.name}
+                        </div>
+                      ))}
+                    </div>
+                  )
+                })
               )}
             </div>
           </div>

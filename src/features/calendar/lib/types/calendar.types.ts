@@ -1,21 +1,6 @@
+import type { HolidayItem } from './calendar-holiday-api.types'
+
 export type CalendarSystem = 'solar' | 'lunar'
-
-export type HolidayRuleType = 'fixed-solar' | 'fixed-lunar'
-
-export type HolidaySource = 'builtin' | 'external'
-
-export interface HolidayRule {
-  name: string
-  type: HolidayRuleType
-  month: number
-  day: number
-  substitute?: boolean
-}
-
-export interface CalendarHoliday {
-  name: string
-  source: HolidaySource
-}
 
 export interface SolarTermItem {
   name: string
@@ -40,7 +25,7 @@ export interface CalendarDayCell {
   inCurrentMonth: boolean
   lunar: LunarDateInfo | null
   solarTerm: SolarTermItem | null
-  holidays: CalendarHoliday[]
+  holidays: HolidayItem[]
 }
 
 export interface CalendarMonthData {

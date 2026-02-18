@@ -1,39 +1,86 @@
-import dayjs from 'dayjs'
+import { apiGet } from '@/lib/client/api-client'
 
-import type { CalendarHoliday, HolidayRule } from '../types/calendar.types'
-
-const BUILTIN_KR_HOLIDAYS: HolidayRule[] = [
-  { name: '신정', type: 'fixed-solar', month: 1, day: 1 },
-  { name: '삼일절', type: 'fixed-solar', month: 3, day: 1 },
-  { name: '어린이날', type: 'fixed-solar', month: 5, day: 5, substitute: true },
-  { name: '현충일', type: 'fixed-solar', month: 6, day: 6 },
-  { name: '광복절', type: 'fixed-solar', month: 8, day: 15 },
-  { name: '개천절', type: 'fixed-solar', month: 10, day: 3 },
-  { name: '한글날', type: 'fixed-solar', month: 10, day: 9 },
-  { name: '성탄절', type: 'fixed-solar', month: 12, day: 25 },
-  { name: '설날', type: 'fixed-lunar', month: 1, day: 1 },
-  { name: '부처님오신날', type: 'fixed-lunar', month: 4, day: 8 },
-  { name: '추석', type: 'fixed-lunar', month: 8, day: 15 },
-]
+import type {
+  CalendarHolidaysApiResponse,
+  HolidayMap,
+} from '../types/calendar-holiday-api.types'
 
 export interface HolidayProvider {
-  getHolidaysByDate(params: { solarDate: string; lunarMonth?: number; lunarDay?: number }): CalendarHoliday[]
+  getMonth(params: { year: number; month: number; signal?: AbortSignal }): Promise<HolidayMap>
 }
 
-export class BuiltinKrHolidayProvider implements HolidayProvider {
-  getHolidaysByDate(params: {
-    solarDate: string
-    lunarMonth?: number
-    lunarDay?: number
-  }): CalendarHoliday[] {
-    const solar = dayjs(params.solarDate)
+async function fetchHolidayMap(params: {
+  path: '/api/calendar/holidays' | '/api/calendar/anniversaries' | '/api/calendar/sundry'
+  year: number
+  month: number
+  signal?: AbortSignal
+}): Promise<HolidayMap> {
+  const data = await apiGet<CalendarHolidaysApiResponse>({
+    path: params.path,
+    query: { year: params.year, month: params.month },
+    signal: params.signal,
+  })
 
-    return BUILTIN_KR_HOLIDAYS.filter(rule => {
-      if (rule.type === 'fixed-solar') {
-        return solar.month() + 1 === rule.month && solar.date() === rule.day
+  return data.holidays ?? {}
+}
+
+export class ExternalPublicHolidayProvider implements HolidayProvider {
+  getMonth(params: { year: number; month: number; signal?: AbortSignal }): Promise<HolidayMap> {
+    return fetchHolidayMap({
+      path: '/api/calendar/holidays',
+      year: params.year,
+      month: params.month,
+      signal: params.signal,
+    })
+  }
+}
+
+export class ExternalAnniversaryProvider implements HolidayProvider {
+  getMonth(params: { year: number; month: number; signal?: AbortSignal }): Promise<HolidayMap> {
+    return fetchHolidayMap({
+      path: '/api/calendar/anniversaries',
+      year: params.year,
+      month: params.month,
+      signal: params.signal,
+    })
+  }
+}
+
+export class ExternalSundryProvider implements HolidayProvider {
+  getMonth(params: { year: number; month: number; signal?: AbortSignal }): Promise<HolidayMap> {
+    return fetchHolidayMap({
+      path: '/api/calendar/sundry',
+      year: params.year,
+      month: params.month,
+      signal: params.signal,
+    })
+  }
+}
+
+export class CompositeHolidayProvider implements HolidayProvider {
+  constructor(private readonly providers: HolidayProvider[]) {}
+
+  async getMonth(params: { year: number; month: number; signal?: AbortSignal }): Promise<HolidayMap> {
+    const maps = await Promise.all(this.providers.map(provider => provider.getMonth(params)))
+    const merged: HolidayMap = {}
+
+    for (const holidayMap of maps) {
+      for (const [date, items] of Object.entries(holidayMap)) {
+        const out = (merged[date] ??= [])
+
+        for (const item of items) {
+          const exists = out.some(
+            current =>
+              current.date === item.date &&
+              current.name === item.name &&
+              current.kind === item.kind &&
+              current.source === item.source
+          )
+          if (!exists) out.push(item)
+        }
       }
+    }
 
-      return params.lunarMonth === rule.month && params.lunarDay === rule.day
-    }).map(rule => ({ name: rule.name, source: 'builtin' as const }))
+    return merged
   }
 }

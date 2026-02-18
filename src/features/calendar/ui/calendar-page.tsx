@@ -8,11 +8,31 @@ import PageHeader from '@/components/layout/page-header'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 import { BuiltinKrHolidayProvider } from '../lib/providers/holiday-provider'
 import { buildCalendarMonthData } from '../lib/services/calendar-builder'
 
 const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'] as const
+
+const YEAR_MIN = 1950
+const YEAR_MAX = 2100
+
+const MONTH_ITEMS = Array.from({ length: 12 }, (_, i) => {
+  const month = i + 1
+  return { value: String(month), label: String(month).padStart(2, '0') }
+})
+
+const YEAR_ITEMS = Array.from({ length: YEAR_MAX - YEAR_MIN + 1 }, (_, i) => {
+  const year = YEAR_MIN + i
+  return { value: String(year), label: String(year) }
+})
 
 export default function CalendarPage() {
   const [cursor, setCursor] = useState(() => dayjs().startOf('month'))
@@ -26,6 +46,9 @@ export default function CalendarPage() {
       }),
     [cursor]
   )
+
+  const yearValue = String(cursor.year())
+  const monthValue = String(cursor.month() + 1)
 
   return (
     <div className='w-full flex flex-col gap-6'>
@@ -53,42 +76,87 @@ export default function CalendarPage() {
 
       <Card>
         <CardHeader className='gap-3'>
-          <div className='flex items-center justify-between gap-2'>
+          <div className='flex items-center justify-between gap-3'>
             <CardTitle className='flex items-center gap-2 text-base sm:text-lg'>
               <Sparkles className='h-4 w-4 text-primary' />
               {calendar.year}.{String(calendar.month).padStart(2, '0')}
             </CardTitle>
 
-            <div className='flex items-center gap-1'>
-              <Button
-                type='button'
-                variant='outline'
-                size='icon'
-                aria-label='이전 달'
-                onClick={() => setCursor(prev => prev.subtract(1, 'month'))}
-              >
-                <ChevronLeft className='h-4 w-4' />
-              </Button>
-              <Button
-                type='button'
-                variant='outline'
-                size='sm'
-                onClick={() => setCursor(dayjs().startOf('month'))}
-              >
-                오늘
-              </Button>
-              <Button
-                type='button'
-                variant='outline'
-                size='icon'
-                aria-label='다음 달'
-                onClick={() => setCursor(prev => prev.add(1, 'month'))}
-              >
-                <ChevronRight className='h-4 w-4' />
-              </Button>
+            <div className='flex flex-wrap items-center justify-end gap-2'>
+              <div className='flex items-center gap-2'>
+                <Select
+                  value={yearValue}
+                  onValueChange={value =>
+                    setCursor(prev => prev.year(Number(value)).startOf('month'))
+                  }
+                >
+                  <SelectTrigger className='h-9 w-[104px]'>
+                    <SelectValue placeholder='년도' />
+                  </SelectTrigger>
+                  <SelectContent className='max-h-[320px]'>
+                    {YEAR_ITEMS.map(item => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}년
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select
+                  value={monthValue}
+                  onValueChange={value =>
+                    setCursor(prev => prev.month(Number(value) - 1).startOf('month'))
+                  }
+                >
+                  <SelectTrigger className='h-9 w-[88px]'>
+                    <SelectValue placeholder='월' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {MONTH_ITEMS.map(item => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}월
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className='flex items-center gap-1'>
+                <Button
+                  type='button'
+                  variant='outline'
+                  size='icon'
+                  aria-label='이전 달'
+                  onClick={() => setCursor(prev => prev.subtract(1, 'month'))}
+                >
+                  <ChevronLeft className='h-4 w-4' />
+                </Button>
+
+                <Button
+                  type='button'
+                  variant='outline'
+                  size='sm'
+                  onClick={() => setCursor(dayjs().startOf('month'))}
+                >
+                  오늘
+                </Button>
+
+                <Button
+                  type='button'
+                  variant='outline'
+                  size='icon'
+                  aria-label='다음 달'
+                  onClick={() => setCursor(prev => prev.add(1, 'month'))}
+                >
+                  <ChevronRight className='h-4 w-4' />
+                </Button>
+              </div>
             </div>
           </div>
-          <CardDescription>모바일에서는 좌우 스크롤이 가능하고, 각 셀에 음력/절기/공휴일을 함께 보여줍니다.</CardDescription>
+
+          <CardDescription>
+            모바일에서는 좌우 스크롤이 가능하고, 각 셀에 음력/절기/공휴일을 함께 보여줍니다.
+          </CardDescription>
         </CardHeader>
 
         <CardContent className='space-y-2'>

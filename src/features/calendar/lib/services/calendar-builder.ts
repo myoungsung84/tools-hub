@@ -1,4 +1,8 @@
-import { getSolarTermsByYear, type SolarTermWithDate,solarToLunar } from '@fullstackfamily/manseryeok'
+import {
+  getSolarTermsByYear,
+  type SolarTermWithDate,
+  solarToLunar,
+} from '@fullstackfamily/manseryeok'
 import dayjs from 'dayjs'
 
 import type { HolidayProvider } from '../providers/holiday-provider'
@@ -9,6 +13,9 @@ function formatDateKey(year: number, month: number, day: number) {
 }
 
 function toSolarTermMap(year: number) {
+  if (year < 2020 || year > 2030) {
+    return new Map<string, SolarTermItem>()
+  }
   const items = getSolarTermsByYear(year)
   const map = new Map<string, SolarTermItem>()
 
@@ -27,7 +34,12 @@ function toSolarTermMap(year: number) {
   return map
 }
 
-function toCell(cursor: dayjs.Dayjs, month: number, termMap: Map<string, SolarTermItem>, provider: HolidayProvider) {
+function toCell(
+  cursor: dayjs.Dayjs,
+  month: number,
+  termMap: Map<string, SolarTermItem>,
+  provider: HolidayProvider
+) {
   const solarDate = cursor.format('YYYY-MM-DD')
 
   try {

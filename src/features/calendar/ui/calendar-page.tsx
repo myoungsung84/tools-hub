@@ -1,27 +1,30 @@
 'use client'
 
 import dayjs from 'dayjs'
-import { CalendarDays, Sparkles } from 'lucide-react'
-import { useMemo } from 'react'
+import { CalendarDays, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react'
+import { useMemo, useState } from 'react'
 
 import PageHeader from '@/components/layout/page-header'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 import { BuiltinKrHolidayProvider } from '../lib/providers/holiday-provider'
 import { buildCalendarMonthData } from '../lib/services/calendar-builder'
 
+const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'] as const
+
 export default function CalendarPage() {
-  const today = dayjs()
+  const [cursor, setCursor] = useState(() => dayjs().startOf('month'))
 
   const calendar = useMemo(
     () =>
       buildCalendarMonthData({
-        year: today.year(),
-        month: today.month() + 1,
+        year: cursor.year(),
+        month: cursor.month() + 1,
         holidayProvider: new BuiltinKrHolidayProvider(),
       }),
-    [today]
+    [cursor]
   )
 
   return (
@@ -29,8 +32,8 @@ export default function CalendarPage() {
       <PageHeader
         icon={CalendarDays}
         kicker='Calendar'
-        title='양력·음력·절기·공휴일 캘린더 구조'
-        description='먼저 구조를 분리해서 만들고, 이후 외부 공휴일 API 연동을 붙일 수 있게 설계했습니다.'
+        title='양력·음력·절기·공휴일 캘린더'
+        description='월 이동과 모바일 대응이 가능한 기본 UX를 먼저 구성했습니다. 이후 외부 공휴일 API를 연결할 수 있습니다.'
       />
 
       <Card>
@@ -49,32 +52,76 @@ export default function CalendarPage() {
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle className='flex items-center gap-2'>
-            <Sparkles className='h-4 w-4 text-primary' />
-            이번 달 미리보기 ({calendar.year}.{String(calendar.month).padStart(2, '0')})
-          </CardTitle>
-          <CardDescription>각 날짜 셀에 음력/절기/공휴일 정보를 같이 포함합니다.</CardDescription>
-        </CardHeader>
-        <CardContent className='grid grid-cols-7 gap-2 text-xs sm:text-sm'>
-          {calendar.weeks.flatMap(week =>
-            week.map(cell => (
-              <div
-                key={cell.key}
-                className='rounded-md border p-2 min-h-24 flex flex-col gap-1 bg-card/60'
-                style={{ opacity: cell.inCurrentMonth ? 1 : 0.45 }}
+        <CardHeader className='gap-3'>
+          <div className='flex items-center justify-between gap-2'>
+            <CardTitle className='flex items-center gap-2 text-base sm:text-lg'>
+              <Sparkles className='h-4 w-4 text-primary' />
+              {calendar.year}.{String(calendar.month).padStart(2, '0')}
+            </CardTitle>
+
+            <div className='flex items-center gap-1'>
+              <Button
+                type='button'
+                variant='outline'
+                size='icon'
+                aria-label='이전 달'
+                onClick={() => setCursor(prev => prev.subtract(1, 'month'))}
               >
-                <div className='font-semibold'>{cell.day}</div>
-                <div className='text-muted-foreground'>{cell.lunar?.label ?? '-'}</div>
-                {cell.solarTerm && <div className='text-blue-500'>{cell.solarTerm.name}</div>}
-                {cell.holidays.map(holiday => (
-                  <div key={`${cell.key}-${holiday.name}`} className='text-rose-500'>
-                    {holiday.name}
-                  </div>
-                ))}
+                <ChevronLeft className='h-4 w-4' />
+              </Button>
+              <Button
+                type='button'
+                variant='outline'
+                size='sm'
+                onClick={() => setCursor(dayjs().startOf('month'))}
+              >
+                오늘
+              </Button>
+              <Button
+                type='button'
+                variant='outline'
+                size='icon'
+                aria-label='다음 달'
+                onClick={() => setCursor(prev => prev.add(1, 'month'))}
+              >
+                <ChevronRight className='h-4 w-4' />
+              </Button>
+            </div>
+          </div>
+          <CardDescription>모바일에서는 좌우 스크롤이 가능하고, 각 셀에 음력/절기/공휴일을 함께 보여줍니다.</CardDescription>
+        </CardHeader>
+
+        <CardContent className='space-y-2'>
+          <div className='grid grid-cols-7 gap-1 text-center text-xs font-medium text-muted-foreground sm:gap-2'>
+            {WEEKDAY_LABELS.map(label => (
+              <div key={label} className='py-1'>
+                {label}
               </div>
-            ))
-          )}
+            ))}
+          </div>
+
+          <div className='overflow-x-auto'>
+            <div className='grid min-w-[720px] grid-cols-7 gap-1 text-xs sm:gap-2 sm:text-sm'>
+              {calendar.weeks.flatMap(week =>
+                week.map(cell => (
+                  <div
+                    key={cell.key}
+                    className='rounded-md border p-2 min-h-24 sm:min-h-28 flex flex-col gap-1 bg-card/60'
+                    style={{ opacity: cell.inCurrentMonth ? 1 : 0.45 }}
+                  >
+                    <div className='font-semibold'>{cell.day}</div>
+                    <div className='text-muted-foreground'>{cell.lunar?.label ?? '-'}</div>
+                    {cell.solarTerm && <div className='text-blue-500'>{cell.solarTerm.name}</div>}
+                    {cell.holidays.map(holiday => (
+                      <div key={`${cell.key}-${holiday.name}`} className='text-rose-500'>
+                        {holiday.name}
+                      </div>
+                    ))}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>

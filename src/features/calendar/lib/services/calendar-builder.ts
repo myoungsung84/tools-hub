@@ -1,23 +1,26 @@
-import { getSolarTermsByYear, solarToLunar } from '@fullstackfamily/manseryeok'
+import { getSolarTermsByYear, type SolarTermWithDate,solarToLunar } from '@fullstackfamily/manseryeok'
 import dayjs from 'dayjs'
 
 import type { HolidayProvider } from '../providers/holiday-provider'
 import type { CalendarDayCell, CalendarMonthData, SolarTermItem } from '../types/calendar.types'
 
+function formatDateKey(year: number, month: number, day: number) {
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+}
+
 function toSolarTermMap(year: number) {
   const items = getSolarTermsByYear(year)
   const map = new Map<string, SolarTermItem>()
 
-  items.forEach(item => {
-    const d = dayjs(item.datetime)
-    const key = d.format('YYYY-MM-DD')
+  items.forEach((item: SolarTermWithDate) => {
+    const key = formatDateKey(item.year, item.month, item.day)
 
     map.set(key, {
       name: item.name,
-      month: d.month() + 1,
-      day: d.date(),
-      hour: d.hour(),
-      minute: d.minute(),
+      month: item.month,
+      day: item.day,
+      hour: item.hour,
+      minute: item.minute,
     })
   })
 

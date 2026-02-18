@@ -192,8 +192,7 @@ export default function TextCountPage() {
                 'flex-1 h-full resize-none overflow-y-auto max-h-[320px]',
                 'font-mono tabular-nums',
                 'bg-zinc-950/80 border-zinc-800 text-zinc-100 placeholder:text-zinc-600',
-                'focus-visible:ring-zinc-500/20 focus-visible:border-zinc-600',
-                'scrollbar-dark'
+                'focus-visible:ring-zinc-500/20 focus-visible:border-zinc-600'
               )}
             />
 

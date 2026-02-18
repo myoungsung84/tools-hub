@@ -11,5 +11,11 @@ export const TOOLS_NAV = [
     icon: CalendarDays,
     priority: 0.7,
   },
+  {
+    href: '/calendar',
+    label: { ko: '달력(양·음력)', en: 'Solar/Lunar Calendar' },
+    icon: CalendarDays,
+    priority: 0.75,
+  },
   { href: '/decide', label: { ko: '살까말까', en: 'Decide' }, icon: Dice5, priority: 0.8 },
 ] as const

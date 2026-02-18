@@ -141,8 +141,8 @@ export default function CalendarPage() {
       <PageHeader
         icon={CalendarDays}
         kicker='Calendar'
-        title='양력·음력·절기·공휴일 캘린더'
-        description='한 달의 날짜를 양력과 음력, 절기까지 함께 살펴볼 수 있습니다. 공휴일·기념일·잡절은 필요에 따라 선택해 표시할 수 있어요.'
+        title='음력 달력 및 공휴일 확인'
+        description='오늘 음력 날짜와 절기, 공휴일을 한눈에 확인할 수 있는 달력입니다. 양력과 음력을 함께 보고, 기념일과 잡절 정보도 선택해 표시할 수 있습니다.'
       />
 
       <Card>
@@ -329,7 +329,9 @@ export default function CalendarPage() {
                         )}
                       </div>
 
-                      <div className='text-muted-foreground'>{cell.lunar?.label ?? '-'}</div>
+                      <div className='text-muted-foreground/90 font-medium'>
+                        {cell.lunar?.label ?? '-'}
+                      </div>
                       {cell.solarTerm && <div className='text-blue-500'>{cell.solarTerm.name}</div>}
                       {cell.holidays.map(holiday => (
                         <div

@@ -13,7 +13,7 @@ export const TOOLS_NAV = [
   },
   {
     href: '/calendar',
-    label: { ko: '달력(양·음력)', en: 'Solar/Lunar Calendar' },
+    label: { ko: '음력 달력', en: 'Solar/Lunar Calendar' },
     icon: CalendarDays,
     priority: 0.75,
   },

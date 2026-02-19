@@ -73,11 +73,30 @@ function isTodayCell(cell: CalendarDayCell, todayKey: string) {
   return cell.key === todayKey
 }
 
+function getLunarDayNumber(cell: CalendarDayCell): number | null {
+  const lunar = cell.lunar
+  if (!lunar) return null
+
+  const day = lunar.day
+  if (day >= 1 && day <= 30) return day
+
+  return null
+}
+
+function isSonEobsneunByLunarDay(lunarDay: number | null) {
+  if (!lunarDay) return false
+  const mod = lunarDay % 10
+  return mod === 9 || mod === 0
+}
+
 export default function CalendarPage() {
   const [cursor, setCursor] = useState(() => dayjs().startOf('month'))
   const [showPublic, setShowPublic] = useState(true)
   const [showAnniversary, setShowAnniversary] = useState(true)
   const [showSundry, setShowSundry] = useState(true)
+
+  const [showSonEobsneun, setShowSonEobsneun] = useState(true)
+
   const [holidayMap, setHolidayMap] = useState<HolidayMap>({})
   const [isLoading, setIsLoading] = useState(true)
 
@@ -250,6 +269,7 @@ export default function CalendarPage() {
                 공휴일
               </span>
             </label>
+
             <label className='flex items-center gap-2'>
               <Switch
                 checked={showAnniversary}
@@ -263,6 +283,7 @@ export default function CalendarPage() {
                 기념일
               </span>
             </label>
+
             <label className='flex items-center gap-2'>
               <Switch
                 checked={showSundry}
@@ -276,6 +297,20 @@ export default function CalendarPage() {
                 잡절
               </span>
             </label>
+
+            <label className='flex items-center gap-2'>
+              <Switch
+                checked={showSonEobsneun}
+                onCheckedChange={checked => {
+                  setShowSonEobsneun(checked)
+                }}
+              />
+              <span className='flex items-center gap-1.5'>
+                <span className='inline-block h-2 w-2 rounded-full bg-emerald-500' />
+                손없는날
+              </span>
+            </label>
+
             <span className='text-xs text-muted-foreground'>
               {isLoading ? '불러오는 중…' : '완료'}
             </span>
@@ -306,6 +341,9 @@ export default function CalendarPage() {
                   const colIndex = di % 7
                   const isToday = isTodayCell(cell, todayKey)
 
+                  const lunarDayNumber = getLunarDayNumber(cell)
+                  const isSonEobsneun = showSonEobsneun && isSonEobsneunByLunarDay(lunarDayNumber)
+
                   return (
                     <div
                       key={cell.key}
@@ -322,17 +360,27 @@ export default function CalendarPage() {
                           {cell.day}
                         </div>
 
-                        {isToday && (
-                          <span className='text-[10px] leading-none px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium'>
-                            오늘
-                          </span>
-                        )}
+                        <div className='flex items-center gap-1'>
+                          {isSonEobsneun && (
+                            <span className='text-[10px] leading-none px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 font-medium'>
+                              손없
+                            </span>
+                          )}
+
+                          {isToday && (
+                            <span className='text-[10px] leading-none px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium'>
+                              오늘
+                            </span>
+                          )}
+                        </div>
                       </div>
 
-                      <div className='text-muted-foreground/90 font-medium'>
-                        {cell.lunar?.label ?? '-'}
+                      <div className='text-muted-foreground/90 font-medium flex items-center gap-2'>
+                        <span>{cell.lunar?.label ?? '-'}</span>
                       </div>
+
                       {cell.solarTerm && <div className='text-blue-500'>{cell.solarTerm.name}</div>}
+
                       {cell.holidays.map(holiday => (
                         <div
                           key={`${cell.key}-${holiday.name}-${holiday.kind}`}

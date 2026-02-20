@@ -1,11 +1,11 @@
 'use client'
 
-import { sample, shuffle } from 'lodash-es'
 import * as React from 'react'
 
 import { runAnimalRace } from '../lib/animal-race.engine'
 import {
   ANIMAL_KEYS,
+  ANIMAL_LABELS,
   buildDefaultName,
   DEFAULT_DURATION_MS,
   DEFAULT_PARTICIPANT_COUNT,
@@ -20,21 +20,36 @@ import AnimalRaceStandings from './components/animal-race-standings'
 import AnimalRaceTrack from './components/animal-race-track'
 import AnimalRaceCountdown from './motion/animal-race-countdown'
 
-const pickAnimalKeys = (count: number, allowDuplicates: boolean): AnimalKey[] => {
-  if (allowDuplicates) {
-    return Array.from({ length: count }, () => sample(ANIMAL_KEYS) ?? ANIMAL_KEYS[0])
+const seedScore = (value: string) => {
+  let score = 0
+  for (let index = 0; index < value.length; index += 1) {
+    score = (score * 31 + value.charCodeAt(index)) % 100_000
   }
 
-  return shuffle([...ANIMAL_KEYS]).slice(0, count)
+  return score
 }
 
-const buildParticipants = (count: number, allowDuplicates: boolean): Participant[] => {
-  const assignedKeys = pickAnimalKeys(count, allowDuplicates)
+const pickAnimalKeys = (count: number, allowDuplicates: boolean, seed?: string): AnimalKey[] => {
+  const source = [...ANIMAL_KEYS]
+
+  if (seed) {
+    source.sort((a, b) => seedScore(`${seed}-${a}`) - seedScore(`${seed}-${b}`))
+  }
+
+  if (allowDuplicates) {
+    return Array.from({ length: count }, (_, index) => source[index % source.length])
+  }
+
+  return source.slice(0, count)
+}
+
+const buildParticipants = (count: number, allowDuplicates: boolean, seed?: string): Participant[] => {
+  const assignedKeys = pickAnimalKeys(count, allowDuplicates, seed)
 
   return Array.from({ length: count }, (_, index) => ({
     id: `participant-${index + 1}`,
-    name: buildDefaultName(index),
     animalKey: assignedKeys[index],
+    name: buildDefaultName(assignedKeys[index], index),
   }))
 }
 
@@ -47,7 +62,7 @@ export default function AnimalRacePage() {
     sabotageEnabled: false,
   })
   const [participants, setParticipants] = React.useState<Participant[]>(() =>
-    buildParticipants(DEFAULT_PARTICIPANT_COUNT, false)
+    buildParticipants(DEFAULT_PARTICIPANT_COUNT, false, 'initial')
   )
   const [raceResult, setRaceResult] = React.useState<RaceResult | null>(null)
   const [isRacing, setIsRacing] = React.useState(false)
@@ -119,12 +134,13 @@ export default function AnimalRacePage() {
   }, [isRacing, raceResult])
 
   const reassignAnimals = React.useCallback(() => {
-    const assignedKeys = pickAnimalKeys(participants.length, config.allowDuplicates)
+    const assignedKeys = pickAnimalKeys(participants.length, config.allowDuplicates, `${Date.now()}-shuffle`)
 
     setParticipants((prev) =>
       prev.map((participant, index) => ({
         ...participant,
         animalKey: assignedKeys[index],
+        name: buildDefaultName(assignedKeys[index], index),
       }))
     )
   }, [config.allowDuplicates, participants.length])
@@ -134,14 +150,7 @@ export default function AnimalRacePage() {
     resetRaceState()
 
     setConfig((prev) => raceConfigSchema.parse({ ...prev, participantCount: nextCount }))
-    setParticipants((prev) => {
-      const next = buildParticipants(nextCount, config.allowDuplicates)
-
-      return next.map((participant, index) => ({
-        ...participant,
-        name: prev[index]?.name || participant.name,
-      }))
-    })
+    setParticipants(() => buildParticipants(nextCount, config.allowDuplicates, `${Date.now()}-${nextCount}`))
   }
 
   const onStart = () => {
@@ -211,7 +220,7 @@ export default function AnimalRacePage() {
         <section className='rounded-2xl border border-white/10 bg-black/30 p-4 backdrop-blur-sm'>
           <p className='mb-2 text-sm text-white/80'>참가자 이름</p>
           <div className='space-y-2'>
-            {participants.map((participant, index) => (
+            {participants.map((participant) => (
               <input
                 key={participant.id}
                 value={participant.name}
@@ -222,7 +231,7 @@ export default function AnimalRacePage() {
                   )
                 }}
                 disabled={isRacing}
-                placeholder={buildDefaultName(index)}
+                placeholder={`${ANIMAL_LABELS[participant.animalKey]} 이름`}
                 className='w-full rounded-md border border-white/15 bg-black/40 px-3 py-2 text-sm text-white outline-none ring-white/30 placeholder:text-white/40 focus:ring'
               />
             ))}

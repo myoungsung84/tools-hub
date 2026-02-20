@@ -8,6 +8,14 @@ import { Button } from '@/components/ui/button'
 
 import type { Participant } from '../../lib/animal-race.types'
 
+
+const buildRankBadge = (rank: number) => {
+  if (rank === 0) return '🥇'
+  if (rank === 1) return '🥈'
+  if (rank === 2) return '🥉'
+  return `#${rank + 1}`
+}
+
 type AnimalRaceStandingsProps = {
   participants: Participant[]
   progressMap: Record<string, number>
@@ -45,7 +53,7 @@ export default function AnimalRaceStandings({ participants, progressMap }: Anima
               className='flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2'
             >
               <div className='flex items-center gap-2'>
-                <span className='text-sm font-semibold text-white/80'>{index + 1}</span>
+                <span className='inline-flex min-w-8 items-center justify-center rounded-full bg-white/10 px-2 py-0.5 text-xs font-semibold text-white/90'>{buildRankBadge(index)}</span>
                 <Image src={`/animals/${participant.animalKey}.png`} alt={participant.name} width={32} height={32} />
                 <span className='text-sm text-white'>{participant.name}</span>
               </div>
@@ -64,7 +72,7 @@ export default function AnimalRaceStandings({ participants, progressMap }: Anima
             className='flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2'
           >
             <div className='flex items-center gap-2'>
-              <span className='w-5 text-sm font-semibold text-white/80'>{index + 1}</span>
+              <span className='inline-flex min-w-10 items-center justify-center rounded-full bg-white/10 px-2 py-0.5 text-xs font-semibold text-white/90'>{buildRankBadge(index)}</span>
               <Image src={`/animals/${participant.animalKey}.png`} alt={participant.name} width={36} height={36} />
               <span className='text-sm text-white'>{participant.name}</span>
             </div>

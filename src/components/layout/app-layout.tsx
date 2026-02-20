@@ -78,9 +78,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             showCloseButton={false}
           >
             <SheetHeader className='border-b px-4 py-4'>
-              <SheetTitle className='flex items-center gap-2'>
-                <Image src='/logo.svg' alt='Tools Hub' width={18} height={18} />
-                <span className='text-sm font-semibold'>Tools Hub</span>
+              <SheetTitle>
+                <SheetClose asChild>
+                  <Link href='/' className='flex items-center gap-2'>
+                    <Image src='/logo.svg' alt='Tools Hub' width={18} height={18} />
+                    <span className='text-sm font-semibold'>Tools Hub</span>
+                  </Link>
+                </SheetClose>
               </SheetTitle>
             </SheetHeader>
 

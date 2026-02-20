@@ -18,11 +18,12 @@ const nextConfig: NextConfig = {
       isProd
         ? "script-src 'self' 'unsafe-inline' https:"
         : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
-
       "connect-src 'self' https: wss:",
       "form-action 'self'",
-      'upgrade-insecure-requests',
-    ].join('; ')
+      isProd ? 'upgrade-insecure-requests' : null,
+    ]
+      .filter(Boolean)
+      .join('; ')
 
     return [
       {

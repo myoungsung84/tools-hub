@@ -165,7 +165,7 @@ function Controls({ participantCount, status, onChangeCount, onStart, onReset }:
           )}
         >
           <Flag className='h-4 w-4' />
-          {status === 'FINISH' ? 'Restart' : 'Start'}
+          {status === 'FINISH' ? '다시 시작' : '시작'}
           {!disabled && (
             <motion.div
               className='absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent'
@@ -964,8 +964,8 @@ export default function AnimalRacePage() {
       <PageHeader
         icon={Flag}
         kicker='Animal Race'
-        title='동물 레이싱 v2'
-        description='미니카 서킷 스타일 트랙에서 실시간 순위와 극적인 연출로 레이스를 즐길 수 있습니다.'
+        title='동물 레이스'
+        description='귀여운 동물들이 트랙 위에서 펼치는 랜덤 레이싱 게임입니다. 사다리 게임처럼 결과를 예측할 수 없는 재미를 즐겨보세요.'
       />
 
       <Controls

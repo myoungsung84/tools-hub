@@ -3,12 +3,12 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
 
-import BackgroundScenePrimes from './background-scene-primes'
+import BackgroundSceneEarthMoon from './background-scene-earth'
 import BackgroundSceneSpace from './background-scene-space'
 
 const SCENES = [
   { key: 'space', Component: BackgroundSceneSpace },
-  { key: 'primes', Component: BackgroundScenePrimes },
+  { key: 'earth', Component: BackgroundSceneEarthMoon },
 ] as const
 
 type SceneKey = (typeof SCENES)[number]['key']

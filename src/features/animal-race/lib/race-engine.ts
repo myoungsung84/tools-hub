@@ -5,7 +5,12 @@ export type RaceParticipant = {
   name: string
   animalKey: string
   seedOrder: number
+  tieBreaker: number
   baseSpeed: number
+  burstStart: number
+  burstEnd: number
+  burstBoost: number
+  sprintVolatility: number
 }
 
 export type RaceStanding = {
@@ -13,6 +18,7 @@ export type RaceStanding = {
   name: string
   animalKey: string
   seedOrder: number
+  tieBreaker: number
   progress: number
 }
 
@@ -42,11 +48,11 @@ function clampProgress(value: number) {
 }
 
 function phaseConfig(progress: number): PhaseConfig {
-  if (progress < 20) return { multiplier: 0.78, jitterRange: 0.1 }
-  if (progress < 40) return { multiplier: 0.98, jitterRange: 0.18 }
-  if (progress <= 75) return { multiplier: 1.12, jitterRange: 0.42 }
-  if (progress < 85) return { multiplier: 1.02, jitterRange: 0.2 }
-  return { multiplier: 1.26, jitterRange: 0.24 }
+  if (progress < 20) return { multiplier: 0.76, jitterRange: 0.08 }
+  if (progress < 40) return { multiplier: 0.96, jitterRange: 0.16 }
+  if (progress <= 75) return { multiplier: 1.1, jitterRange: 0.48 }
+  if (progress < 85) return { multiplier: 1.02, jitterRange: 0.22 }
+  return { multiplier: 1.22, jitterRange: 0.34 }
 }
 
 export function tickRace({ participants, prevProgressMap, deltaMs }: TickRaceInput): TickRaceResult {
@@ -55,6 +61,10 @@ export function tickRace({ participants, prevProgressMap, deltaMs }: TickRaceInp
     const current = prevProgressMap[participant.id] ?? 0
     return current > max ? current : max
   }, 0)
+  const currentTailProgress = participants.reduce((min, participant) => {
+    const current = prevProgressMap[participant.id] ?? 0
+    return current < min ? current : min
+  }, 100)
 
   const nextProgressMap: ProgressMap = { ...prevProgressMap }
   const finishedIds: string[] = []
@@ -69,13 +79,33 @@ export function tickRace({ participants, prevProgressMap, deltaMs }: TickRaceInp
     const phase = phaseConfig(current)
     const jitter = (Math.random() * 2 - 1) * phase.jitterRange
     const gap = Math.max(0, currentLeaderProgress - current)
+    const leadFromTail = Math.max(0, current - currentTailProgress)
+    const isMidPhase = current >= 40 && current <= 75
+    const isSprintPhase = current >= 85
 
-    const comebackBoost = current >= 40 && current <= 75 ? Math.min(0.44, gap * 0.008) : 0
-    const sprintBoost = current >= 85 ? 0.12 + (100 - current) * 0.001 : 0
+    const comebackBoost = isMidPhase ? Math.min(0.48, gap * 0.009) : 0
+    const underdogBoost =
+      isMidPhase && gap > 7 && Math.random() < 0.17 ? 0.09 + Math.random() * 0.16 : 0
+    const burstBoost =
+      isMidPhase && current >= participant.burstStart && current <= participant.burstEnd
+        ? participant.burstBoost
+        : 0
+
+    const sprintBias = isSprintPhase ? 0.14 + (100 - current) * 0.0012 : 0
+    const sprintInstability =
+      isSprintPhase && leadFromTail > 7 ? (Math.random() * 2 - 1) * participant.sprintVolatility : 0
 
     const delta = Math.max(
       0.02,
-      (participant.baseSpeed * phase.multiplier + jitter + comebackBoost + sprintBoost) * normalizedFrame
+      (
+        participant.baseSpeed * phase.multiplier +
+        jitter +
+        comebackBoost +
+        underdogBoost +
+        burstBoost +
+        sprintBias +
+        sprintInstability
+      ) * normalizedFrame
     )
 
     const next = clampProgress(current + delta)
@@ -101,10 +131,11 @@ export function computeStandings(
       name: participant.name,
       animalKey: participant.animalKey,
       seedOrder: participant.seedOrder,
+      tieBreaker: participant.tieBreaker,
       progress: progressMap[participant.id] ?? 0,
     }))
     .sort((a, b) => {
       if (b.progress !== a.progress) return b.progress - a.progress
-      return a.seedOrder - b.seedOrder
+      return a.tieBreaker - b.tieBreaker
     })
 }

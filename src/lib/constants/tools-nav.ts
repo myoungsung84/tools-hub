@@ -1,4 +1,4 @@
-import { CalendarDays, Clock, Dice5, Globe, QrCode, Type } from 'lucide-react'
+import { CalendarDays, Clock, Dice5, Flag, Globe, QrCode, Type } from 'lucide-react'
 
 export const TOOLS_NAV = [
   { href: '/time', label: { ko: '현재시간', en: 'Time' }, icon: Clock, priority: 0.9 },
@@ -17,5 +17,6 @@ export const TOOLS_NAV = [
     icon: CalendarDays,
     priority: 0.75,
   },
+  { href: '/animal-race', label: { ko: '동물 레이스', en: 'Animal Race' }, icon: Flag, priority: 0.72 },
   { href: '/decide', label: { ko: '살까말까', en: 'Decide' }, icon: Dice5, priority: 0.8 },
 ] as const

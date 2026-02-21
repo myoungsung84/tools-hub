@@ -1,7 +1,7 @@
 'use client'
 
-import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useMemo, useState } from 'react'
+import { motion } from 'framer-motion'
+import { useMemo, useState } from 'react'
 
 import BackgroundSceneEarthMoon from './background-scene-earth'
 import BackgroundSceneSpace from './background-scene-space'
@@ -14,34 +14,25 @@ const SCENES = [
 type SceneKey = (typeof SCENES)[number]['key']
 
 export default function BackgroundSceneRotator() {
-  const [selectedKey, setSelectedKey] = useState<SceneKey>(SCENES[0].key)
-
-  useEffect(() => {
-    const rafId = window.requestAnimationFrame(() => {
-      const index = Math.floor(Math.random() * SCENES.length)
-      setSelectedKey(SCENES[index].key)
-    })
-
-    return () => window.cancelAnimationFrame(rafId)
-  }, [])
+  const [selectedKey] = useState<SceneKey>(() => {
+    const index = Math.floor(Math.random() * SCENES.length)
+    return SCENES[index].key
+  })
 
   const SelectedScene = useMemo(() => {
     return SCENES.find(scene => scene.key === selectedKey)?.Component ?? null
   }, [selectedKey])
 
+  if (!SelectedScene) return null
+
   return (
-    <AnimatePresence mode='wait'>
-      {SelectedScene && (
-        <motion.div
-          key={selectedKey}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.45, ease: 'easeOut' }}
-        >
-          <SelectedScene />
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <motion.div
+      key={selectedKey}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.45, ease: 'easeOut' }}
+    >
+      <SelectedScene />
+    </motion.div>
   )
 }

@@ -503,9 +503,6 @@ export default function BackgroundSceneSpace() {
       >
         <Scene />
       </Canvas>
-
-      <div className='absolute inset-0 bg-gradient-to-r from-black/65 via-black/25 to-transparent' />
-      <div className='absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20' />
     </div>
   )
 }

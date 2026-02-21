@@ -1,11 +1,12 @@
 'use client'
 
 import { Canvas, useFrame } from '@react-three/fiber'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
 
 type Props = {
   seed?: number
+  qualityRamp?: boolean
 }
 
 function mulberry32(seed: number) {
@@ -94,115 +95,123 @@ const HERO = {
   moonSpin: 0.2,
 } as const
 
+// ------------------------------
+// ✅ Material: 모듈 스코프 단일 인스턴스 (재사용)
+// ------------------------------
+const MATS = (() => {
+  const starMat = new THREE.PointsMaterial({
+    color: PALETTE.starWarm,
+    size: 0.02,
+    transparent: true,
+    opacity: 0.34,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  })
+
+  const starMat2 = new THREE.PointsMaterial({
+    color: PALETTE.starCool,
+    size: 0.014,
+    transparent: true,
+    opacity: 0.2,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  })
+
+  const earthGlowMat = new THREE.PointsMaterial({
+    color: PALETTE.earthGlow,
+    size: 0.013,
+    transparent: true,
+    opacity: 0.18,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  })
+
+  const earthMat = new THREE.PointsMaterial({
+    color: PALETTE.earth,
+    size: 0.017,
+    transparent: true,
+    opacity: 0.9,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  })
+
+  const moonGlowMat = new THREE.PointsMaterial({
+    color: PALETTE.moon,
+    size: 0.01,
+    transparent: true,
+    opacity: 0.1,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  })
+
+  const moonMat = new THREE.PointsMaterial({
+    color: PALETTE.moon,
+    size: 0.012,
+    transparent: true,
+    opacity: 0.88,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  })
+
+  const orbitMat = new THREE.PointsMaterial({
+    color: PALETTE.orbit,
+    size: 0.0045,
+    transparent: true,
+    opacity: 0.055,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  })
+
+  return { starMat, starMat2, earthGlowMat, earthMat, moonGlowMat, moonMat, orbitMat }
+})()
+
+// ------------------------------
+// ✅ Geometry: seed별 캐시 (핵심 최적화)
+// - “마운트 순간” 생성이 아니라, 최초 1회 생성 후 재사용
+// ------------------------------
+type Geos = {
+  stars1: THREE.BufferGeometry
+  stars2: THREE.BufferGeometry
+  earthGeo: THREE.BufferGeometry
+  earthGlowGeo: THREE.BufferGeometry
+  moonGeo: THREE.BufferGeometry
+  moonGlowGeo: THREE.BufferGeometry
+  orbitGeo: THREE.BufferGeometry
+}
+
+const GEO_CACHE = new Map<number, Geos>()
+
+function getGeos(seed: number): Geos {
+  const cached = GEO_CACHE.get(seed)
+  if (cached) return cached
+
+  const rand = mulberry32(seed)
+
+  const geos: Geos = {
+    stars1: buildGeo(makeStarField(rand, 2000, 60)),
+    stars2: buildGeo(makeStarField(rand, 9000, 50)),
+
+    earthGeo: buildGeo(makeSphereSurface(rand, 22000, 0.62)),
+    earthGlowGeo: buildGeo(makeSphereSurface(rand, 2000, 0.78)),
+
+    moonGeo: buildGeo(makeSphereSurface(rand, 5200, 0.17)),
+    moonGlowGeo: buildGeo(makeSphereSurface(rand, 500, 0.22)),
+
+    orbitGeo: buildGeo(makeOrbitRing(rand, 1400, HERO.moonOrbitR, 0.01)),
+  }
+
+  GEO_CACHE.set(seed, geos)
+  return geos
+}
+
 function Scene({ seed }: { seed: number }) {
   const rootRef = useRef<THREE.Group>(null)
   const earthRef = useRef<THREE.Group>(null)
   const moonPivotRef = useRef<THREE.Group>(null)
   const moonRef = useRef<THREE.Group>(null)
 
-  const mats = useMemo(() => {
-    const starMat = new THREE.PointsMaterial({
-      color: PALETTE.starWarm,
-      size: 0.02,
-      transparent: true,
-      opacity: 0.34,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    })
-
-    const starMat2 = new THREE.PointsMaterial({
-      color: PALETTE.starCool,
-      size: 0.014,
-      transparent: true,
-      opacity: 0.2,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    })
-
-    const earthGlowMat = new THREE.PointsMaterial({
-      color: PALETTE.earthGlow,
-      size: 0.013,
-      transparent: true,
-      opacity: 0.18,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    })
-
-    const earthMat = new THREE.PointsMaterial({
-      color: PALETTE.earth,
-      size: 0.017,
-      transparent: true,
-      opacity: 0.9,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    })
-
-    const moonGlowMat = new THREE.PointsMaterial({
-      color: PALETTE.moon,
-      size: 0.01,
-      transparent: true,
-      opacity: 0.1,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    })
-
-    const moonMat = new THREE.PointsMaterial({
-      color: PALETTE.moon,
-      size: 0.012,
-      transparent: true,
-      opacity: 0.88,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    })
-
-    const orbitMat = new THREE.PointsMaterial({
-      color: PALETTE.orbit,
-      size: 0.0045,
-      transparent: true,
-      opacity: 0.055,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    })
-
-    return { starMat, starMat2, earthGlowMat, earthMat, moonGlowMat, moonMat, orbitMat }
-  }, [])
-
-  const geos = useMemo(() => {
-    const rand = mulberry32(seed)
-
-    const stars1 = buildGeo(makeStarField(rand, 22000, 60))
-    const stars2 = buildGeo(makeStarField(rand, 9000, 50))
-
-    const earthGeo = buildGeo(makeSphereSurface(rand, 22000, 0.62))
-    const earthGlowGeo = buildGeo(makeSphereSurface(rand, 8000, 0.78))
-
-    const moonGeo = buildGeo(makeSphereSurface(rand, 5200, 0.17))
-    const moonGlowGeo = buildGeo(makeSphereSurface(rand, 1800, 0.22))
-
-    const orbitGeo = buildGeo(makeOrbitRing(rand, 1400, HERO.moonOrbitR, 0.01))
-
-    return { stars1, stars2, earthGeo, earthGlowGeo, moonGeo, moonGlowGeo, orbitGeo }
-  }, [seed])
-
-  useEffect(() => {
-    return () => {
-      geos.stars1.dispose()
-      geos.stars2.dispose()
-      geos.earthGeo.dispose()
-      geos.earthGlowGeo.dispose()
-      geos.moonGeo.dispose()
-      geos.moonGlowGeo.dispose()
-      geos.orbitGeo.dispose()
-
-      mats.starMat.dispose()
-      mats.starMat2.dispose()
-      mats.earthGlowMat.dispose()
-      mats.earthMat.dispose()
-      mats.moonGlowMat.dispose()
-      mats.moonMat.dispose()
-      mats.orbitMat.dispose()
-    }
-  }, [geos, mats])
+  // ✅ 마운트 시점에 “생성”이 아니라 “캐시 조회”
+  const geos = useMemo(() => getGeos(seed), [seed])
 
   useFrame((_, dt) => {
     if (rootRef.current) rootRef.current.rotation.y += dt * HERO.rootYaw
@@ -213,8 +222,8 @@ function Scene({ seed }: { seed: number }) {
 
   return (
     <>
-      <points geometry={geos.stars1} material={mats.starMat} frustumCulled />
-      <points geometry={geos.stars2} material={mats.starMat2} frustumCulled />
+      <points geometry={geos.stars1} material={MATS.starMat} frustumCulled />
+      <points geometry={geos.stars2} material={MATS.starMat2} frustumCulled />
 
       <group
         ref={rootRef}
@@ -222,17 +231,17 @@ function Scene({ seed }: { seed: number }) {
         scale={HERO.scale}
         position={[HERO.offsetX, HERO.offsetY, 0]}
       >
-        <points geometry={geos.orbitGeo} material={mats.orbitMat} frustumCulled />
+        <points geometry={geos.orbitGeo} material={MATS.orbitMat} frustumCulled />
 
         <group ref={earthRef}>
-          <points geometry={geos.earthGlowGeo} material={mats.earthGlowMat} frustumCulled />
-          <points geometry={geos.earthGeo} material={mats.earthMat} frustumCulled />
+          <points geometry={geos.earthGlowGeo} material={MATS.earthGlowMat} frustumCulled />
+          <points geometry={geos.earthGeo} material={MATS.earthMat} frustumCulled />
         </group>
 
         <group ref={moonPivotRef} rotation={[0.08, 1.2, 0]}>
           <group ref={moonRef} position={[HERO.moonOrbitR, 0, 0]}>
-            <points geometry={geos.moonGlowGeo} material={mats.moonGlowMat} frustumCulled />
-            <points geometry={geos.moonGeo} material={mats.moonMat} frustumCulled />
+            <points geometry={geos.moonGlowGeo} material={MATS.moonGlowMat} frustumCulled />
+            <points geometry={geos.moonGeo} material={MATS.moonMat} frustumCulled />
           </group>
         </group>
       </group>
@@ -240,23 +249,29 @@ function Scene({ seed }: { seed: number }) {
   )
 }
 
-export default function BackgroundSceneEarthMoon({ seed = 20260221 }: Props) {
-  const dpr = useMemo<[number, number]>(() => [1, 1.35], [])
+export default function BackgroundSceneEarthMoon({ seed = 20262222, qualityRamp = true }: Props) {
+  const [hq, setHq] = useState(!qualityRamp)
+
+  useEffect(() => {
+    if (!qualityRamp) return
+    const id = requestAnimationFrame(() => setHq(true))
+    return () => cancelAnimationFrame(id)
+  }, [qualityRamp])
+
+  const dpr = useMemo<[number, number]>(() => (hq ? [1, 1.35] : [1, 1]), [hq])
 
   return (
     <div className='pointer-events-none fixed inset-0 -z-10'>
       <Canvas
+        key={hq ? 'hq' : 'lq'}
         camera={{ position: [0, 2.2, 6.0], fov: 48, near: 0.1, far: 260 }}
-        gl={{ antialias: true, powerPreference: 'high-performance' }}
+        gl={{ antialias: hq, powerPreference: 'high-performance' }}
         dpr={dpr}
         style={{ background: '#000' }}
         frameloop='always'
       >
         <Scene seed={seed} />
       </Canvas>
-
-      <div className='absolute inset-0 bg-gradient-to-r from-black/65 via-black/25 to-transparent' />
-      <div className='absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/20' />
     </div>
   )
 }

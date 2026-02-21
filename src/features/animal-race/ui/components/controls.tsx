@@ -31,6 +31,7 @@ export default function Controls({ participantCount, status, onChangeCount, onSt
       <div className='flex items-center gap-1'>
         <span className='mr-2 text-xs font-medium tracking-wider text-zinc-500 uppercase'>참가자</span>
         <button
+          type='button'
           onClick={dec}
           disabled={disabled || participantCount <= MIN_PARTICIPANTS}
           className='flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-zinc-400 transition-all hover:border-white/20 hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-30'
@@ -41,6 +42,7 @@ export default function Controls({ participantCount, status, onChangeCount, onSt
           {participantCount}
         </div>
         <button
+          type='button'
           onClick={inc}
           disabled={disabled || participantCount >= MAX_PARTICIPANTS}
           className='flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-zinc-400 transition-all hover:border-white/20 hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-30'
@@ -56,6 +58,7 @@ export default function Controls({ participantCount, status, onChangeCount, onSt
         {[4, 6, 8, 10, 14].map(n => (
           <button
             key={n}
+            type='button'
             onClick={() => !disabled && onChangeCount(n)}
             disabled={disabled}
             className={cn(
@@ -72,6 +75,7 @@ export default function Controls({ participantCount, status, onChangeCount, onSt
 
       <div className='ml-auto flex items-center gap-2'>
         <button
+          type='button'
           onClick={onReset}
           className='inline-flex h-10 items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-4 text-sm text-zinc-400 transition-all hover:border-white/20 hover:bg-white/10 hover:text-white'
         >
@@ -80,6 +84,7 @@ export default function Controls({ participantCount, status, onChangeCount, onSt
         </button>
 
         <button
+          type='button'
           onClick={onStart}
           disabled={disabled}
           className={cn(

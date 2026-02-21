@@ -1,4 +1,4 @@
-import type { RaceParticipant } from '../lib/race-engine'
+import type { RaceParticipant } from './race-engine'
 
 export const MIN_PARTICIPANTS = 2
 export const MAX_PARTICIPANTS = 14

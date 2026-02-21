@@ -17,6 +17,6 @@ export const TOOLS_NAV = [
     icon: CalendarDays,
     priority: 0.75,
   },
-  { href: '/animal-race', label: { ko: '동물 레이스', en: 'Animal Race' }, icon: Flag, priority: 0.72 },
+  { href: '/animal-race', label: { ko: '동물 레이싱', en: 'Animal Race' }, icon: Flag, priority: 0.72 },
   { href: '/decide', label: { ko: '살까말까', en: 'Decide' }, icon: Dice5, priority: 0.8 },
 ] as const

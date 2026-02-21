@@ -147,6 +147,7 @@ export default function Result({ standings, status, participantCount, onRestart,
 
         <div className='mt-5 flex justify-center gap-3'>
           <button
+            type='button'
             onClick={onRestart}
             className='relative inline-flex h-11 items-center gap-2 overflow-hidden rounded-xl border border-cyan-400/40 bg-gradient-to-r from-cyan-500/25 to-blue-500/20 px-6 text-sm font-bold text-cyan-200 shadow-[0_0_24px_rgba(34,211,238,0.15)] transition-all hover:border-cyan-300/60 hover:text-white'
           >
@@ -154,6 +155,7 @@ export default function Result({ standings, status, participantCount, onRestart,
             다시 시작
           </button>
           <button
+            type='button'
             onClick={onReset}
             className='inline-flex h-11 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-6 text-sm text-zinc-400 transition-all hover:border-white/20 hover:text-white'
           >

@@ -54,6 +54,7 @@ export default function AnimalRacePage() {
   const finishScoreByIdRef = useRef<Record<string, number>>({})
   const finishSequenceRef = useRef(0)
   const previousLeaderRef = useRef<string | null>(null)
+  const launchBoostActiveRef = useRef(false)
 
   useEffect(() => {
     participantsRef.current = participants
@@ -181,10 +182,8 @@ export default function AnimalRacePage() {
   }, [launchBoostActive])
 
   useEffect(() => {
-    if (!leaderChangeVisible) return
-    const timerId = window.setTimeout(() => setLeaderChangeVisible(false), 800)
-    return () => window.clearTimeout(timerId)
-  }, [leaderChangeVisible])
+    launchBoostActiveRef.current = launchBoostActive
+  }, [launchBoostActive])
 
   useEffect(() => {
     if (status !== 'RACING') return
@@ -257,7 +256,7 @@ export default function AnimalRacePage() {
       const average = currentParticipants.length ? sum / currentParticipants.length : 0
       const speedBase = 0.24 + average * 0.0115
       const lateBoost = leaderMax >= 85 ? 1.3 : 1
-      const launchBoost = launchBoostActive ? 2.2 : 1
+      const launchBoost = launchBoostActiveRef.current ? 2.2 : 1
       const flowSpeed = speedBase * lateBoost * launchBoost
 
       setTrackFlowSpeed(flowSpeed)
@@ -276,7 +275,7 @@ export default function AnimalRacePage() {
 
     rafRef.current = requestAnimationFrame(tick)
     return stopRaceLoop
-  }, [clearLeaderChangeTimer, launchBoostActive, status, stopRaceLoop])
+  }, [clearLeaderChangeTimer, status, stopRaceLoop])
 
   useEffect(() => {
     return () => {

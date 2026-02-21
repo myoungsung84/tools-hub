@@ -46,6 +46,13 @@
 - 입력 텍스트 기반 QR 생성
 - 다운로드 지원
 
+### 🏁 동물 레이싱 (Animal Race)
+
+- 최대 14마리 참가자 레이싱 미니 게임
+- requestAnimationFrame 기반 실시간 진행/순위 반영
+- 미니카 서킷 스타일 트랙 UI + 결승선 순위 표시
+- 카운트다운/리더 변경/HUD/결과 패널 연출 제공
+
 ## 🛠️ 기술 스택
 
 ### Frontend
@@ -90,6 +97,7 @@ tools-hub/
 ├── src/
 │   ├── app/                    # Next.js App Router
 │   │   ├── (tools)/           # 도구 그룹 라우팅
+│   │   │   ├── animal-race/   # 동물 레이싱 페이지
 │   │   │   ├── age/           # 나이 계산 페이지
 │   │   │   ├── calendar/      # 캘린더 페이지
 │   │   │   ├── count/         # 글자 수 세기 페이지
@@ -109,6 +117,7 @@ tools-hub/
 │   │   ├── layout/            # 레이아웃 컴포넌트
 │   │   └── ui/                # shadcn/ui 컴포넌트
 │   ├── features/              # 기능별 모듈
+│   │   ├── animal-race/
 │   │   ├── age/
 │   │   ├── calendar/
 │   │   ├── decide/

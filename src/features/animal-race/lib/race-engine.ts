@@ -5,7 +5,6 @@ export type RaceParticipant = {
   name: string
   animalKey: string
   seedOrder: number
-  tieBreaker: number
   baseSpeed: number
   burstStart: number
   burstEnd: number
@@ -18,7 +17,6 @@ export type RaceStanding = {
   name: string
   animalKey: string
   seedOrder: number
-  tieBreaker: number
   progress: number
 }
 
@@ -41,10 +39,8 @@ type PhaseConfig = {
 
 const FRAME_MS = 1000 / 60
 
-function clampProgress(value: number) {
-  if (value <= 0) return 0
-  if (value >= 100) return 100
-  return value
+function clampProgressLowerBound(value: number) {
+  return value <= 0 ? 0 : value
 }
 
 function phaseConfig(progress: number): PhaseConfig {
@@ -72,7 +68,7 @@ export function tickRace({ participants, prevProgressMap, deltaMs }: TickRaceInp
   for (const participant of participants) {
     const current = prevProgressMap[participant.id] ?? 0
     if (current >= 100) {
-      nextProgressMap[participant.id] = 100
+      nextProgressMap[participant.id] = current
       continue
     }
 
@@ -108,7 +104,7 @@ export function tickRace({ participants, prevProgressMap, deltaMs }: TickRaceInp
       ) * normalizedFrame
     )
 
-    const next = clampProgress(current + delta)
+    const next = clampProgressLowerBound(current + delta)
     nextProgressMap[participant.id] = next
 
     if (next >= 100 && current < 100) {
@@ -131,11 +127,10 @@ export function computeStandings(
       name: participant.name,
       animalKey: participant.animalKey,
       seedOrder: participant.seedOrder,
-      tieBreaker: participant.tieBreaker,
       progress: progressMap[participant.id] ?? 0,
     }))
     .sort((a, b) => {
       if (b.progress !== a.progress) return b.progress - a.progress
-      return a.tieBreaker - b.tieBreaker
+      return a.seedOrder - b.seedOrder
     })
 }

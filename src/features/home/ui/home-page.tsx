@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import BackgroundScene from '@/components/layout/background/background-scene'
+import BackgroundSceneRotator from '@/components/layout/background/background-scene-rotator'
 import { TOOLS_NAV } from '@/lib/constants/tools-nav'
 
 export default function HomePage() {
@@ -8,7 +8,7 @@ export default function HomePage() {
 
   return (
     <div className='relative w-full flex flex-1 flex-col items-center justify-center gap-0'>
-      <BackgroundScene />
+      <BackgroundSceneRotator />
 
       <div
         className='pointer-events-none absolute inset-0 z-[1]'

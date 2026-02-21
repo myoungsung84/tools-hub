@@ -137,7 +137,6 @@ export default function Track({
 
   // layout constants
   const trackInsetLeftPx = 8 // left-2
-  const trackInsetRightPx = 8 // right padding base inside lane track area
   const runnerW = density.icon
   const runnerPad = 2 // keep a little slack for calc
   const calcRunner = runnerW + runnerPad

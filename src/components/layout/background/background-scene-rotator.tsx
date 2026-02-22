@@ -5,10 +5,12 @@ import { useMemo, useState } from 'react'
 
 import BackgroundSceneEarthMoon from './background-scene-earth'
 import BackgroundSceneSpace from './background-scene-space'
+import BackgroundSceneWorldMap from './background-scene-worldmap'
 
 const SCENES = [
   { key: 'space', Component: BackgroundSceneSpace },
   { key: 'earth', Component: BackgroundSceneEarthMoon },
+  { key: 'worldmap', Component: BackgroundSceneWorldMap },
 ] as const
 
 type SceneKey = (typeof SCENES)[number]['key']

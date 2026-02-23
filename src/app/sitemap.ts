@@ -6,10 +6,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL!
   const now = new Date()
 
-  return TOOLS_NAV.map(item => ({
-    url: `${baseUrl}${item.href}`,
-    lastModified: now,
-    changeFrequency: 'daily',
-    priority: item.priority,
-  }))
+  const routes: MetadataRoute.Sitemap = [
+    {
+      url: `${baseUrl}/`,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 1,
+    },
+    ...TOOLS_NAV.map(item => ({
+      url: `${baseUrl}${item.href}`,
+      lastModified: now,
+      changeFrequency: 'daily' as const,
+      priority: item.priority,
+    })),
+  ]
+
+  return routes
 }

@@ -17,31 +17,39 @@ async function handler(req: Request) {
   const result = isPrivate ? null : await fetchIpAddrGeo(ip, req.signal)
 
   const cityUpdatedText = result?.sources?.find(s => s.key === 'mmdb-city')?.updatedText ?? null
-
   const asnUpdatedText = result?.sources?.find(s => s.key === 'mmdb-asn')?.updatedText ?? null
 
-  return success({
-    ip,
-    isPrivate,
-    geo: isNil(result)
-      ? null
-      : {
-          ...result.geo,
-          updatedText: cityUpdatedText,
-        },
-    asn: isNil(result)
-      ? null
-      : {
-          ...result.asn,
-          updatedText: asnUpdatedText,
-        },
-    ua: {
-      raw: uaRaw,
-      browser: ua.browser,
-      os: ua.os,
-      isMobile: ua.isMobile,
+  return success(
+    {
+      ip,
+      isPrivate,
+      geo: isNil(result)
+        ? null
+        : {
+            ...result.geo,
+            updatedText: cityUpdatedText,
+          },
+      asn: isNil(result)
+        ? null
+        : {
+            ...result.asn,
+            updatedText: asnUpdatedText,
+          },
+      ua: {
+        raw: uaRaw,
+        browser: ua.browser,
+        os: ua.os,
+        isMobile: ua.isMobile,
+      },
     },
-  })
+    {
+      headers: {
+        'Cache-Control': 'private, no-store, max-age=0, must-revalidate',
+        Pragma: 'no-cache',
+        Expires: '0',
+      },
+    }
+  )
 }
 
 export const GET = handleApi(handler, {

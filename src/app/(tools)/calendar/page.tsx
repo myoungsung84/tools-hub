@@ -1,5 +1,8 @@
 import type { Metadata } from 'next'
 
+// Prevent static prerender to avoid hydration mismatch (time-based rendering like todayKey/dayjs)
+export const dynamic = 'force-dynamic'
+
 import { CalendarPage } from '@/features/calendar'
 
 export const metadata: Metadata = {

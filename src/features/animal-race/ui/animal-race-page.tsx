@@ -5,6 +5,7 @@ import { Flag } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import PageHeader from '@/components/layout/page-header'
+import { cn } from '@/lib/shared'
 
 import {
   COUNTDOWN_STEPS,
@@ -286,45 +287,46 @@ export default function AnimalRacePage() {
   }, [clearLeaderChangeTimer, clearTimers, stopRaceLoop])
 
   return (
-    <div className='mx-auto flex w-full max-w-5xl flex-col gap-4 px-3 pb-12 pt-2 sm:px-4'>
+    <div className={cn('w-full')}>
       <PageHeader
         icon={Flag}
         kicker='Animal Race'
         title='동물 레이싱'
         description='귀여운 동물들이 트랙 위에서 펼치는 랜덤 레이싱 게임입니다. 사다리 게임처럼 결과를 예측할 수 없는 재미를 즐겨보세요.'
       />
-
-      <Controls
-        participantCount={participantCount}
-        status={status}
-        onChangeCount={onChangeCount}
-        onStart={onStart}
-        onReset={onReset}
-      />
-
-      <Track
-        status={status}
-        participants={participants}
-        progressMap={progressMap}
-        standings={standings}
-        countdownText={countdownText}
-        leaderPulseToken={leaderPulseToken}
-        leaderChangeVisible={leaderChangeVisible}
-        trackFlowOffset={trackFlowOffset}
-        trackFlowSpeed={trackFlowSpeed}
-        launchBoostActive={launchBoostActive}
-        goFlashVisible={goFlashVisible}
-      />
-
-      <AnimatePresence mode='wait'>
-        <Result
-          standings={status === 'FINISH' ? standings : []}
-          status={status}
+      <div className={cn('mx-auto flex w-full flex-col gap-4 pb-12 pt-2')}>
+        <Controls
           participantCount={participantCount}
-          onRestart={onStart}
+          status={status}
+          onChangeCount={onChangeCount}
+          onStart={onStart}
           onReset={onReset}
         />
-      </AnimatePresence>
+
+        <Track
+          status={status}
+          participants={participants}
+          progressMap={progressMap}
+          standings={standings}
+          countdownText={countdownText}
+          leaderPulseToken={leaderPulseToken}
+          leaderChangeVisible={leaderChangeVisible}
+          trackFlowOffset={trackFlowOffset}
+          trackFlowSpeed={trackFlowSpeed}
+          launchBoostActive={launchBoostActive}
+          goFlashVisible={goFlashVisible}
+        />
+
+        <AnimatePresence mode='wait'>
+          <Result
+            standings={status === 'FINISH' ? standings : []}
+            status={status}
+            participantCount={participantCount}
+            onRestart={onStart}
+            onReset={onReset}
+          />
+        </AnimatePresence>
+      </div>
     </div>
   )
 }

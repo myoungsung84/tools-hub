@@ -4,13 +4,7 @@ export const TOOLS_NAV = [
   { href: '/time', label: { ko: '현재시간', en: 'Time' }, icon: Clock, priority: 0.9 },
   { href: '/ip', label: { ko: '나의 아이피', en: 'IP Address' }, icon: Globe, priority: 0.8 },
   { href: '/count', label: { ko: '글자수 세기', en: 'Text Count' }, icon: Type, priority: 0.7 },
-  {
-    href: '/lorem',
-    title: '더미 텍스트',
-    label: { ko: '더미 텍스트', en: 'Lorem Generator' },
-    icon: FileText,
-    priority: 0.68,
-  },
+  { href: '/lorem', label: { ko: '더미 텍스트', en: 'Lorem Generator' }, icon: FileText, priority: 0.68 },
   { href: '/qr', label: { ko: 'QR 코드', en: 'QR Code' }, icon: QrCode, priority: 0.7 },
   {
     href: '/age',

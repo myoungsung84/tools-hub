@@ -58,6 +58,7 @@ export default function LoremResultCard({
         <Textarea
           value={output}
           readOnly
+          aria-label='생성된 더미 텍스트'
           className='min-h-[340px] resize-y bg-muted/20 font-mono text-sm leading-7'
         />
       </CardContent>

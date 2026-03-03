@@ -2,7 +2,7 @@
 
 import { FileText } from 'lucide-react'
 import * as React from 'react'
-import { toast, Toaster } from 'sonner'
+import { toast } from 'sonner'
 
 import PageHeader from '@/components/layout/page-header'
 import { cn } from '@/lib/shared'
@@ -72,8 +72,6 @@ export default function LoremPage() {
           onRefresh={() => setRefreshTick(prev => prev + 1)}
           onCopy={onCopy}
         />
-
-        <Toaster richColors position='bottom-center' />
       </div>
     </div>
   )

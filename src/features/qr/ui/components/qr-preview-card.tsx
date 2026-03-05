@@ -3,8 +3,8 @@ import { Loader2, QrCode } from 'lucide-react'
 import { Card, CardHeader } from '@/components/ui/card'
 import { cn } from '@/lib/client'
 
-import { QR_SIZE_MAP } from '../../lib/qr'
 import type { QrOptions } from '../../lib/qr'
+import { QR_SIZE_MAP } from '../../lib/qr'
 
 type QrPreviewCardProps = {
   isBuilding: boolean

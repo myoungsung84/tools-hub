@@ -1,10 +1,11 @@
+import type { WeatherRegion } from '@/features/time/constants/weather-region.constants'
 import type { WeatherNow } from '@/features/time/types/weather-now.types'
 
 import { WeatherTalk } from './weather-talk'
 
 type Props = {
-  regionList: readonly string[]
-  data: Record<string, WeatherNow | undefined>
+  regionList: readonly WeatherRegion[]
+  data: Partial<Record<WeatherRegion | 'CURRENT', WeatherNow>>
 }
 
 export default function WeatherDashboard({ regionList, data }: Props) {

@@ -63,7 +63,6 @@ export default function CalendarDayCell({ cell, colIndex, todayKey, showSonEobsn
 
   return (
     <div
-      key={cell.key}
       className={`rounded-md border p-2 min-h-24 sm:min-h-28 flex flex-col gap-1 ${getCellBgClass(
         cell,
         colIndex

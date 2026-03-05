@@ -14,7 +14,8 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/client'
 
-import { COLOR_PRESETS, QrOptions, QrSize } from '../../lib/qr'
+import { COLOR_PRESETS } from '../../lib/qr'
+import type { QrOptions, QrSize } from '../../lib/qr'
 import { IconTip } from './icon-tip'
 
 type UpdateOption = <K extends keyof QrOptions>(key: K, value: QrOptions[K]) => void

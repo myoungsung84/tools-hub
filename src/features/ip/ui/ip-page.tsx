@@ -4,9 +4,11 @@ import { isNil } from 'lodash-es'
 import { Cpu, Globe, Info, MapPin, Monitor, Shield } from 'lucide-react'
 import useSWR from 'swr'
 
-import { Skeleton } from '@/components/ui/skeleton'
 import type { IpInfo } from '@/features/ip/types'
 import { apiGet } from '@/lib/client/api-client'
+
+import InfoCard from './components/info-card'
+import IpPageSkeleton from './components/ip-page-skeleton'
 
 export default function IpPage() {
   const { data, error, isLoading } = useSWR<IpInfo>(
@@ -18,19 +20,7 @@ export default function IpPage() {
   const wrapClass = 'w-full flex flex-1 flex-col items-center justify-center'
 
   if (isLoading || error || isNil(data)) {
-    return (
-      <div className={wrapClass}>
-        <div className='w-full max-w-[640px] space-y-6'>
-          <Skeleton className='mx-auto h-12 w-64 rounded-2xl' />
-          <Skeleton className='mx-auto h-24 w-full rounded-3xl' />
-          <div className='grid gap-4 sm:grid-cols-2 mt-8'>
-            {[1, 2, 3, 4].map(i => (
-              <Skeleton key={i} className='h-32 w-full rounded-2xl' />
-            ))}
-          </div>
-        </div>
-      </div>
-    )
+    return <IpPageSkeleton wrapClass={wrapClass} />
   }
 
   const geo = data.geo
@@ -116,45 +106,6 @@ export default function IpPage() {
             </p>
           </div>
         </div>
-      </div>
-    </div>
-  )
-}
-
-/* Reusable Card Component */
-function InfoCard({
-  icon,
-  title,
-  main,
-  sub,
-  badge,
-}: {
-  icon: React.ReactNode
-  title: string
-  main: string
-  sub: string
-  badge?: string
-}) {
-  return (
-    <div className='group relative overflow-hidden rounded-2xl border bg-neutral-900/40 p-5 text-left transition-all hover:border-white/20 hover:bg-neutral-900/60'>
-      <div className='flex items-center justify-between mb-4'>
-        <div className='flex items-center gap-2'>
-          <div className='p-2 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors'>
-            {icon}
-          </div>
-          <span className='text-[11px] font-bold uppercase tracking-wider text-muted-foreground'>
-            {title}
-          </span>
-        </div>
-        {badge && (
-          <span className='text-[10px] px-2 py-0.5 rounded-md bg-white/5 text-muted-foreground'>
-            {badge}
-          </span>
-        )}
-      </div>
-      <div>
-        <div className='text-base font-semibold text-white/90 truncate'>{main}</div>
-        <div className='text-xs text-muted-foreground mt-1'>{sub}</div>
       </div>
     </div>
   )

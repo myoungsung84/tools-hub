@@ -49,6 +49,7 @@ const nextConfig: NextConfig = {
         headers: [
           { key: 'Access-Control-Allow-Origin', value: 'https://tools.hello-ms.co.kr' },
           { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,POST,OPTIONS' },
           { key: 'Access-Control-Max-Age', value: '600' },
         ],
       },

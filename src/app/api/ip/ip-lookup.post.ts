@@ -1,9 +1,7 @@
-import { isNil } from 'lodash-es'
 import { z } from 'zod'
 
 import { fetchIpAddrGeo } from '@/app/api/ip/ip-addr.source'
-import { handleApi, success } from '@/lib/server'
-import { ApiErrors } from '@/lib/server/core/api-error'
+import { handleApi, success, ApiErrors } from '@/lib/server'
 import { isPrivateIp } from '@/lib/server/ip-utils'
 
 const bodySchema = z.object({
@@ -14,11 +12,16 @@ const bodySchema = z.object({
 })
 
 async function handler(req: Request) {
-  const json = await req.json()
+  let json: unknown
+  try {
+    json = await req.json()
+  } catch {
+    throw ApiErrors.badRequest('유효한 JSON 요청이 아닙니다.')
+  }
   const parsed = bodySchema.safeParse(json)
 
   if (!parsed.success) {
-    throw ApiErrors.badRequest('IP address is required')
+    throw ApiErrors.badRequest('유효한 IP 주소를 입력해 주세요.')
   }
 
   const { ip } = parsed.data
@@ -31,22 +34,15 @@ async function handler(req: Request) {
   const asnUpdatedText =
     result?.sources?.find(source => source.key === 'mmdb-asn')?.updatedText ?? null
 
+  const geo = result?.geo ?? null
+  const asn = result?.asn ?? null
+
   return success(
     {
       ip,
       isPrivate,
-      geo: isNil(result)
-        ? null
-        : {
-            ...result.geo,
-            updatedText: cityUpdatedText,
-          },
-      asn: isNil(result)
-        ? null
-        : {
-            ...result.asn,
-            updatedText: asnUpdatedText,
-          },
+      geo: geo === null ? null : { ...geo, updatedText: cityUpdatedText },
+      asn: asn === null ? null : { ...asn, updatedText: asnUpdatedText },
     },
     {
       headers: {

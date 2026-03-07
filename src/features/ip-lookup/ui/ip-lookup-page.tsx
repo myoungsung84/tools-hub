@@ -31,9 +31,10 @@ export default function IpLookupPage() {
     lookupData?.isPrivate === false && !isNil(lookupData.geo?.lat) && !isNil(lookupData.geo?.lon)
 
   const mapUrl = useMemo(() => {
-    if (!hasMapCoords || !lookupData?.geo?.lat || !lookupData.geo.lon) return null
-
-    const { lat, lon } = lookupData.geo
+    if (!hasMapCoords) return null
+    const geo = lookupData?.geo
+    if (!geo || geo.lat == null || geo.lon == null) return null
+    const { lat, lon } = geo
     return `https://www.openstreetmap.org/export/embed.html?bbox=${lon - 0.25}%2C${lat - 0.25}%2C${lon + 0.25}%2C${lat + 0.25}&layer=mapnik&marker=${lat}%2C${lon}`
   }, [hasMapCoords, lookupData?.geo])
 

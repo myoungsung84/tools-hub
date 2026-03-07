@@ -16,12 +16,7 @@ export default function DecidePage() {
   const [rotation, setRotation] = React.useState(0)
   const [result, setResult] = React.useState<ResultState>({ status: 'idle' })
   const [showConfetti, setShowConfetti] = React.useState(false)
-  const [mounted, setMounted] = React.useState(false)
   const rotationRef = React.useRef(0)
-
-  React.useEffect(() => {
-    setMounted(true)
-  }, [])
 
   const isSpinning = result.status === 'spinning'
   const isDone = result.status === 'done'
@@ -71,16 +66,8 @@ export default function DecidePage() {
 
   const tone = isDone ? CHOICES[result.choice].textColor : 'text-foreground'
 
-  if (!mounted) {
-    return (
-      <div className='flex flex-col items-center justify-center'>
-        <div className='text-muted-foreground'>로딩 중...</div>
-      </div>
-    )
-  }
-
   return (
-    <div className='relative w-full flex flex-col items-center justify-center gap-6 text-center sm:gap-8 sm:py-12'>
+    <div className='relative flex w-full max-w-full flex-col items-center justify-center gap-6 overflow-x-hidden px-4 py-6 text-center sm:gap-8 sm:px-6 sm:py-12'>
       <DecideHeader />
       <DecideWheel rotation={rotation} isSpinning={isSpinning} showConfetti={showConfetti} />
       <DecideResult emoji={emoji} headline={headline} message={message} toneClass={tone} />

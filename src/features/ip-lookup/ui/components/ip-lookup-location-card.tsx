@@ -1,0 +1,47 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+
+import { UNKNOWN } from '../../lib/ip-lookup.constants'
+import type { IpLookupData } from '../../lib/ip-lookup.types'
+import IpLookupEmptyState from './ip-lookup-empty-state'
+import IpLookupResultRow from './ip-lookup-result-row'
+
+type Props = {
+  data: IpLookupData
+}
+
+export default function IpLookupLocationCard({ data }: Props) {
+  return (
+    <Card className='flex h-full flex-col lg:col-span-2'>
+      <CardHeader>
+        <CardTitle>위치 정보</CardTitle>
+        <CardDescription>GeoIP 데이터베이스 기반 추정 위치</CardDescription>
+      </CardHeader>
+      <CardContent className='grid flex-1 auto-rows-fr gap-2.5 sm:grid-cols-2'>
+        {data.geo ? (
+          <>
+            <IpLookupResultRow label='국가 코드' value={data.geo.country ?? UNKNOWN} />
+            <IpLookupResultRow label='국가' value={data.geo.countryName ?? UNKNOWN} />
+            <IpLookupResultRow label='지역 / 주' value={data.geo.region ?? UNKNOWN} />
+            <IpLookupResultRow label='도시' value={data.geo.city ?? UNKNOWN} />
+            <IpLookupResultRow label='위도 (Latitude)' value={data.geo.lat?.toString() ?? UNKNOWN} />
+            <IpLookupResultRow label='경도 (Longitude)' value={data.geo.lon?.toString() ?? UNKNOWN} />
+            <IpLookupResultRow label='시간대' value={data.geo.timezone ?? UNKNOWN} />
+            <IpLookupResultRow
+              label='위치 정확도 반경'
+              value={
+                data.geo.accuracyRadiusKm != null ? `약 ${data.geo.accuracyRadiusKm}km 이내` : UNKNOWN
+              }
+            />
+            <div className='sm:col-span-2'>
+              <IpLookupResultRow label='데이터 갱신일' value={data.geo.updatedText ?? UNKNOWN} />
+            </div>
+          </>
+        ) : (
+          <div className='sm:col-span-2'>
+            <IpLookupEmptyState message='위치 정보를 가져올 수 없습니다.' />
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}

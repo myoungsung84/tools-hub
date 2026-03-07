@@ -41,8 +41,21 @@
 - 입력한 IPv4/IPv6 주소 조회
 - 국가/지역/도시/시간대/좌표 정보 표시
 - ASN/ISP 정보 요약 표시
-- 좌표가 있으면 외부 지도(OpenStreetMap)로 위치 확인
+- 좌표가 있으면 OpenStreetMap iframe으로 위치를 지도에서 확인
 - IP 기반 위치 정보이므로 실제 위치와 다를 수 있음
+
+> **지도 임베드 참고**: 조회 결과에서 위·경도 좌표가 확인되면, 아래 형식의 URL을 iframe으로 자동 렌더링합니다.  
+> 브라우저 CSP(`frame-src`)에 `https://www.openstreetmap.org`이 허용되어 있어야 합니다.  
+> bbox는 `위도·경도 ± 0.1` 범위로 설정합니다.
+>
+> ```
+> https://www.openstreetmap.org/export/embed.html?bbox={경도-0.1},{위도-0.1},{경도+0.1},{위도+0.1}&layer=mapnik&marker={위도},{경도}
+> ```
+>
+> 예시 (위도 37.5665, 경도 126.9780):
+> ```
+> https://www.openstreetmap.org/export/embed.html?bbox=126.8780,37.4665,127.0780,37.6665&layer=mapnik&marker=37.5665,126.9780
+> ```
 
 ### 🔤 글자 수 세기 (Count)
 

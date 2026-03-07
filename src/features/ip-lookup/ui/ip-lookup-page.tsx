@@ -35,7 +35,7 @@ export default function IpLookupPage() {
 
     const { lat, lon } = lookupData.geo
     return `https://www.openstreetmap.org/export/embed.html?bbox=${lon - 0.25}%2C${lat - 0.25}%2C${lon + 0.25}%2C${lat + 0.25}&layer=mapnik&marker=${lat}%2C${lon}`
-  }, [hasMapCoords, lookupData?.geo?.lat, lookupData?.geo?.lon])
+  }, [hasMapCoords, lookupData?.geo])
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()

@@ -36,6 +36,27 @@
 - IP 위치 정보 조회 (국가, 도시, ASN/ISP)
 - Redis TTL 캐싱으로 성능 최적화 (캐시 사용 시 권장)
 
+### 🔎 IP 검색 (IP Lookup)
+
+- 입력한 IPv4/IPv6 주소 조회
+- 국가/지역/도시/시간대/좌표 정보 표시
+- ASN/ISP 정보 요약 표시
+- 좌표가 있으면 OpenStreetMap iframe으로 위치를 지도에서 확인
+- IP 기반 위치 정보이므로 실제 위치와 다를 수 있음
+
+> **지도 임베드 참고**: 조회 결과에서 위·경도 좌표가 확인되면, 아래 형식의 URL을 iframe으로 자동 렌더링합니다.  
+> 브라우저 CSP(`frame-src`)에 `https://www.openstreetmap.org`이 허용되어 있어야 합니다.  
+> bbox는 `위도·경도 ± 0.1` 범위로 설정합니다.
+>
+> ```
+> https://www.openstreetmap.org/export/embed.html?bbox={경도-0.1},{위도-0.1},{경도+0.1},{위도+0.1}&layer=mapnik&marker={위도},{경도}
+> ```
+>
+> 예시 (위도 37.5665, 경도 126.9780):
+> ```
+> https://www.openstreetmap.org/export/embed.html?bbox=126.8780,37.4665,127.0780,37.6665&layer=mapnik&marker=37.5665,126.9780
+> ```
+
 ### 🔤 글자 수 세기 (Count)
 
 - 텍스트 길이/단어 수 통계
@@ -111,6 +132,7 @@ tools-hub/
 │   │   │   ├── decide/         # 살까 말까 결정 페이지
 │   │   │   ├── home/           # 홈 페이지
 │   │   │   ├── ip/             # IP 주소 조회 페이지
+│   │   │   ├── ip-lookup/      # IP 검색 페이지
 │   │   │   ├── lorem/          # 더미 텍스트 생성 페이지
 │   │   │   ├── qr/             # QR 코드 페이지
 │   │   │   └── time/           # 시간 도구 페이지
@@ -133,6 +155,7 @@ tools-hub/
 │   │   ├── decide/
 │   │   ├── home/
 │   │   ├── ip/
+│   │   ├── ip-lookup/
 │   │   ├── lorem/
 │   │   ├── qr/
 │   │   ├── text-count/

@@ -19,6 +19,7 @@ const nextConfig: NextConfig = {
         ? "script-src 'self' 'unsafe-inline' https:"
         : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
       "connect-src 'self' https: wss:",
+      "frame-src 'self' https://www.openstreetmap.org",
       "form-action 'self'",
       isProd ? 'upgrade-insecure-requests' : null,
     ]
@@ -47,8 +48,8 @@ const nextConfig: NextConfig = {
         source: '/api/:path*',
         headers: [
           { key: 'Access-Control-Allow-Origin', value: 'https://tools.hello-ms.co.kr' },
-          { key: 'Access-Control-Allow-Methods', value: 'GET, OPTIONS' },
           { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,POST,OPTIONS' },
           { key: 'Access-Control-Max-Age', value: '600' },
         ],
       },

@@ -1,1 +1,1 @@
-export * from './weather-region.constants'
+export * from './weather-location-presets'

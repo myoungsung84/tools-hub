@@ -1,7 +1,7 @@
 import {
   CalendarDays,
-  CloudSun,
   Clock,
+  CloudSun,
   Dice5,
   FileSearch,
   FileText,

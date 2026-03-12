@@ -1,25 +1,7 @@
 import type { Coords } from '@/features/weather/types'
 
-export const WEATHER_REGION = {
-  SEOUL: 'SEOUL',
-  BUSAN: 'BUSAN',
-  INCHEON: 'INCHEON',
-  DAEGU: 'DAEGU',
-  GWANGJU: 'GWANGJU',
-  DAEJEON: 'DAEJEON',
-  ULSAN: 'ULSAN',
-  SEJONG: 'SEJONG',
-  SUWON: 'SUWON',
-  GANGNEUNG: 'GANGNEUNG',
-  JEONJU: 'JEONJU',
-  CHANGWON: 'CHANGWON',
-  JEJU: 'JEJU',
-} as const
-
-export type WeatherRegion = keyof typeof WEATHER_REGION
-
-export const REGION_CONFIG: Record<
-  WeatherRegion,
+export const WEATHER_LOCATION_PRESETS: Record<
+  string,
   {
     label: string
     timezone: string

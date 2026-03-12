@@ -1,38 +1,28 @@
 'use client'
 
-import { isNil } from 'lodash-es'
 import { useMemo } from 'react'
 
 import { useSyncedNow } from '@/features/time/hook/use-synced-now'
-import { clockParts, currentDate } from '@/lib/shared'
+import { buildWorldTimes } from '@/features/time/lib/world-time'
 
-import { useWeatherNowMany } from '../hook/use-weather-now'
-import TimeAmpmBadge from './components/time-ampm-badge'
 import TimeBackgroundGlow from './components/time-background-glow'
-import TimeDateLine from './components/time-date-line'
-import TimeDigitalClock from './components/time-digital-clock'
+import TimeMainClock from './components/time-main-clock'
 import TimePageSkeleton from './components/time-page-skeleton'
-import WeatherDashboard from './components/weather-dashboard'
+import TimeSubClocks from './components/time-sub-clocks'
 
 export default function TimePage() {
   const now = useSyncedNow()
-  const regions = useMemo(() => ['SEOUL', 'BUSAN', 'GWANGJU', 'JEJU'] as const, [])
-  const { data, regionList } = useWeatherNowMany([...regions])
+  const worldTimes = useMemo(() => (now ? buildWorldTimes(now) : []), [now])
 
-  if (isNil(now)) {
+  if (!now) {
     return <TimePageSkeleton />
   }
-
-  const { meridiem, hh, mm, ss } = clockParts(now)
-  const dateLine = currentDate(now)
 
   return (
     <div className='relative w-full flex flex-1 flex-col items-center justify-center gap-8'>
       <TimeBackgroundGlow />
-      <TimeAmpmBadge meridiem={meridiem} />
-      <TimeDigitalClock hh={hh} mm={mm} ss={ss} />
-      <TimeDateLine dateLine={dateLine} />
-      <WeatherDashboard regionList={regionList} data={data} />
+      <TimeMainClock now={now} />
+      <TimeSubClocks clocks={worldTimes} />
     </div>
   )
 }

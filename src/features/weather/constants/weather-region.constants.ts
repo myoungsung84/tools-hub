@@ -1,4 +1,4 @@
-import type { Coords } from '@/features/time/types/weather-now.types'
+import type { Coords } from '@/features/weather/types'
 
 export const WEATHER_REGION = {
   SEOUL: 'SEOUL',

@@ -8,10 +8,20 @@ import { cacheGetJson, cacheSetJson } from '@/lib/server/cache'
 
 type WeatherNowFromOpenMeteo = Omit<WeatherNowApiResponse, 'fetchedAt' | 'locationLabel'>
 
+const inFlightRequests = new Map<string, Promise<WeatherNowFromOpenMeteo>>()
+
 function cacheKey(coords: Coords, timezone: string) {
   const latitude = round(coords.latitude, 2)
   const longitude = round(coords.longitude, 2)
   return `weather:now:${timezone}:${latitude},${longitude}`
+}
+
+function resolveTtlSec(revalidateSec?: number) {
+  const base = revalidateSec ?? 30 * 60
+  const bounded = Math.min(Math.max(Math.floor(base), 60), 60 * 60)
+  const jitterMax = Math.max(30, Math.floor(bounded * 0.1))
+  const jitter = Math.floor(Math.random() * jitterMax)
+  return bounded + jitter
 }
 
 const openMeteoAgent = new Agent({
@@ -25,92 +35,107 @@ export async function fetchWeatherNowFromOpenMeteo(
   const latitude = round(coords.latitude, 2)
   const longitude = round(coords.longitude, 2)
 
-  const ttlSec = opts.revalidateSec ?? 30 * 60
+  const ttlSec = resolveTtlSec(opts.revalidateSec)
   const key = cacheKey(coords, opts.timezone)
 
-  // 1️⃣ Redis cache lookup
   const cached = await cacheGetJson<WeatherNowFromOpenMeteo>(key)
   if (!isNil(cached)) {
     console.log(`[weather-now.source] redis cache hit: ${key}`)
     return cached
   }
 
-  const url =
-    `https://api.open-meteo.com/v1/forecast` +
-    `?latitude=${latitude}&longitude=${longitude}` +
-    `&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m` +
-    `&wind_speed_unit=kmh` +
-    `&timezone=${encodeURIComponent(opts.timezone)}`
-
-  const requestedAtIso = dayjs().toISOString()
-
-  let res
-  try {
-    res = await undiciFetch(url, {
-      signal: opts.signal,
-      dispatcher: openMeteoAgent,
-    })
-  } catch (e) {
-    console.error('[open-meteo] fetch failed', { requestedAtIso, url, err: String(e) })
-    throw ApiErrors.upstream(`open-meteo fetch failed (${requestedAtIso})`)
+  const inFlight = inFlightRequests.get(key)
+  if (!isNil(inFlight)) {
+    return inFlight
   }
 
-  if (!res.ok) {
-    throw ApiErrors.upstream(`open-meteo bad response: ${res.status} (${requestedAtIso})`)
-  }
+  const request = (async () => {
+    const url =
+      `https://api.open-meteo.com/v1/forecast` +
+      `?latitude=${latitude}&longitude=${longitude}` +
+      `&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m` +
+      `&wind_speed_unit=kmh` +
+      `&timezone=${encodeURIComponent(opts.timezone)}`
 
-  const json = (await res.json()) as {
-    current?: {
-      temperature_2m: number
-      apparent_temperature?: number
-      weather_code?: number
-      wind_speed_10m?: number
+    const requestedAtIso = dayjs().toISOString()
+
+    let res
+    try {
+      res = await undiciFetch(url, {
+        signal: opts.signal,
+        dispatcher: openMeteoAgent,
+      })
+    } catch (e) {
+      console.error('[open-meteo] fetch failed', { requestedAtIso, url, err: String(e) })
+      throw ApiErrors.upstream(`open-meteo fetch failed (${requestedAtIso})`)
     }
-  }
 
-  const current = json.current
-  if (!current || typeof current.temperature_2m !== 'number') {
-    throw ApiErrors.internal('open-meteo response missing temperature_2m')
-  }
+    if (!res.ok) {
+      throw ApiErrors.upstream(`open-meteo bad response: ${res.status} (${requestedAtIso})`)
+    }
 
-  const tempC = round(current.temperature_2m, 0)
-  const feelsLikeC =
-    typeof current.apparent_temperature === 'number'
-      ? round(current.apparent_temperature, 0)
-      : undefined
+    const json = (await res.json()) as {
+      current?: {
+        temperature_2m: number
+        apparent_temperature?: number
+        weather_code?: number
+        wind_speed_10m?: number
+      }
+    }
 
-  const code = current.weather_code
+    const current = json.current
+    if (!current || typeof current.temperature_2m !== 'number') {
+      throw ApiErrors.internal('open-meteo response missing temperature_2m')
+    }
 
-  const windMs =
-    typeof current.wind_speed_10m === 'number' ? round(current.wind_speed_10m / 3.6, 1) : undefined
+    const tempC = round(current.temperature_2m, 0)
+    const feelsLikeC =
+      typeof current.apparent_temperature === 'number'
+        ? round(current.apparent_temperature, 0)
+        : undefined
 
-  const label = (() => {
-    if (code == null) return '날씨 정보 없음'
-    if (code === 0) return '맑음'
-    if (code === 1 || code === 2) return '대체로 맑음'
-    if (code === 3) return '흐림'
-    if (code === 45 || code === 48) return '안개'
-    if (code === 51 || code === 53 || code === 55) return '이슬비'
-    if (code === 61 || code === 63 || code === 65) return '비'
-    if (code === 66 || code === 67) return '진눈깨비'
-    if (code === 71 || code === 73 || code === 75) return '눈'
-    if (code === 77) return '눈날림'
-    if (code === 80 || code === 81 || code === 82) return '소나기'
-    if (code === 85 || code === 86) return '소나기 눈'
-    if (code === 95) return '뇌우'
-    if (code === 96 || code === 99) return '뇌우(우박)'
-    return '변덕'
+    const code = current.weather_code
+
+    const windMs =
+      typeof current.wind_speed_10m === 'number'
+        ? round(current.wind_speed_10m / 3.6, 1)
+        : undefined
+
+    const label = (() => {
+      if (code == null) return '날씨 정보 없음'
+      if (code === 0) return '맑음'
+      if (code === 1 || code === 2) return '대체로 맑음'
+      if (code === 3) return '흐림'
+      if (code === 45 || code === 48) return '안개'
+      if (code === 51 || code === 53 || code === 55) return '이슬비'
+      if (code === 61 || code === 63 || code === 65) return '비'
+      if (code === 66 || code === 67) return '진눈깨비'
+      if (code === 71 || code === 73 || code === 75) return '눈'
+      if (code === 77) return '눈날림'
+      if (code === 80 || code === 81 || code === 82) return '소나기'
+      if (code === 85 || code === 86) return '소나기 눈'
+      if (code === 95) return '뇌우'
+      if (code === 96 || code === 99) return '뇌우(우박)'
+      return '변덕'
+    })()
+
+    const out: WeatherNowFromOpenMeteo = {
+      tempC,
+      feelsLikeC,
+      windMs,
+      code,
+      label,
+    }
+
+    await cacheSetJson(key, out, ttlSec)
+    return out
   })()
 
-  const out: WeatherNowFromOpenMeteo = {
-    tempC,
-    feelsLikeC,
-    windMs,
-    code,
-    label,
-  }
+  inFlightRequests.set(key, request)
 
-  // 2️⃣ Redis cache set
-  await cacheSetJson(key, out, ttlSec)
-  return out
+  try {
+    return await request
+  } finally {
+    inFlightRequests.delete(key)
+  }
 }

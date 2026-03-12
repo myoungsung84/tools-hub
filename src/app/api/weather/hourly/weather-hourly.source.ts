@@ -25,10 +25,10 @@ function normalizeHours(hours: number) {
 }
 
 function resolveTtlSec(revalidateSec?: number) {
-  const base = revalidateSec ?? 30 * 60
-  const bounded = Math.min(Math.max(Math.floor(base), 60), 60 * 60)
-  // 동일 만료 시점 집중을 완화하기 위한 소량 지터
-  const jitter = Math.floor(Math.random() * 20)
+  const base = revalidateSec ?? 45 * 60
+  const bounded = Math.min(Math.max(Math.floor(base), 60), 2 * 60 * 60)
+  const jitterMax = Math.max(60, Math.floor(bounded * 0.1))
+  const jitter = Math.floor(Math.random() * jitterMax)
   return bounded + jitter
 }
 

@@ -51,7 +51,12 @@ export function useWeatherNowByLocation(location: WeatherLocation | null) {
   const [loading, setLoading] = React.useState(true)
 
   React.useEffect(() => {
-    if (!location) return
+    if (!location) {
+      // location이 null인 경우 이전 데이터를 정리하고 로딩 상태를 종료한다.
+      setData(null)
+      setLoading(false)
+      return
+    }
 
     let alive = true
     const ac = new AbortController()
@@ -96,7 +101,12 @@ export function useWeatherHourlyByLocation(location: WeatherLocation | null, hou
   const [loading, setLoading] = React.useState(true)
 
   React.useEffect(() => {
-    if (!location) return
+    if (!location) {
+      // location이 null인 경우 이전 데이터를 정리하고 로딩 상태를 종료한다.
+      setData(null)
+      setLoading(false)
+      return
+    }
 
     let alive = true
     const ac = new AbortController()
@@ -140,22 +150,29 @@ export function useWeatherNowMany(locations: WeatherLocation[]) {
   const [data, setData] = React.useState<Record<string, WeatherNow>>({})
   const [loading, setLoading] = React.useState(true)
 
+  const locationsRef = React.useRef(locations)
+  locationsRef.current = locations
+
   const locationsKey = React.useMemo(
     () =>
       locations
-        .map(location => `${location.id}:${location.coords.latitude}:${location.coords.longitude}`)
+        .map(
+          location =>
+            `${location.id}:${location.coords.latitude}:${location.coords.longitude}:${location.timezone}:${location.label}`
+        )
         .join('|'),
     [locations]
   )
 
   React.useEffect(() => {
     const ac = new AbortController()
+    const currentLocations = locationsRef.current
     setLoading(true)
 
     ;(async () => {
       try {
         const next: Record<string, WeatherNow> = {}
-        const tasks = locations.map(location =>
+        const tasks = currentLocations.map(location =>
           fetchWeatherNowApi(
             {
               lat: location.coords.latitude,
@@ -186,7 +203,7 @@ export function useWeatherNowMany(locations: WeatherLocation[]) {
     return () => {
       ac.abort()
     }
-  }, [locationsKey, locations])
+  }, [locationsKey])
 
   return { data, loading }
 }

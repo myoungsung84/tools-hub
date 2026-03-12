@@ -375,7 +375,7 @@ function HourlyForecastPanel({
                     key={`dot-wind-${props.index}`}
                     {...props}
                     color='#a3e635'
-                    unit='m'
+                    unit='m/s'
                     total={hourlyItems.length}
                   />
                 )}
@@ -537,10 +537,12 @@ export default function WeatherPage() {
 
   const handleSelectCity = (id: string) => {
     if (id === selectedCityId) return
-    // 1) 페이드 아웃
+    // 1) 기존 타이머 해제 후 페이드 아웃
+    if (fadeTimerRef.current) clearTimeout(fadeTimerRef.current)
     setVisible(false)
     // 2) 짧은 딜레이 후 도시 전환 → 새 데이터 fetch 시작
     fadeTimerRef.current = setTimeout(() => {
+      fadeTimerRef.current = null
       setSelectedCityId(id)
     }, 150)
   }
@@ -571,14 +573,14 @@ export default function WeatherPage() {
   )
   const { data: subNowMap, loading: subLoading } = useWeatherNowMany(subCities)
 
-  // 새 도시 데이터가 도착하면 페이드 인
+  // 새 도시 데이터가 실제로 도착해서 mainNow가 갱신되면 페이드 인
   useEffect(() => {
-    if (!mainNowLoading) {
+    if (!mainNowLoading && mainNow) {
       // 살짝 딜레이 주어 레이아웃 점프 방지
       const t = setTimeout(() => setVisible(true), 30)
       return () => clearTimeout(t)
     }
-  }, [mainNowLoading, selectedCityId])
+  }, [mainNowLoading, mainNow])
 
   const hourlyItems = useMemo(() => mainHourly?.points.slice(0, 12) ?? [], [mainHourly?.points])
 

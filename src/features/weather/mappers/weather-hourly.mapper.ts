@@ -7,7 +7,7 @@ export function mapWeatherHourly(dto: WeatherHourlyApiResponse): WeatherHourly {
     fetchedAt: new Date(dto.fetchedAt),
     points: dto.points.map(point => ({
       ...point,
-      time: new Date(point.time),
+      time: new Date(point.time * 1000),
     })),
   }
 }

@@ -363,7 +363,7 @@ function StatTile({ label, value, shimmer = false }: StatTileProps) {
 interface CustomDotProps {
   cx?: number
   cy?: number
-  value?: number
+  value?: number | [number, number]
   index?: number
   color: string
   unit: string
@@ -380,6 +380,8 @@ function CustomDotWithLabel({
   total,
 }: CustomDotProps) {
   if (value == null) return null
+  const displayValue = Array.isArray(value) ? value[1] : value
+  if (displayValue == null) return null
   // 첫 번째와 마지막은 레이블이 잘릴 수 있으므로 anchor 조정
   const anchor = index === 0 ? 'start' : index === total - 1 ? 'end' : 'middle'
   return (
@@ -393,7 +395,7 @@ function CustomDotWithLabel({
         fontSize={10}
         fontWeight={500}
       >
-        {value}
+        {displayValue}
         {unit}
       </text>
     </g>

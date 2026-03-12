@@ -11,10 +11,25 @@ type WeatherHourlyFromOpenMeteo = {
   points: WeatherHourlyPointApi[]
 }
 
+const inFlightRequests = new Map<string, Promise<WeatherHourlyFromOpenMeteo>>()
+
 function cacheKey(coords: Coords, timezone: string, hours: number) {
   const latitude = round(coords.latitude, 2)
   const longitude = round(coords.longitude, 2)
   return `weather:hourly:${timezone}:${hours}:${latitude},${longitude}`
+}
+
+function normalizeHours(hours: number) {
+  if (!Number.isFinite(hours)) return 24
+  return Math.min(Math.max(Math.floor(hours), 1), 48)
+}
+
+function resolveTtlSec(revalidateSec?: number) {
+  const base = revalidateSec ?? 30 * 60
+  const bounded = Math.min(Math.max(Math.floor(base), 60), 60 * 60)
+  // 동일 만료 시점 집중을 완화하기 위한 소량 지터
+  const jitter = Math.floor(Math.random() * 20)
+  return bounded + jitter
 }
 
 const openMeteoAgent = new Agent({
@@ -48,10 +63,11 @@ export async function fetchWeatherHourlyFromOpenMeteo(
     revalidateSec?: number
   }
 ): Promise<WeatherHourlyFromOpenMeteo> {
+  const safeHours = normalizeHours(opts.hours)
   const latitude = round(coords.latitude, 2)
   const longitude = round(coords.longitude, 2)
-  const ttlSec = opts.revalidateSec ?? 30 * 60
-  const key = cacheKey(coords, opts.timezone, opts.hours)
+  const ttlSec = resolveTtlSec(opts.revalidateSec)
+  const key = cacheKey(coords, opts.timezone, safeHours)
 
   const cached = await cacheGetJson<WeatherHourlyFromOpenMeteo>(key)
   if (!isNil(cached)) {
@@ -59,69 +75,86 @@ export async function fetchWeatherHourlyFromOpenMeteo(
     return cached
   }
 
-  const url =
-    `https://api.open-meteo.com/v1/forecast` +
-    `?latitude=${latitude}&longitude=${longitude}` +
-    `&hourly=temperature_2m,weather_code,precipitation_probability,wind_speed_10m` +
-    `&forecast_hours=${opts.hours}` +
-    `&wind_speed_unit=kmh` +
-    `&timezone=${encodeURIComponent(opts.timezone)}`
+  const inFlight = inFlightRequests.get(key)
+  if (!isNil(inFlight)) {
+    return inFlight
+  }
 
-  const requestedAtIso = dayjs().toISOString()
+  const request = (async () => {
+    const url =
+      `https://api.open-meteo.com/v1/forecast` +
+      `?latitude=${latitude}&longitude=${longitude}` +
+      `&hourly=temperature_2m,weather_code,precipitation_probability,wind_speed_10m` +
+      `&forecast_hours=${safeHours}` +
+      `&wind_speed_unit=kmh` +
+      `&timezone=${encodeURIComponent(opts.timezone)}`
 
-  let res
-  try {
-    res = await undiciFetch(url, {
-      signal: opts.signal,
-      dispatcher: openMeteoAgent,
+    const requestedAtIso = dayjs().toISOString()
+
+    let res
+    try {
+      res = await undiciFetch(url, {
+        signal: opts.signal,
+        dispatcher: openMeteoAgent,
+      })
+    } catch (e) {
+      console.error('[open-meteo] hourly fetch failed', { requestedAtIso, url, err: String(e) })
+      throw ApiErrors.upstream(`open-meteo hourly fetch failed (${requestedAtIso})`)
+    }
+
+    if (!res.ok) {
+      throw ApiErrors.upstream(`open-meteo hourly bad response: ${res.status} (${requestedAtIso})`)
+    }
+
+    const json = (await res.json()) as {
+      timezone?: string
+      hourly?: {
+        time?: string[]
+        temperature_2m?: number[]
+        weather_code?: number[]
+        precipitation_probability?: number[]
+        wind_speed_10m?: number[]
+      }
+    }
+
+    const hourly = json.hourly
+    if (!hourly?.time || !hourly.temperature_2m) {
+      throw ApiErrors.internal('open-meteo hourly response missing required fields')
+    }
+
+    const points: WeatherHourlyPointApi[] = hourly.time.map((time, index) => {
+      const windKmh = hourly.wind_speed_10m?.[index]
+      const windMs = typeof windKmh === 'number' ? round(windKmh / 3.6, 1) : undefined
+      const code = hourly.weather_code?.[index]
+      const precipitationProbability = hourly.precipitation_probability?.[index]
+
+      return {
+        time,
+        temperature: round(hourly.temperature_2m?.[index] ?? 0, 0),
+        code,
+        condition: toWeatherLabel(code),
+        precipitationProbability:
+          typeof precipitationProbability === 'number'
+            ? round(precipitationProbability, 0)
+            : undefined,
+        windSpeed: windMs,
+      }
     })
-  } catch (e) {
-    console.error('[open-meteo] hourly fetch failed', { requestedAtIso, url, err: String(e) })
-    throw ApiErrors.upstream(`open-meteo hourly fetch failed (${requestedAtIso})`)
-  }
 
-  if (!res.ok) {
-    throw ApiErrors.upstream(`open-meteo hourly bad response: ${res.status} (${requestedAtIso})`)
-  }
-
-  const json = (await res.json()) as {
-    timezone?: string
-    hourly?: {
-      time?: string[]
-      temperature_2m?: number[]
-      weather_code?: number[]
-      precipitation_probability?: number[]
-      wind_speed_10m?: number[]
+    const out: WeatherHourlyFromOpenMeteo = {
+      timezone: json.timezone ?? opts.timezone,
+      points,
     }
+
+    await cacheSetJson(key, out, ttlSec)
+    return out
+  })()
+
+  inFlightRequests.set(key, request)
+
+  try {
+    return await request
+  } finally {
+    inFlightRequests.delete(key)
   }
-
-  const hourly = json.hourly
-  if (!hourly?.time || !hourly.temperature_2m) {
-    throw ApiErrors.internal('open-meteo hourly response missing required fields')
-  }
-
-  const points: WeatherHourlyPointApi[] = hourly.time.map((time, index) => {
-    const windKmh = hourly.wind_speed_10m?.[index]
-    const windMs = typeof windKmh === 'number' ? round(windKmh / 3.6, 1) : undefined
-    const code = hourly.weather_code?.[index]
-    const precipitationProbability = hourly.precipitation_probability?.[index]
-
-    return {
-      time,
-      temperature: round(hourly.temperature_2m?.[index] ?? 0, 0),
-      code,
-      condition: toWeatherLabel(code),
-      precipitationProbability:
-        typeof precipitationProbability === 'number' ? round(precipitationProbability, 0) : undefined,
-      windSpeed: windMs,
-    }
-  })
-
-  const out: WeatherHourlyFromOpenMeteo = {
-    timezone: json.timezone ?? opts.timezone,
-    points,
-  }
-
-  await cacheSetJson(key, out, ttlSec)
-  return out
 }

@@ -1,6 +1,6 @@
 import type { Coords, WeatherHourlyApiResponse } from '@/features/weather/types'
 import { handleApi, parseParams, success } from '@/lib/server'
-import { zLatLon, zStringWithDefault } from '@/lib/shared'
+import { zLatLon, zString, zStringWithDefault } from '@/lib/shared'
 
 import { fetchWeatherHourlyFromOpenMeteo } from './weather-hourly.source'
 
@@ -9,8 +9,16 @@ async function handler(req: Request) {
 
   const { lat, lon, timezone, locationLabel, hours } = parseParams(
     zLatLon.extend({
-      timezone: zStringWithDefault('Asia/Seoul'),
-      locationLabel: zStringWithDefault('현재 위치'),
+      timezone: zString
+        .max(64)
+        .regex(/^[A-Za-z0-9_]+\/[A-Za-z0-9_]+(?:\/[A-Za-z0-9_]+)*$/, 'Invalid timezone')
+        .optional()
+        .default('Asia/Seoul'),
+      locationLabel: zString
+        .max(64)
+        .regex(/^[\p{L}\p{N}\s\-_.,()\/]+$/u, 'Invalid location label')
+        .optional()
+        .default('현재 위치'),
       hours: zStringWithDefault('24'),
     }),
     Object.fromEntries(searchParams),

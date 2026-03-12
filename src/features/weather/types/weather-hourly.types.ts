@@ -1,5 +1,5 @@
 export type WeatherHourlyPointApi = {
-  time: string
+  time: number
   temperature: number
   code?: number
   condition: string

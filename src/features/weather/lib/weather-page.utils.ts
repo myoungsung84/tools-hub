@@ -3,22 +3,21 @@ import { Cloud, CloudDrizzle, CloudLightning, CloudRain, CloudSnow, CloudSun, Su
 
 import type { Coords } from '@/features/weather/types'
 
-export function formatLocalTime(now: Date, timeZone: string): string {
+function formatKoTimeHHmm(date: Date, timeZone: string): string {
   return new Intl.DateTimeFormat('ko-KR', {
     timeZone,
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
-  }).format(now)
+  }).format(date)
+}
+
+export function formatLocalTime(now: Date, timeZone: string): string {
+  return formatKoTimeHHmm(now, timeZone)
 }
 
 export function formatTimeLabel(time: Date, timeZone: string): string {
-  return new Intl.DateTimeFormat('ko-KR', {
-    timeZone,
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  }).format(time)
+  return formatKoTimeHHmm(time, timeZone)
 }
 
 export function formatChartTime(time: Date, timeZone: string): string {

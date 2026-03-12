@@ -87,6 +87,7 @@ export async function fetchWeatherHourlyFromOpenMeteo(
       `&hourly=temperature_2m,weather_code,precipitation_probability,wind_speed_10m` +
       `&forecast_hours=${safeHours}` +
       `&wind_speed_unit=kmh` +
+      `&timeformat=unixtime` +
       `&timezone=${encodeURIComponent(opts.timezone)}`
 
     const requestedAtIso = dayjs().toISOString()
@@ -109,7 +110,7 @@ export async function fetchWeatherHourlyFromOpenMeteo(
     const json = (await res.json()) as {
       timezone?: string
       hourly?: {
-        time?: string[]
+        time?: number[]
         temperature_2m?: number[]
         weather_code?: number[]
         precipitation_probability?: number[]

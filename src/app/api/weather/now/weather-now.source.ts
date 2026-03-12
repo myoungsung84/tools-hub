@@ -2,7 +2,7 @@ import dayjs from 'dayjs'
 import { isNil, round } from 'lodash-es'
 import { Agent, fetch as undiciFetch } from 'undici'
 
-import type { Coords, WeatherNowApiResponse } from '@/features/time/types/weather-now.types'
+import type { Coords, WeatherNowApiResponse } from '@/features/weather/types'
 import { ApiErrors } from '@/lib/server'
 import { cacheGetJson, cacheSetJson } from '@/lib/server/cache'
 

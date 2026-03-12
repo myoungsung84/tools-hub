@@ -1,4 +1,4 @@
-import type { WeatherNow, WeatherNowApiResponse } from '@/features/time/types/weather-now.types'
+import type { WeatherNow, WeatherNowApiResponse } from '@/features/weather/types'
 
 export function mapWeatherNow(dto: WeatherNowApiResponse): WeatherNow {
   return {

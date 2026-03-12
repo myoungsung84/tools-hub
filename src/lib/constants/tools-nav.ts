@@ -1,6 +1,7 @@
 import {
   CalendarDays,
   Clock,
+  CloudSun,
   Dice5,
   FileSearch,
   FileText,
@@ -12,6 +13,12 @@ import {
 
 export const TOOLS_NAV = [
   { href: '/time', label: { ko: '현재시간', en: 'Time' }, icon: Clock, priority: 0.9 },
+  {
+    href: '/weather',
+    label: { ko: '세계 날씨', en: 'Global Weather' },
+    icon: CloudSun,
+    priority: 0.88,
+  },
   { href: '/ip', label: { ko: '나의 아이피', en: 'IP Address' }, icon: Globe, priority: 0.8 },
   {
     href: '/ip-lookup',

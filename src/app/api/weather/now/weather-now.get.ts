@@ -1,4 +1,4 @@
-import type { Coords, WeatherNowApiResponse } from '@/features/time/types/weather-now.types'
+import type { Coords, WeatherNowApiResponse } from '@/features/weather/types'
 import { handleApi, parseParams, success } from '@/lib/server'
 import { zLatLon, zStringWithDefault } from '@/lib/shared'
 

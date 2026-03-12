@@ -1,7 +1,5 @@
 'use client'
 
-import { useMemo } from 'react'
-
 import { useSyncedNow } from '@/features/time/hook/use-synced-now'
 import { buildWorldTimes } from '@/features/time/lib/world-time'
 
@@ -12,7 +10,7 @@ import TimeSubClocks from './components/time-sub-clocks'
 
 export default function TimePage() {
   const now = useSyncedNow()
-  const worldTimes = useMemo(() => (now ? buildWorldTimes(now) : []), [now])
+  const worldTimes = now ? buildWorldTimes(now) : []
 
   if (!now) {
     return <TimePageSkeleton />

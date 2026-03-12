@@ -9,9 +9,7 @@ export default function TimeSubClocks({ clocks }: Props) {
     <article className='w-full max-w-6xl px-4'>
       <div className='grid grid-cols-1 gap-3 sm:flex sm:flex-wrap sm:justify-center'>
         {clocks.map(city => {
-          const [hourStr] = city.time.split(':')
-          const hour = parseInt(hourStr, 10)
-          const ampm = hour < 12 ? 'AM' : 'PM'
+          const ampm = city.hour < 12 ? 'AM' : 'PM'
 
           return (
             <div

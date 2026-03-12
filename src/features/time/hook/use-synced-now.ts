@@ -1,23 +1,15 @@
-import dayjs from 'dayjs'
-import timezone from 'dayjs/plugin/timezone'
-import utc from 'dayjs/plugin/utc'
 import * as React from 'react'
 
-dayjs.extend(utc)
-dayjs.extend(timezone)
-
-const DEFAULT_TIME_ZONE = 'Asia/Seoul'
-
-export function useSyncedNow(timeZone = DEFAULT_TIME_ZONE) {
+export function useSyncedNow() {
   const [now, setNow] = React.useState<Date | null>(null)
 
   React.useEffect(() => {
     let timer: number | null = null
 
     const tick = () => {
-      const current = dayjs().tz(timeZone)
-      setNow(current.toDate())
-      timer = window.setTimeout(tick, 1000 - current.millisecond())
+      const current = new Date()
+      setNow(current)
+      timer = window.setTimeout(tick, 1000 - current.getMilliseconds())
     }
 
     tick()
@@ -25,7 +17,7 @@ export function useSyncedNow(timeZone = DEFAULT_TIME_ZONE) {
     return () => {
       if (timer !== null) window.clearTimeout(timer)
     }
-  }, [timeZone])
+  }, [])
 
   return now
 }

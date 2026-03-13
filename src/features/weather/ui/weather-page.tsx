@@ -74,8 +74,8 @@ export default function WeatherPage() {
     []
   )
 
-  const allNowMap = useMemo<Record<string, WeatherNow>>(() => {
-    const map: Record<string, WeatherNow> = { ...subNowMap }
+  const allNowMap = useMemo<Partial<Record<string, WeatherNow>>>(() => {
+    const map: Partial<Record<string, WeatherNow>> = { ...subNowMap }
     if (mainNow && selectedCity) map[selectedCity.id] = mainNow
     return map
   }, [subNowMap, mainNow, selectedCity])

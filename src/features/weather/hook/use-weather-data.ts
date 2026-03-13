@@ -147,7 +147,7 @@ export function useWeatherHourlyByLocation(location: WeatherLocation | null, hou
 }
 
 export function useWeatherNowMany(locations: WeatherLocation[]) {
-  const [data, setData] = React.useState<Record<string, WeatherNow>>({})
+  const [data, setData] = React.useState<Partial<Record<string, WeatherNow>>>({})
   const [loading, setLoading] = React.useState(true)
 
   const locationsRef = React.useRef(locations)

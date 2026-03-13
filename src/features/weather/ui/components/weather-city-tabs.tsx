@@ -9,7 +9,7 @@ type PinnedCityTabsProps = {
   pinnedCities: WeatherLocation[]
   selectedCityId: string
   onSelectCity: (id: string) => void
-  nowMap: Record<string, WeatherNow>
+  nowMap: Partial<Record<string, WeatherNow>>
 }
 
 export function WeatherCityTabs({

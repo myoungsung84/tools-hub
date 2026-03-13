@@ -59,14 +59,27 @@ export function convertUnits(input: unknown): UnitConversionState {
   }
 
   const categoryUnits = UNITS_BY_CATEGORY[categoryId]
-  const baseValue = toBase(fromUnit, value)
 
-  const results: UnitConversionResult[] = categoryUnits.map(unit => ({
+  let baseValue: number
+  try {
+    baseValue = toBase(fromUnit, value)
+  } catch (error) {
+    console.error('Unit conversion error:', error)
+    return { status: 'error', message: '변환 중 오류가 발생했습니다.' }
+  }
+
+  let results: UnitConversionResult[]
+  try {
+    results = categoryUnits.map(unit => ({
       id: unit.id,
       label: unit.label,
       symbol: unit.symbol,
       value: fromBase(unit, baseValue),
     }))
+  } catch (error) {
+    console.error('Unit result calculation error:', error)
+    return { status: 'error', message: '변환 결과를 계산하는 중 오류가 발생했습니다.' }
+  }
 
   return {
     status: 'success',

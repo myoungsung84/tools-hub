@@ -86,11 +86,12 @@ export default function UnitConverterPage() {
 
       <div className='flex flex-col gap-8'>
         <UnitConverterStepSection step={1} title='카테고리 선택'>
-          <div className='flex flex-wrap gap-2'>
+          <div role='group' aria-label='카테고리 선택' className='flex flex-wrap gap-2'>
             {UNIT_CATEGORIES.map(category => (
               <button
                 key={category.id}
                 type='button'
+                aria-pressed={categoryId === category.id}
                 onClick={() => handleCategoryChange(category.id)}
                 className={cn(
                   'rounded-lg border px-4 py-1.5 text-sm font-medium transition-all duration-200',
@@ -106,11 +107,12 @@ export default function UnitConverterPage() {
         </UnitConverterStepSection>
 
         <UnitConverterStepSection step={2} title='기준 단위 선택'>
-          <div className='flex flex-wrap gap-2'>
+          <div role='group' aria-label='기준 단위 선택' className='flex flex-wrap gap-2'>
             {categoryUnits.map(unit => (
               <button
                 key={unit.id}
                 type='button'
+                aria-pressed={fromUnitId === unit.id}
                 onClick={() => handleUnitChange(unit.id)}
                 className={cn(
                   'flex min-w-[5rem] flex-col items-start rounded-lg border px-3.5 py-2.5 text-left text-sm transition-all duration-200',

@@ -1,4 +1,5 @@
 import {
+  ArrowLeftRight,
   CalendarDays,
   Clock,
   CloudSun,
@@ -27,6 +28,12 @@ export const TOOLS_NAV = [
     priority: 0.79,
   },
   { href: '/count', label: { ko: '글자수 세기', en: 'Text Count' }, icon: Type, priority: 0.7 },
+  {
+    href: '/unit-converter',
+    label: { ko: '단위 변환기', en: 'Unit Converter' },
+    icon: ArrowLeftRight,
+    priority: 0.74,
+  },
   {
     href: '/lorem',
     label: { ko: '더미 텍스트', en: 'Lorem Generator' },

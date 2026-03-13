@@ -10,7 +10,7 @@ import type { WeatherLocation } from '../../hook'
 
 type OtherCitiesPanelProps = {
   subCities: WeatherLocation[]
-  subNowMap: Record<string, WeatherNow>
+  subNowMap: Partial<Record<string, WeatherNow>>
   subLoading: boolean
   now: Date | null
   onSelectCity: (id: string) => void

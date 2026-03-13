@@ -84,12 +84,16 @@ export function WeatherHourlyPanel({
   chartTab,
   onChangeChartTab,
 }: HourlyForecastPanelProps) {
-  const chartData = hourlyItems.map(point => ({
-    time: formatChartTime(point.time, timezone),
-    temp: point.temperature,
-    precip: point.precipitationProbability ?? 0,
-    wind: point.windSpeed ?? 0,
-  }))
+  const chartData = useMemo(
+    () =>
+      hourlyItems.map(point => ({
+        time: formatChartTime(point.time, timezone),
+        temp: point.temperature,
+        precip: point.precipitationProbability ?? 0,
+        wind: point.windSpeed ?? 0,
+      })),
+    [hourlyItems, timezone]
+  )
 
   const peakIndex = useMemo(() => {
     const key = chartTab as 'temp' | 'precip' | 'wind'

@@ -59,6 +59,7 @@
 > ```
 >
 > 예시 (위도 37.5665, 경도 126.9780):
+>
 > ```
 > https://www.openstreetmap.org/export/embed.html?bbox=126.8780,37.4665,127.0780,37.6665&layer=mapnik&marker=37.5665,126.9780
 > ```
@@ -72,6 +73,13 @@
 
 - 입력 텍스트 기반 QR 생성
 - 다운로드 지원
+
+### 📏 유니트 컨버터 (Unit Converter)
+
+- 길이 / 무게 / 면적 / 온도 / 데이터 / 부피 단위 변환
+- 한국 생활 단위(평, 근, 돈) 지원
+- 데이터 단위는 decimal(`KB/MB/GB/TB`)과 binary(`KiB/MiB/GiB/TiB`)를 함께 제공
+- 선택한 카테고리의 전체 결과를 한 번에 확인 가능
 
 ### 📄 더미 텍스트 생성 (Lorem)
 
@@ -142,6 +150,7 @@ tools-hub/
 │   │   │   ├── lorem/          # 더미 텍스트 생성 페이지
 │   │   │   ├── qr/             # QR 코드 페이지
 │   │   │   ├── time/           # 시간 도구 페이지
+│   │   │   ├── unit-converter/ # 유니트 컨버터 페이지
 │   │   │   └── weather/        # 세계 날씨 페이지
 │   │   ├── api/                # API Routes
 │   │   │   ├── calendar/       # 캘린더(공휴일/기념일/잡절) API
@@ -167,6 +176,7 @@ tools-hub/
 │   │   ├── qr/
 │   │   ├── text-count/
 │   │   ├── time/
+│   │   ├── unit-converter/
 │   │   └── weather/
 │   └── lib/                    # 공통 유틸리티
 │       ├── client/
@@ -259,7 +269,8 @@ npx shadcn@latest add [component-name]
 
 1. `src/features/` 아래에 새 기능 폴더 생성
 2. `src/app/(tools)/` 아래에 새 라우트 생성
-3. 필요한 컴포넌트와 로직 구현
+3. feature 전용 UI는 `src/features/<feature>/ui` 아래에 두고, 재사용 가능한 조각만 `ui/components`로 분리
+4. 비즈니스 로직/상수/타입/검증은 `lib`, `types`, `schema` 성격에 맞게 분리
 
 ### 코드 스타일
 
@@ -267,6 +278,9 @@ npx shadcn@latest add [component-name]
 - **미사용 Import**: eslint-plugin-unused-imports에 의해 자동 제거
 - **컴포넌트**: React Server Components 우선 사용
 - **클라이언트 컴포넌트**: 필요한 경우에만 `use client` 지시어 사용
+- **Feature 구조**: page는 얇게 유지하고, 기능 구현은 `src/features/*` 중심으로 구성
+- **파일 네이밍**: 파일/폴더는 kebab-case 기준, feature 내부 파일은 가능한 한 기능 접두를 유지
+- **라이브러리 우선 사용**: 날짜/시간은 dayjs, 컬렉션/변형 유틸은 lodash-es를 우선 검토
 
 ## 🌐 배포
 

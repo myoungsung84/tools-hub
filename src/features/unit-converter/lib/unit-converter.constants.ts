@@ -1,6 +1,6 @@
 import type { UnitCategory, UnitCategoryId, UnitDefinition } from './unit-converter.types'
 
-export const UNIT_CATEGORY_IDS = ['length', 'weight', 'area', 'temperature', 'data'] as const
+export const UNIT_CATEGORY_IDS = ['length', 'weight', 'area', 'temperature', 'data', 'volume'] as const
 
 export const UNIT_CATEGORIES: UnitCategory[] = [
   { id: 'length', label: '길이' },
@@ -8,9 +8,11 @@ export const UNIT_CATEGORIES: UnitCategory[] = [
   { id: 'area', label: '면적' },
   { id: 'temperature', label: '온도' },
   { id: 'data', label: '데이터' },
+  { id: 'volume', label: '부피' },
 ]
 
-export const DATA_UNIT_NOTE = '데이터 단위는 10진수(1 KB = 1,000 B) 기준으로 계산합니다.'
+export const DATA_UNIT_NOTE =
+  'KB/MB/GB/TB는 10진수(1,000), KiB/MiB/GiB/TiB는 2진수(1,024) 기준으로 계산합니다.'
 
 export const UNITS_BY_CATEGORY: Record<UnitCategoryId, UnitDefinition[]> = {
   length: [
@@ -288,6 +290,125 @@ export const UNITS_BY_CATEGORY: Record<UnitCategoryId, UnitDefinition[]> = {
       label: '테라바이트',
       symbol: 'TB',
       factorToBase: 1_000_000_000_000,
+    },
+    {
+      id: 'kibibyte',
+      categoryId: 'data',
+      dimension: 'data',
+      kind: 'linear',
+      label: '키비바이트',
+      symbol: 'KiB',
+      factorToBase: 1_024,
+    },
+    {
+      id: 'mebibyte',
+      categoryId: 'data',
+      dimension: 'data',
+      kind: 'linear',
+      label: '메비바이트',
+      symbol: 'MiB',
+      factorToBase: 1_048_576,
+    },
+    {
+      id: 'gibibyte',
+      categoryId: 'data',
+      dimension: 'data',
+      kind: 'linear',
+      label: '기비바이트',
+      symbol: 'GiB',
+      factorToBase: 1_073_741_824,
+    },
+    {
+      id: 'tebibyte',
+      categoryId: 'data',
+      dimension: 'data',
+      kind: 'linear',
+      label: '테비바이트',
+      symbol: 'TiB',
+      factorToBase: 1_099_511_627_776,
+    },
+  ],
+  volume: [
+    {
+      id: 'milliliter',
+      categoryId: 'volume',
+      dimension: 'volume',
+      kind: 'linear',
+      label: '밀리리터',
+      symbol: 'mL',
+      factorToBase: 1,
+    },
+    {
+      id: 'liter',
+      categoryId: 'volume',
+      dimension: 'volume',
+      kind: 'linear',
+      label: '리터',
+      symbol: 'L',
+      factorToBase: 1_000,
+    },
+    {
+      id: 'cubic-centimeter',
+      categoryId: 'volume',
+      dimension: 'volume',
+      kind: 'linear',
+      label: '세제곱센티미터',
+      symbol: 'cm³',
+      factorToBase: 1,
+    },
+    {
+      id: 'cubic-meter',
+      categoryId: 'volume',
+      dimension: 'volume',
+      kind: 'linear',
+      label: '세제곱미터',
+      symbol: 'm³',
+      factorToBase: 1_000_000,
+    },
+    {
+      id: 'fluid-ounce-us',
+      categoryId: 'volume',
+      dimension: 'volume',
+      kind: 'linear',
+      label: '액량 온스 (US)',
+      symbol: 'fl oz (US)',
+      factorToBase: 29.5735295625,
+    },
+    {
+      id: 'cup-us',
+      categoryId: 'volume',
+      dimension: 'volume',
+      kind: 'linear',
+      label: '컵 (US)',
+      symbol: 'cup (US)',
+      factorToBase: 236.5882365,
+    },
+    {
+      id: 'pint-us',
+      categoryId: 'volume',
+      dimension: 'volume',
+      kind: 'linear',
+      label: '파인트 (US)',
+      symbol: 'pt (US)',
+      factorToBase: 473.176473,
+    },
+    {
+      id: 'quart-us',
+      categoryId: 'volume',
+      dimension: 'volume',
+      kind: 'linear',
+      label: '쿼트 (US)',
+      symbol: 'qt (US)',
+      factorToBase: 946.352946,
+    },
+    {
+      id: 'gallon-us',
+      categoryId: 'volume',
+      dimension: 'volume',
+      kind: 'linear',
+      label: '갤런 (US)',
+      symbol: 'gal (US)',
+      factorToBase: 3_785.411784,
     },
   ],
 }

@@ -1,11 +1,11 @@
-export type UnitCategoryId = 'length' | 'weight' | 'area' | 'temperature' | 'data'
+export type UnitCategoryId = 'length' | 'weight' | 'area' | 'temperature' | 'data' | 'volume'
 
 export type UnitCategory = {
   id: UnitCategoryId
   label: string
 }
 
-export type UnitDimension = 'length' | 'weight' | 'area' | 'temperature' | 'data'
+export type UnitDimension = 'length' | 'weight' | 'area' | 'temperature' | 'data' | 'volume'
 
 export type UnitKind = 'linear' | 'temperature'
 

@@ -5,73 +5,37 @@ import * as React from 'react'
 
 import PageHeader from '@/components/layout/page-header'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/client'
 
 import { convertUnits, formatConvertedValue } from '../lib/unit-converter'
 import { DATA_UNIT_NOTE, UNIT_CATEGORIES, UNITS_BY_CATEGORY } from '../lib/unit-converter.constants'
 import { unitCategoryIdSchema, unitValueSchema } from '../lib/unit-converter.schema'
-import type { UnitCategoryId } from '../lib/unit-converter.types'
+import type { UnitCategoryId, UnitConversionState } from '../lib/unit-converter.types'
+import UnitConverterResultList from './components/unit-converter-result-list'
+import UnitConverterStepSection from './components/unit-converter-step-section'
 
 function getDefaultUnitId(categoryId: UnitCategoryId) {
   return UNITS_BY_CATEGORY[categoryId][0]?.id ?? ''
 }
 
-type ResultListProps = {
-  items: Array<{ id: string; label: string; symbol: string; value: number }>
+function getConversionState(input: {
+  categoryId: UnitCategoryId
   fromUnitId: string
-}
+  inputValue: string
+}): UnitConversionState {
+  const parsedValue = unitValueSchema.safeParse(input.inputValue)
+  if (!parsedValue.success) {
+    return {
+      status: 'error',
+      message: parsedValue.error.issues[0]?.message ?? '유효한 숫자를 입력해 주세요.',
+    }
+  }
 
-function ResultList({ items, fromUnitId }: ResultListProps) {
-  return (
-    <ul className='grid grid-cols-1 gap-2 sm:grid-cols-2'>
-      {items.map((item, i) => {
-        const isBase = item.id === fromUnitId
-        return (
-          <li
-            key={item.id}
-            style={{ animationDelay: `${i * 40}ms` }}
-            className={cn(
-              'group relative flex items-center justify-between overflow-hidden rounded-lg border px-5 py-4 text-sm',
-              'animate-in fade-in slide-in-from-bottom-2 duration-300 fill-mode-both',
-              isBase
-                ? 'border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent shadow-sm shadow-primary/10'
-                : 'border-border/60 bg-gradient-to-br from-muted/40 to-transparent hover:border-border hover:from-muted/60'
-            )}
-          >
-            <span className='flex flex-col gap-0.5'>
-              <span
-                className={cn('font-medium', isBase ? 'text-foreground' : 'text-muted-foreground')}
-              >
-                {item.label}
-              </span>
-              <span className='font-mono text-xs text-muted-foreground/50'>{item.symbol}</span>
-            </span>
-
-            <strong
-              className={cn(
-                'font-mono text-lg font-bold tabular-nums tracking-tight',
-                isBase ? 'text-primary' : 'text-foreground'
-              )}
-            >
-              {formatConvertedValue(item.value)}
-              <span className='ml-1 font-sans text-xs font-normal text-muted-foreground'>
-                {item.symbol}
-              </span>
-            </strong>
-          </li>
-        )
-      })}
-    </ul>
-  )
-}
-
-function StepBadge({ step }: { step: number }) {
-  return (
-    <span className='flex h-5 w-5 items-center justify-center rounded-full bg-primary/15 text-[11px] font-bold text-primary'>
-      {step}
-    </span>
-  )
+  return convertUnits({
+    categoryId: input.categoryId,
+    fromUnitId: input.fromUnitId,
+    value: parsedValue.data,
+  })
 }
 
 export default function UnitConverterPage() {
@@ -93,16 +57,10 @@ export default function UnitConverterPage() {
     }
   }, [fromUnit, categoryUnits])
 
-  const conversionState = React.useMemo(() => {
-    const parsedValue = unitValueSchema.safeParse(inputValue)
-    if (!parsedValue.success) {
-      return {
-        status: 'error' as const,
-        message: parsedValue.error.issues[0]?.message ?? '유효한 숫자를 입력해 주세요.',
-      }
-    }
-    return convertUnits({ categoryId, fromUnitId, value: parsedValue.data })
-  }, [categoryId, fromUnitId, inputValue])
+  const conversionState = React.useMemo(
+    () => getConversionState({ categoryId, fromUnitId, inputValue }),
+    [categoryId, fromUnitId, inputValue]
+  )
 
   const handleCategoryChange = (nextValue: string) => {
     const parsed = unitCategoryIdSchema.safeParse(nextValue)
@@ -127,14 +85,7 @@ export default function UnitConverterPage() {
       />
 
       <div className='flex flex-col gap-8'>
-        {/* ── Step 1: 카테고리 ── */}
-        <section className='flex flex-col gap-3'>
-          <div className='flex items-center gap-2'>
-            <StepBadge step={1} />
-            <Label className='text-sm font-semibold tracking-tight text-foreground'>
-              카테고리 선택
-            </Label>
-          </div>
+        <UnitConverterStepSection step={1} title='카테고리 선택'>
           <div className='flex flex-wrap gap-2'>
             {UNIT_CATEGORIES.map(category => (
               <button
@@ -152,16 +103,9 @@ export default function UnitConverterPage() {
               </button>
             ))}
           </div>
-        </section>
+        </UnitConverterStepSection>
 
-        {/* ── Step 2: 기준 단위 ── */}
-        <section className='flex flex-col gap-3'>
-          <div className='flex items-center gap-2'>
-            <StepBadge step={2} />
-            <Label className='text-sm font-semibold tracking-tight text-foreground'>
-              기준 단위 선택
-            </Label>
-          </div>
+        <UnitConverterStepSection step={2} title='기준 단위 선택'>
           <div className='flex flex-wrap gap-2'>
             {categoryUnits.map(unit => (
               <button
@@ -183,25 +127,13 @@ export default function UnitConverterPage() {
                 >
                   {unit.label}
                 </span>
-                <span className='font-mono text-[11px] text-muted-foreground/60'>
-                  {unit.symbol}
-                </span>
+                <span className='font-mono text-[11px] text-muted-foreground/60'>{unit.symbol}</span>
               </button>
             ))}
           </div>
-        </section>
+        </UnitConverterStepSection>
 
-        {/* ── Step 3: 입력값 ── */}
-        <section className='flex flex-col gap-3'>
-          <div className='flex items-center gap-2'>
-            <StepBadge step={3} />
-            <Label
-              htmlFor='unit-value'
-              className='text-sm font-semibold tracking-tight text-foreground'
-            >
-              변환할 값 입력
-            </Label>
-          </div>
+        <UnitConverterStepSection step={3} title='변환할 값 입력' htmlFor='unit-value'>
           <div
             className={cn(
               'relative flex w-full max-w-sm items-center rounded-lg border bg-background transition-all duration-200',
@@ -227,9 +159,8 @@ export default function UnitConverterPage() {
               </span>
             )}
           </div>
-        </section>
+        </UnitConverterStepSection>
 
-        {/* ── 결과 ── */}
         <section className='flex flex-col gap-4'>
           <div className='flex items-center gap-3'>
             <div className='h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent' />
@@ -253,7 +184,11 @@ export default function UnitConverterPage() {
             <p className='text-sm text-muted-foreground'>표시할 결과가 없습니다.</p>
           ) : (
             <div className='flex flex-col gap-3'>
-              <ResultList items={conversionState.results} fromUnitId={fromUnit.id} />
+              <UnitConverterResultList
+                items={conversionState.results}
+                fromUnitId={fromUnit.id}
+                formatValue={formatConvertedValue}
+              />
               {categoryId === 'data' && (
                 <p className='rounded-lg border border-border/40 bg-muted/30 px-4 py-2.5 text-xs text-muted-foreground'>
                   {DATA_UNIT_NOTE}

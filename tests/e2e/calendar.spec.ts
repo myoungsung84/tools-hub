@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 import { freezeBrowserTime } from '../common/freeze-browser-time'
+import { setQaSummaryMetadata } from '../common/qa-summary-metadata'
 
 type CalendarEntry = {
   date: string
@@ -27,7 +28,19 @@ function buildCalendarApiResponse(
 }
 
 test.describe('/calendar', () => {
-  test('mock 응답으로 공휴일/기념일/잡절과 월 이동을 검증한다', async ({ page }) => {
+  test('mock 응답으로 공휴일/기념일/잡절과 월 이동을 검증한다', async ({ page }, testInfo) => {
+    setQaSummaryMetadata(testInfo, {
+      parameters: {
+        initialMonth: '2026-03',
+        toggles: ['공휴일 off', '공휴일 on', '다음 달 이동'],
+      },
+      checks: {
+        marchEntries: ['테스트 공휴일', '화이트데이', '경칩'],
+        toggleEffect: '공휴일 off 시 테스트 공휴일 숨김',
+        nextMonthEntry: '2026.04 / 4월 공휴일',
+      },
+    })
+
     await freezeBrowserTime(page, '2026-03-19T12:34:56+09:00')
 
     await page.route('**/api/calendar/**', async route => {

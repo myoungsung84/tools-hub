@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test'
 
+import { setQaSummaryMetadata } from '../common/qa-summary-metadata'
+
 const mockSuccessResponse = {
   success: true as const,
   data: {
@@ -59,7 +61,19 @@ const mockNoMapResponse = {
 }
 
 test.describe('/ip-lookup', () => {
-  test('정상 조회 시 요약과 위치 정보가 렌더링된다', async ({ page }) => {
+  test('정상 조회 시 요약과 위치 정보가 렌더링된다', async ({ page }, testInfo) => {
+    setQaSummaryMetadata(testInfo, {
+      parameters: {
+        mockCase: 'success',
+        ip: '8.8.8.8',
+      },
+      checks: {
+        summary: '8.8.8.8',
+        location: 'Mountain View',
+        map: '렌더링됨',
+      },
+    })
+
     await page.route('**/api/ip', async route => {
       await route.fulfill({
         status: 200,
@@ -79,7 +93,18 @@ test.describe('/ip-lookup', () => {
     await expect(page.getByTestId('ip-lookup-location')).toContainText('Mountain View')
   })
 
-  test('사설 IP 조회 시 지도 대신 사설 IP 안내가 표시된다', async ({ page }) => {
+  test('사설 IP 조회 시 지도 대신 사설 IP 안내가 표시된다', async ({ page }, testInfo) => {
+    setQaSummaryMetadata(testInfo, {
+      parameters: {
+        mockCase: 'private-ip',
+        ip: '192.168.0.1',
+      },
+      checks: {
+        summary: '사설 (Private)',
+        notice: '사설 IP 주소 / 지도를 표시할 수 없습니다.',
+      },
+    })
+
     await page.route('**/api/ip', async route => {
       await route.fulfill({
         status: 200,
@@ -97,7 +122,18 @@ test.describe('/ip-lookup', () => {
     await expect(page.getByText('지도를 표시할 수 없습니다.')).toBeVisible()
   })
 
-  test('좌표 없는 공인 IP 응답에서는 지도 카드가 렌더링되지 않는다', async ({ page }) => {
+  test('좌표 없는 공인 IP 응답에서는 지도 카드가 렌더링되지 않는다', async ({ page }, testInfo) => {
+    setQaSummaryMetadata(testInfo, {
+      parameters: {
+        mockCase: 'public-ip-no-map',
+        ip: '203.0.113.10',
+      },
+      checks: {
+        location: 'Seoul',
+        map: '미노출',
+      },
+    })
+
     await page.route('**/api/ip', async route => {
       await route.fulfill({
         status: 200,
@@ -114,7 +150,17 @@ test.describe('/ip-lookup', () => {
     await expect(page.getByTestId('ip-lookup-map')).toHaveCount(0)
   })
 
-  test('업스트림 실패 응답 시 에러 상태가 노출된다', async ({ page }) => {
+  test('업스트림 실패 응답 시 에러 상태가 노출된다', async ({ page }, testInfo) => {
+    setQaSummaryMetadata(testInfo, {
+      parameters: {
+        mockCase: 'upstream-error',
+        ip: '8.8.4.4',
+      },
+      checks: {
+        errorMessage: '업스트림 조회 실패',
+      },
+    })
+
     await page.route('**/api/ip', async route => {
       await route.fulfill({
         status: 502,
@@ -135,7 +181,17 @@ test.describe('/ip-lookup', () => {
     await expect(page.getByTestId('ip-lookup-error')).toContainText('업스트림 조회 실패')
   })
 
-  test('잘못된 입력 시 에러 상태가 노출된다', async ({ page }) => {
+  test('잘못된 입력 시 에러 상태가 노출된다', async ({ page }, testInfo) => {
+    setQaSummaryMetadata(testInfo, {
+      parameters: {
+        mockCase: 'invalid-input',
+        ip: 'not-an-ip',
+      },
+      checks: {
+        errorMessage: '유효한 IP 주소를 입력해 주세요.',
+      },
+    })
+
     await page.goto('/ip-lookup')
     await page.getByLabel('IP 주소 입력').fill('not-an-ip')
     await page.getByRole('button', { name: '조회하기' }).click()

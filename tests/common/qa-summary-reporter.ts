@@ -10,10 +10,14 @@ import type {
   TestResult,
 } from '@playwright/test/reporter'
 
+type SummarySectionValues = Record<string, string | string[]>
+
 type SummaryEntry = {
   title: string
   file: string
   status: string
+  parameters: SummarySectionValues | null
+  checks: SummarySectionValues | null
   failureReason: string | null
   artifactPaths: string[]
 }
@@ -45,6 +49,62 @@ function collectArtifactPaths(result: TestResult) {
     .map(toRelativePath)
 }
 
+function isSummarySectionValues(value: unknown): value is SummarySectionValues {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return false
+  }
+
+  return Object.values(value).every(entry => {
+    if (typeof entry === 'string') {
+      return true
+    }
+
+    return Array.isArray(entry) && entry.every(item => typeof item === 'string')
+  })
+}
+
+function readSummarySection(test: TestCase, annotationType: 'qa:parameters' | 'qa:checks') {
+  const merged = test.annotations.reduce<SummarySectionValues>((accumulator, annotation) => {
+    if (annotation.type !== annotationType || !annotation.description) {
+      return accumulator
+    }
+
+    try {
+      const parsed = JSON.parse(annotation.description) as unknown
+
+      if (!isSummarySectionValues(parsed)) {
+        return accumulator
+      }
+
+      return {
+        ...accumulator,
+        ...parsed,
+      }
+    } catch {
+      return accumulator
+    }
+  }, {})
+
+  return Object.keys(merged).length > 0 ? merged : null
+}
+
+function pushSummarySection(
+  lines: string[],
+  title: string,
+  section: SummarySectionValues | null
+) {
+  if (!section) {
+    return
+  }
+
+  lines.push(`- ${title}:`)
+
+  for (const [key, value] of Object.entries(section)) {
+    const renderedValue = Array.isArray(value) ? value.join(', ') : value
+    lines.push(`  - ${key}: ${renderedValue}`)
+  }
+}
+
 class QaSummaryReporter implements Reporter {
   private entries: SummaryEntry[] = []
 
@@ -57,6 +117,8 @@ class QaSummaryReporter implements Reporter {
       title: test.titlePath().slice(1).join(' > '),
       file: toRelativePath(test.location.file),
       status: result.status,
+      parameters: readSummarySection(test, 'qa:parameters'),
+      checks: readSummarySection(test, 'qa:checks'),
       failureReason: formatFailureReason(result.errors),
       artifactPaths: collectArtifactPaths(result),
     })
@@ -87,6 +149,8 @@ class QaSummaryReporter implements Reporter {
     for (const entry of this.entries) {
       lines.push(`## ${entry.status.toUpperCase()} - ${entry.title}`)
       lines.push(`- 파일: ${entry.file}`)
+      pushSummarySection(lines, '파라미터', entry.parameters)
+      pushSummarySection(lines, '검증값', entry.checks)
 
       if (entry.failureReason) {
         lines.push('- 실패 이유:')

@@ -111,7 +111,7 @@ export function WeatherHourlyPanel({
   const showSkeleton = isLoading || mainHourlyLoading || hourlyItems.length === 0
 
   return (
-    <div className='px-5 pb-5 pt-4'>
+    <div className='px-5 pb-5 pt-4' data-testid='weather-hourly-panel'>
       <div className='mb-3 flex items-center justify-between'>
         <p className='text-[10px] font-semibold uppercase tracking-[0.2em] text-white/30'>
           시간별 예보

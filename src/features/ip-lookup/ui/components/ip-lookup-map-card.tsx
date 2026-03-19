@@ -30,7 +30,7 @@ export default function IpLookupMapCard({ data, hasMapCoords, mapUrl }: Props) {
   }
 
   return (
-    <Card className='lg:col-span-2'>
+    <Card className='lg:col-span-2' data-testid='ip-lookup-map'>
       <CardHeader>
         <div className='flex items-center gap-2'>
           <MapPin className='size-4 text-muted-foreground' />

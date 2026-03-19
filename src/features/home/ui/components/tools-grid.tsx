@@ -10,7 +10,10 @@ export default function ToolsGrid({
   tools: ToolNavItem[]
 }) {
   return (
-    <div className='relative z-10 mt-10 grid w-full max-w-[900px] grid-cols-1 gap-3 px-6 sm:grid-cols-2 lg:grid-cols-3'>
+    <div
+      className='relative z-10 mt-10 grid w-full max-w-[900px] grid-cols-1 gap-3 px-6 sm:grid-cols-2 lg:grid-cols-3'
+      data-testid='home-tools-grid'
+    >
       {tools.map(tool => (
         <ToolCard key={tool.href} tool={tool} />
       ))}

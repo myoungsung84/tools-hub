@@ -25,7 +25,7 @@ export default function AgeResultGrid({
   numberIn: PresenceMotion
 }) {
   return (
-    <div className='flex flex-col gap-5'>
+    <div className='flex flex-col gap-5' data-testid='age-result-grid'>
       <div className='grid gap-5 md:grid-cols-2'>
         <AgeResultCard
           layoutId='card-man'
@@ -44,7 +44,10 @@ export default function AgeResultGrid({
         >
           <div className='flex h-full flex-col justify-center'>
             <div className='text-xs font-medium text-muted-foreground'>만 나이</div>
-            <div className='mt-2 text-3xl font-black tracking-tight tabular-nums'>
+            <div
+              className='mt-2 text-3xl font-black tracking-tight tabular-nums'
+              data-testid='age-result-man-age'
+            >
               {result.manAge}
               <span className='ml-1 text-base font-semibold text-muted-foreground'>세</span>
             </div>
@@ -69,7 +72,10 @@ export default function AgeResultGrid({
         >
           <div className='flex h-full flex-col justify-center'>
             <div className='text-xs font-medium text-muted-foreground'>세는나이</div>
-            <div className='mt-2 text-3xl font-black tracking-tight tabular-nums'>
+            <div
+              className='mt-2 text-3xl font-black tracking-tight tabular-nums'
+              data-testid='age-result-korean-age'
+            >
               {result.koreanAge}
               <span className='ml-1 text-base font-semibold text-muted-foreground'>세</span>
             </div>

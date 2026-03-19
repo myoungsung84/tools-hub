@@ -27,7 +27,7 @@ export default function IpPage() {
   const asn = data.asn
 
   return (
-    <div className={`${wrapClass} relative overflow-x-hidden`}>
+    <div className={`${wrapClass} relative overflow-x-hidden`} data-testid='ip-page'>
       <div
         className='pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
                  w-[320px] sm:w-[500px]

@@ -241,6 +241,26 @@ pnpm lint
 pnpm lint:fix
 ```
 
+### E2E QA (Playwright)
+
+실행 방법:
+
+```bash
+# Playwright 브라우저 설치 (최초 1회)
+pnpm exec playwright install chromium
+
+# E2E 실행
+pnpm qa:e2e
+
+# 브라우저를 보면서 실행
+pnpm qa:e2e:headed
+```
+
+결과 확인:
+
+- 요약: `test-results/qa-summary.md`
+- 실패 시에만 screenshot / trace / video 등 Playwright artifact 생성
+
 ### Docker
 
 ```bash

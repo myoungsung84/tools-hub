@@ -59,6 +59,7 @@ export default function LoremResultCard({
           value={output}
           readOnly
           aria-label='생성된 더미 텍스트'
+          data-testid='lorem-output'
           className='min-h-[340px] resize-y bg-muted/20 font-mono text-sm leading-7'
         />
       </CardContent>

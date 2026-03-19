@@ -12,6 +12,7 @@ type Props = {
 export default function DecideResult({ emoji, headline, message, toneClass }: Props) {
   return (
     <motion.div
+      data-testid='decide-result'
       className='flex flex-col items-center gap-2 sm:gap-3'
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -28,6 +29,7 @@ export default function DecideResult({ emoji, headline, message, toneClass }: Pr
 
       <motion.div
         key={headline}
+        data-testid='decide-headline'
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}

@@ -10,7 +10,7 @@ type Props = {
 
 export default function CalendarGrid({ calendar, isLoading, todayKey, showSonEobsneun }: Props) {
   return (
-    <div className='overflow-x-auto'>
+    <div className='overflow-x-auto' data-testid='calendar-grid'>
       <div
         className='grid min-w-[720px] grid-cols-7 gap-1 text-xs transition-opacity sm:gap-2 sm:text-sm'
         style={{ opacity: isLoading ? 0.75 : 1 }}

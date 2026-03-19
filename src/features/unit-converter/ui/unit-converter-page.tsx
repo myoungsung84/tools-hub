@@ -153,6 +153,7 @@ export default function UnitConverterPage() {
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
               placeholder='예: 1'
+              data-testid='unit-converter-input'
               className='border-0 bg-transparent pr-16 text-xl font-bold shadow-none ring-0 focus-visible:ring-0'
             />
             {fromUnit && (
@@ -179,7 +180,10 @@ export default function UnitConverterPage() {
           </div>
 
           {conversionState.status === 'error' ? (
-            <div className='rounded-lg border border-destructive/30 bg-destructive/5 px-5 py-4'>
+            <div
+              className='rounded-lg border border-destructive/30 bg-destructive/5 px-5 py-4'
+              data-testid='unit-converter-error'
+            >
               <p className='text-sm text-destructive'>{conversionState.message}</p>
             </div>
           ) : conversionState.results.length === 0 || !fromUnit ? (

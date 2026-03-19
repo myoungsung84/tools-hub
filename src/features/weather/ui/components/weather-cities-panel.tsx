@@ -24,7 +24,10 @@ export function WeatherCitiesPanel({
   onSelectCity,
 }: OtherCitiesPanelProps) {
   return (
-    <section className='w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.2)] backdrop-blur-md'>
+    <section
+      className='w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.2)] backdrop-blur-md'
+      data-testid='weather-cities-panel'
+    >
       <div className='border-b border-white/8 px-5 py-3'>
         <p className='text-[10px] font-semibold uppercase tracking-[0.25em] text-white/30'>
           전 세계 도시

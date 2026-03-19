@@ -113,22 +113,33 @@
   - `pnpm start`
   - `pnpm lint`
   - `pnpm lint:fix`
+  - `pnpm qa:e2e`
+  - `pnpm qa:e2e:headed`
 - `packageManager`는 `pnpm@10.28.2`이며 `pnpm-lock.yaml`이 존재합니다. 관련 작업은 pnpm 기준으로 맞춥니다.
+- Playwright QA 결과는 `test-results/qa-summary.md`를 기준으로 확인합니다.
+- 성공 screenshot은 만들지 않고, 실패 artifact 정책은 현재 Playwright 설정을 유지합니다.
 
-## 7) UI/UX 수정 원칙
+## 7) 테스트 운영 기준
+
+- 신규 UX/페이지/기능 추가 시 가능하면 핵심 흐름 기준 E2E spec 1개 이상을 함께 추가하는 방향을 우선 검토합니다.
+- 테스트 선택자는 `role`, `label`, `aria-label`을 우선 사용합니다.
+- `data-testid`는 접근성 선택자로 안정적으로 집기 어려운 경우에만 최소 범위로 추가합니다.
+- API/실시간/시간 의존 화면은 외부 상태에 기대기보다 route mocking, 고정 시각, fixture 응답 전략을 먼저 검토합니다.
+
+## 8) UI/UX 수정 원칙
 
 - UI 규칙을 새로 만들지 말고, 기존 컴포넌트 조합 방식(공용 `components/ui` + feature 전용 UI)을 따릅니다.
 - 클래스 조합은 기존처럼 Tailwind + `cn` 패턴을 우선합니다.
 - 공용 컴포넌트 변경은 영향 범위를 먼저 확인하고, feature 단위 변경으로 해결 가능한지 우선 검토합니다.
 - 날짜/시간, debounce/throttle, 데이터 변형 같은 공통 문제는 먼저 `dayjs`, `lodash-es`로 일관되게 풀 수 있는지 확인합니다.
 
-## 8) 네이밍/일관성
+## 9) 네이밍/일관성
 
 - 파일/폴더 네이밍은 kebab-case를 유지합니다.
 - API 파일명은 역할이 드러나게 `*.get.ts`, `*.post.ts`, `*.source.ts` 패턴을 유지합니다.
 - import alias(`@/*`)와 기존 배럴 export 사용 범위를 유지합니다.
 
-## 9) 작업 후 체크리스트
+## 10) 작업 후 체크리스트
 
 - [ ] 수정한 코드가 인접 feature/route의 기존 구조를 따르는가
 - [ ] page 파일이 과도하게 비대해지지 않았는가(도메인 로직이 feature/lib로 분리되었는가)
@@ -139,6 +150,9 @@
 - [ ] 네이밍/파일 위치/index.ts 사용이 주변 코드와 일관적인가
 - [ ] 검증 명령을 `package.json` 스크립트 기준으로 실행했는가
 - [ ] 패키지 매니저/실행 명령이 `pnpm` 기준으로 유지되었는가
+- [ ] 신규 페이지/기능/핵심 UX 변경이면 E2E spec 추가 여부를 검토했는가
+- [ ] 테스트 선택자는 `role`/`label`/`aria-label`을 우선 사용했고, 필요한 경우에만 최소 `data-testid`를 추가했는가
+- [ ] 관련 변경 후 `pnpm qa:e2e` 또는 필요한 QA 스크립트를 적절히 실행했는가
 - [ ] 날짜/시간/공통 유틸 구현에서 `dayjs`, `lodash-es` 활용 가능성을 먼저 검토했는가
 - [ ] `route.ts` / `*.get.ts|*.post.ts` / `*.source.ts` 분리가 주변 API와 일관적인가
 - [ ] 입력 검증이 타입 선언만으로 끝나지 않았는가(`parseParams`, `safeParse` 적용 여부)

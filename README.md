@@ -243,6 +243,8 @@ pnpm lint:fix
 
 ### E2E QA (Playwright)
 
+실행 방법:
+
 ```bash
 # Playwright 브라우저 설치 (최초 1회)
 pnpm exec playwright install chromium
@@ -252,30 +254,12 @@ pnpm qa:e2e
 
 # 브라우저를 보면서 실행
 pnpm qa:e2e:headed
-
-# Playwright UI 모드
-pnpm qa:e2e:ui
 ```
 
-현재 주요 페이지 기준 E2E를 확장했습니다.
+결과 확인:
 
-- 자동화 대상
-- `/`: 홈 진입 및 주요 도구 링크 확인
-- `/home`: 루트 redirect 확인
-- `/time`: 고정 시각 기준 메인 시계/세계 시간 확인
-- `/weather`: mock 응답 기반 메인 패널/차트/도시 전환 확인
-- `/age`: 생년월일/기준일 입력 후 나이 결과 렌더링
-- `/calendar`: mock 응답 기반 공휴일/기념일/잡절/월 이동 확인
-- `/decide`: 룰렛 실행 후 최종 결정 상태 확인
-- `/ip`: mock 응답 기반 공인/사설 IP 렌더링 확인
-- `/ip-lookup`: 성공/사설 IP/지도 미표시/업스트림 실패/잘못된 입력 확인
-- `/count`: 입력 통계 계산과 초기화 확인
-- `/qr`: 텍스트 입력 후 QR 미리보기 이미지 생성
-- `/unit-converter`: 길이/무게/면적/온도/데이터/부피 전체 카테고리 확인
-- `/lorem`: 더미 텍스트 생성 및 재생성
-- `/animal-race`: 레이스 시작 후 최종 순위 결과 확인
-
-새 도구를 추가할 때는 페이지 구조를 바꾸기보다 입력/실행/결과의 안정적인 지점에만 최소한의 `data-testid`를 보강하고 `tests/e2e/*.spec.ts` 파일을 추가하는 방식을 권장합니다. API/실시간 의존 페이지는 spec 내부 route mocking, clock 고정, fixture 응답을 먼저 설계한 뒤 붙이는 편이 안전합니다.
+- 요약: `test-results/qa-summary.md`
+- 실패 시에만 screenshot / trace / video 등 Playwright artifact 생성
 
 ### Docker
 

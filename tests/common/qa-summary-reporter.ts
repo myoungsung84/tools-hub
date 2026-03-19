@@ -134,6 +134,8 @@ class QaSummaryReporter implements Reporter {
     const passed = this.entries.filter(entry => entry.status === 'passed').length
     const failed = this.entries.filter(entry => entry.status === 'failed').length
     const skipped = this.entries.filter(entry => entry.status === 'skipped').length
+    const timedOut = this.entries.filter(entry => entry.status === 'timedOut').length
+    const interrupted = this.entries.filter(entry => entry.status === 'interrupted').length
 
     const lines = [
       '# QA Summary',
@@ -143,6 +145,8 @@ class QaSummaryReporter implements Reporter {
       `- 성공: ${passed}`,
       `- 실패: ${failed}`,
       `- 스킵: ${skipped}`,
+      `- 타임아웃: ${timedOut}`,
+      `- 중단: ${interrupted}`,
       '',
     ]
 

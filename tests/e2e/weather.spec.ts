@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import dayjs from 'dayjs'
 
 import { freezeBrowserTime } from '../common/freeze-browser-time'
 import { setQaSummaryMetadata } from '../common/qa-summary-metadata'
@@ -26,7 +27,7 @@ function buildHourlyResponse(timezone: string) {
       timezone,
       fetchedAt: '2026-03-19T12:34:56+09:00',
       points: Array.from({ length: 12 }, (_, index) => ({
-        time: Math.floor(new Date(`2026-03-19T0${index}:00:00+09:00`).getTime() / 1000),
+        time: dayjs('2026-03-19T00:00:00+09:00').hour(index).unix(),
         temperature: 12 + index,
         code: 1,
         condition: '맑음',

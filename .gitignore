@@ -77,3 +77,6 @@ Desktop.ini
 
 # kustomize live overlay (contains private infra values)
 deploy/k8s/overlays/live/
+
+# Claude local settings (machine-specific)
+.claude/settings.local.json

@@ -19,13 +19,14 @@ export default function UnitConverterResultList({
   formatValue,
 }: UnitConverterResultListProps) {
   return (
-    <ul className='grid grid-cols-1 gap-2 sm:grid-cols-2'>
+    <ul className='grid grid-cols-1 gap-2 sm:grid-cols-2' data-testid='unit-converter-results'>
       {items.map((item, i) => {
         const isBase = item.id === fromUnitId
 
         return (
           <li
             key={item.id}
+            data-testid={`unit-result-${item.id}`}
             style={{ animationDelay: `${i * 40}ms` }}
             className={cn(
               'group relative flex items-center justify-between overflow-hidden rounded-lg border px-5 py-4 text-sm',

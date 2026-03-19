@@ -34,6 +34,8 @@ export function QrInputCard(props: QrInputCardProps) {
           value={text}
           onChange={e => onTextChange(e.target.value)}
           placeholder='https://example.com'
+          aria-label='QR 내용 입력'
+          data-testid='qr-text-input'
           className={cn(
             'min-h-[120px] resize-none text-base transition-shadow focus-visible:shadow-sm',
             isTextTooLong && 'border-destructive focus-visible:ring-destructive'

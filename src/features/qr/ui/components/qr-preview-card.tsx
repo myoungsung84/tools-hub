@@ -17,7 +17,10 @@ export function QrPreviewCard(props: QrPreviewCardProps) {
   const { isBuilding, pngDataUrl, status, size } = props
 
   return (
-    <Card className='sticky top-8 flex h-full flex-col justify-between overflow-hidden border border-border/50 p-0 shadow-xl'>
+    <Card
+      className='sticky top-8 flex h-full flex-col justify-between overflow-hidden border border-border/50 p-0 shadow-xl'
+      data-testid='qr-preview'
+    >
       <CardHeader className='m-0 flex flex-row items-center justify-between space-y-0 border-b bg-muted/40 px-6 py-4'>
         <div className='text-sm font-bold uppercase tracking-wider text-muted-foreground'>Live Preview</div>
 
@@ -49,6 +52,7 @@ export function QrPreviewCard(props: QrPreviewCardProps) {
             <img
               src={pngDataUrl}
               alt='QR preview'
+              data-testid='qr-preview-image'
               className='h-auto w-auto max-h-[320px] max-w-full'
               style={{ imageRendering: 'pixelated' }}
             />

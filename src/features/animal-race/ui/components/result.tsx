@@ -25,6 +25,7 @@ export default function Result({ standings, status, participantCount, onRestart,
 
   return (
     <motion.div
+      data-testid='animal-race-result'
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 12 }}

@@ -85,6 +85,8 @@ export default function TextInputCard({
           onKeyUp={syncSelection}
           onMouseUp={syncSelection}
           placeholder='여기에 텍스트를 입력하거나 붙여넣으세요…'
+          aria-label='글자 수 분석 입력'
+          data-testid='text-count-input'
           className={cn(
             'flex-1 h-full resize-none overflow-y-auto max-h-[320px]',
             'font-mono tabular-nums',

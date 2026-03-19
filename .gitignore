@@ -19,6 +19,8 @@ yarn-error.log*
 /coverage
 *.lcov
 .nyc_output
+/playwright-report
+/test-results
 
 # Next.js
 /.next/

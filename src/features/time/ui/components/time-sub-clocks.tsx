@@ -6,7 +6,7 @@ type Props = {
 
 export default function TimeSubClocks({ clocks }: Props) {
   return (
-    <article className='w-full max-w-6xl px-4'>
+    <article className='w-full max-w-6xl px-4' data-testid='time-sub-clocks'>
       <div className='grid grid-cols-1 gap-3 sm:flex sm:flex-wrap sm:justify-center'>
         {clocks.map(city => {
           const ampm = city.hour < 12 ? 'AM' : 'PM'

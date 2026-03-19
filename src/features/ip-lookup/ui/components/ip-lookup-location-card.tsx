@@ -11,7 +11,7 @@ type Props = {
 
 export default function IpLookupLocationCard({ data }: Props) {
   return (
-    <Card className='flex h-full flex-col lg:col-span-2'>
+    <Card className='flex h-full flex-col lg:col-span-2' data-testid='ip-lookup-location'>
       <CardHeader>
         <CardTitle>위치 정보</CardTitle>
         <CardDescription>GeoIP 데이터베이스 기반 추정 위치</CardDescription>

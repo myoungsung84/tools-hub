@@ -9,7 +9,7 @@ type Props = {
 
 export default function IpLookupSummaryCard({ data }: Props) {
   return (
-    <Card className='lg:col-span-2'>
+    <Card className='lg:col-span-2' data-testid='ip-lookup-summary'>
       <CardHeader>
         <CardTitle>요약</CardTitle>
       </CardHeader>

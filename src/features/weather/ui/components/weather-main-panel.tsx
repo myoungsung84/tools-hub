@@ -72,7 +72,7 @@ export function WeatherMainPanel({ selectedCity, now, mainNow, isLoading }: Main
         : 'from-white'
 
   return (
-    <div className='border-b border-white/8'>
+    <div className='border-b border-white/8' data-testid='weather-main-panel'>
       <div className='relative overflow-hidden px-5 py-6'>
         <div
           className={cn(

@@ -39,7 +39,7 @@ export default function TextCountStats({
   }
 }) {
   return (
-    <Card className='w-full'>
+    <Card className='w-full' data-testid='text-count-stats'>
       <CardHeader className='space-y-1'>
         <CardTitle className='flex items-center gap-2'>
           <span>{title}</span>
@@ -48,13 +48,23 @@ export default function TextCountStats({
       </CardHeader>
 
       <CardContent className='space-y-4'>
-        <StatRow label='글자 수' value={count.charsWithSpaces} sub='공백 포함' />
-        <StatRow label='글자 수' value={count.charsNoSpaces} sub='공백 제외' />
+        <div data-testid='text-count-chars-with-spaces'>
+          <StatRow label='글자 수' value={count.charsWithSpaces} sub='공백 포함' />
+        </div>
+        <div data-testid='text-count-chars-no-spaces'>
+          <StatRow label='글자 수' value={count.charsNoSpaces} sub='공백 제외' />
+        </div>
         <Separator />
-        <StatRow label='단어 수' value={count.words} />
-        <StatRow label='줄 수' value={count.lines} />
+        <div data-testid='text-count-words'>
+          <StatRow label='단어 수' value={count.words} />
+        </div>
+        <div data-testid='text-count-lines'>
+          <StatRow label='줄 수' value={count.lines} />
+        </div>
         <Separator />
-        <StatRow label='바이트' value={count.bytesUtf8} sub='UTF-8' />
+        <div data-testid='text-count-bytes'>
+          <StatRow label='바이트' value={count.bytesUtf8} sub='UTF-8' />
+        </div>
       </CardContent>
     </Card>
   )

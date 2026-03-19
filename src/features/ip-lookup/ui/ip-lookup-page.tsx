@@ -81,7 +81,7 @@ export default function IpLookupPage() {
           />
 
           {state.status === 'error' && (
-            <Alert variant='destructive' className='lg:col-span-2'>
+            <Alert variant='destructive' className='lg:col-span-2' data-testid='ip-lookup-error'>
               <AlertCircle />
               <AlertTitle>조회 실패</AlertTitle>
               <AlertDescription>{state.message}</AlertDescription>

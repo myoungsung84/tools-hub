@@ -4,12 +4,10 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { useSyncedNow } from '@/features/time/hook/use-synced-now'
 import { PINNED_CITY_IDS, WEATHER_CITIES } from '@/features/weather/constants'
-import type { WeatherNow } from '@/features/weather/types'
 import { cn } from '@/lib/shared'
 
 import {
   useWeatherHourlyByLocation,
-  useWeatherNowByLocation,
   useWeatherNowMany,
   type WeatherLocation,
 } from '../hook'
@@ -52,33 +50,27 @@ export default function WeatherPage() {
     [selectedCity]
   )
 
-  const { data: mainNow, loading: mainNowLoading } = useWeatherNowByLocation(selectedCity)
+  const { data: nowMap, loading: nowLoading } = useWeatherNowMany(WEATHER_CITIES)
   const { data: mainHourly, loading: mainHourlyLoading } = useWeatherHourlyByLocation(
     selectedCity,
     24
   )
-  const { data: subNowMap, loading: subLoading } = useWeatherNowMany(subCities)
+  const mainNow = selectedCity ? nowMap[selectedCity.id] ?? null : null
 
   useEffect(() => {
-    if (!mainNowLoading && mainNow) {
+    if (mainNow) {
       const t = setTimeout(() => setVisible(true), 30)
       return () => clearTimeout(t)
     }
-  }, [mainNowLoading, mainNow])
+  }, [mainNow])
 
   const hourlyItems = useMemo(() => mainHourly?.points.slice(0, 12) ?? [], [mainHourly?.points])
-  const isLoading = mainNowLoading || !mainNow
+  const isLoading = nowLoading || !mainNow
 
   const pinnedCities = useMemo(
     () => WEATHER_CITIES.filter(c => (PINNED_CITY_IDS as readonly string[]).includes(c.id)),
     []
   )
-
-  const allNowMap = useMemo<Partial<Record<string, WeatherNow>>>(() => {
-    const map: Partial<Record<string, WeatherNow>> = { ...subNowMap }
-    if (mainNow && selectedCity) map[selectedCity.id] = mainNow
-    return map
-  }, [subNowMap, mainNow, selectedCity])
 
   if (!selectedCity) return null
 
@@ -89,7 +81,7 @@ export default function WeatherPage() {
           pinnedCities={pinnedCities}
           selectedCityId={selectedCityId}
           onSelectCity={handleSelectCity}
-          nowMap={allNowMap}
+          nowMap={nowMap}
         />
         <div
           className={cn(
@@ -116,8 +108,8 @@ export default function WeatherPage() {
 
       <WeatherCitiesPanel
         subCities={subCities}
-        subNowMap={subNowMap}
-        subLoading={subLoading}
+        subNowMap={nowMap}
+        subLoading={nowLoading}
         now={now}
         onSelectCity={handleSelectCity}
       />

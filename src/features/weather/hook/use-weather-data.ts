@@ -2,8 +2,8 @@
 
 import * as React from 'react'
 
-import { mapWeatherHourly, mapWeatherNow } from '@/features/weather/mappers'
-import type { Coords, WeatherHourly, WeatherNow } from '@/features/weather/types'
+import { mapWeatherHourly, mapWeatherNow, mapWeatherNowMany } from '@/features/weather/mappers'
+import type { Coords, WeatherHourly, WeatherNow, WeatherNowMany } from '@/features/weather/types'
 import { apiRequest } from '@/lib/client'
 
 export type WeatherLocation = {
@@ -43,6 +43,26 @@ async function fetchWeatherHourlyApi(
     query: params,
     signal,
     map: mapWeatherHourly,
+  })
+}
+
+async function fetchWeatherNowManyApi(locations: WeatherLocation[], signal: AbortSignal) {
+  return apiRequest({
+    method: 'GET',
+    path: '/api/weather/now-many',
+    query: {
+      locations: JSON.stringify(
+        locations.map(location => ({
+          id: location.id,
+          label: location.label,
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+          timezone: location.timezone,
+        }))
+      ),
+    },
+    signal,
+    map: mapWeatherNowMany,
   })
 }
 
@@ -147,7 +167,7 @@ export function useWeatherHourlyByLocation(location: WeatherLocation | null, hou
 }
 
 export function useWeatherNowMany(locations: WeatherLocation[]) {
-  const [data, setData] = React.useState<Partial<Record<string, WeatherNow>>>({})
+  const [data, setData] = React.useState<Partial<WeatherNowMany>>({})
   const [loading, setLoading] = React.useState(true)
 
   const locationsRef = React.useRef(locations)
@@ -165,30 +185,19 @@ export function useWeatherNowMany(locations: WeatherLocation[]) {
   )
 
   React.useEffect(() => {
+    if (locations.length === 0) {
+      setData({})
+      setLoading(false)
+      return
+    }
+
     const ac = new AbortController()
     const currentLocations = locationsRef.current
     setLoading(true)
 
     ;(async () => {
       try {
-        const next: Record<string, WeatherNow> = {}
-        const tasks = currentLocations.map(location =>
-          fetchWeatherNowApi(
-            {
-              lat: location.coords.latitude,
-              lon: location.coords.longitude,
-              timezone: location.timezone,
-              locationLabel: location.label,
-            },
-            ac.signal
-          )
-            .then(now => {
-              next[location.id] = now
-            })
-            .catch(() => {})
-        )
-
-        await Promise.all(tasks)
+        const next = await fetchWeatherNowManyApi(currentLocations, ac.signal)
 
         if (ac.signal.aborted) return
         setData(next)
@@ -203,7 +212,7 @@ export function useWeatherNowMany(locations: WeatherLocation[]) {
     return () => {
       ac.abort()
     }
-  }, [locationsKey])
+  }, [locationsKey, locations.length])
 
   return { data, loading }
 }

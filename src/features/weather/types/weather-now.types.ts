@@ -22,6 +22,8 @@ export type WeatherNow = WeatherNowBase & {
   fetchedAt: Date
 }
 
+export type WeatherNowMany = Record<string, WeatherNow>
+
 export type Coords = { latitude: number; longitude: number }
 
 export type WeatherNowManyLocationInput = {

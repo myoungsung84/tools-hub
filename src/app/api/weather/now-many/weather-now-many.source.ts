@@ -26,9 +26,13 @@ const inFlightRequests = new Map<string, Promise<WeatherNowManyFromOpenMeteo>>()
 function cacheKey(locations: WeatherNowManyLocationInput[]) {
   const normalized = sortBy(locations, ['id', 'timezone', 'latitude', 'longitude']).map(
     location =>
-      [location.id, location.timezone, round(location.latitude, 2), round(location.longitude, 2)].join(
-        ':'
-      )
+      [
+        location.id,
+        location.label,
+        location.timezone,
+        round(location.latitude, 2),
+        round(location.longitude, 2),
+      ].join(':')
   )
 
   return `weather:now-many:${normalized.join('|')}`
@@ -114,9 +118,15 @@ export async function fetchWeatherNowManyFromOpenMeteo(
   }
 
   const request = (async () => {
-    const latitude = locations.map(location => location.latitude).join(',')
-    const longitude = locations.map(location => location.longitude).join(',')
-    const timezone = locations.map(location => location.timezone).join(',')
+    const normalizedLocations = locations.map(location => ({
+      ...location,
+      latitude: round(location.latitude, 2),
+      longitude: round(location.longitude, 2),
+    }))
+
+    const latitude = normalizedLocations.map(location => location.latitude).join(',')
+    const longitude = normalizedLocations.map(location => location.longitude).join(',')
+    const timezone = normalizedLocations.map(location => location.timezone).join(',')
 
     const url =
       `https://api.open-meteo.com/v1/forecast` +
@@ -167,7 +177,7 @@ export async function fetchWeatherNowManyFromOpenMeteo(
       }
     })
 
-    const items = locations.reduce<Record<string, WeatherNowManyItemApi>>((acc, location, index) => {
+    const items = normalizedLocations.reduce<Record<string, WeatherNowManyItemApi>>((acc, location, index) => {
       acc[location.id] = mapCurrentToWeatherNowItem(location, rows[index] ?? {})
       return acc
     }, {})

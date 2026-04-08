@@ -4,18 +4,38 @@ import dayjs from 'dayjs'
 import { freezeBrowserTime } from '../common/freeze-browser-time'
 import { setQaSummaryMetadata } from '../common/qa-summary-metadata'
 
-function buildWeatherNow(tempC: number, label: string, fetchedAt = '2026-03-19T12:34:56+09:00') {
-  return {
-    success: true as const,
-    data: {
-      tempC,
-      feelsLikeC: tempC - 1,
+function buildWeatherNowMany(fetchedAt = '2026-03-19T12:34:56+09:00') {
+  const cityData: Record<string, { temp: number; label: string; locationLabel: string }> = {
+    seoul: { temp: 21, label: '맑음', locationLabel: '서울' },
+    tokyo: { temp: 18, label: '구름 많음', locationLabel: '도쿄' },
+    singapore: { temp: 30, label: '비', locationLabel: '싱가포르' },
+    beijing: { temp: 15, label: '흐림', locationLabel: '베이징' },
+    mumbai: { temp: 28, label: '맑음', locationLabel: '뭄바이' },
+    dubai: { temp: 32, label: '맑음', locationLabel: '두바이' },
+    london: { temp: 10, label: '흐림', locationLabel: '런던' },
+    moscow: { temp: 5, label: '눈', locationLabel: '모스크바' },
+    'new-york': { temp: 8, label: '눈', locationLabel: '뉴욕' },
+    'los-angeles': { temp: 20, label: '맑음', locationLabel: 'LA' },
+    'sao-paulo': { temp: 25, label: '비', locationLabel: '상파울루' },
+    sydney: { temp: 24, label: '맑음', locationLabel: '시드니' },
+    cairo: { temp: 28, label: '맑음', locationLabel: '카이로' },
+  }
+
+  const items: Record<string, object> = {}
+  for (const [id, data] of Object.entries(cityData)) {
+    items[id] = {
+      tempC: data.temp,
+      feelsLikeC: data.temp - 1,
       windMs: 3.4,
       code: 1,
-      label,
-      locationLabel: 'mock',
-      fetchedAt,
-    },
+      label: data.label,
+      locationLabel: data.locationLabel,
+    }
+  }
+
+  return {
+    success: true as const,
+    data: { fetchedAt, items },
   }
 }
 
@@ -54,25 +74,11 @@ test.describe('/weather', () => {
 
     await freezeBrowserTime(page, '2026-03-19T12:34:56+09:00')
 
-    await page.route('**/api/weather/now**', async route => {
-      const url = new URL(route.request().url())
-      const locationLabel = url.searchParams.get('locationLabel') ?? ''
-
-      const tempMap: Record<string, { temp: number; label: string }> = {
-        서울: { temp: 21, label: '맑음' },
-        도쿄: { temp: 18, label: '구름 많음' },
-        싱가포르: { temp: 30, label: '비' },
-        런던: { temp: 10, label: '흐림' },
-        뉴욕: { temp: 8, label: '눈' },
-        시드니: { temp: 24, label: '맑음' },
-      }
-
-      const matched = tempMap[locationLabel] ?? { temp: 15, label: '흐림' }
-
+    await page.route('**/api/weather/now-many**', async route => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify(buildWeatherNow(matched.temp, matched.label)),
+        body: JSON.stringify(buildWeatherNowMany()),
       })
     })
 

@@ -25,6 +25,7 @@ export default function IpPage() {
 
   const geo = data.geo
   const asn = data.asn
+  const locationLabel = geo?.countryName ?? geo?.country ?? null
 
   return (
     <div className={`${wrapClass} relative overflow-x-hidden`} data-testid='ip-page'>
@@ -54,11 +55,12 @@ export default function IpPage() {
                 <Globe className='w-4 h-4' />
                 접속 위치:{' '}
                 <span className='text-foreground'>
-                  {geo.countryName} ({geo.country})
+                  {locationLabel}
+                  {geo.country && locationLabel !== geo.country ? ` (${geo.country})` : ''}
                 </span>
               </span>
             ) : (
-              '로컬/사설 IP 환경에서 접속 중입니다.'
+              data.message ?? '요청 헤더에서 위치 정보가 제공되지 않았습니다.'
             )}
           </p>
         </div>
@@ -90,8 +92,8 @@ export default function IpPage() {
           <InfoCard
             icon={<Cpu className='w-4 h-4 text-purple-400' />}
             title='Connection Detail'
-            main={`Accuracy: ${geo?.accuracyRadiusKm ?? '0'}km`}
-            sub='Based on MaxMind / IP Data'
+            main={data.lookupStatus === 'available' ? 'Header geo available' : 'Header geo unavailable'}
+            sub='Based on request headers'
           />
 
           <div className='sm:col-span-2 group relative overflow-hidden rounded-2xl border bg-neutral-900/40 p-5 text-left transition-all sm:hover:bg-neutral-900/60'>

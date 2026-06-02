@@ -14,7 +14,7 @@ export default function IpLookupLocationCard({ data }: Props) {
     <Card className='flex h-full flex-col lg:col-span-2' data-testid='ip-lookup-location'>
       <CardHeader>
         <CardTitle>위치 정보</CardTitle>
-        <CardDescription>GeoIP 데이터베이스 기반 추정 위치</CardDescription>
+        <CardDescription>요청 헤더 또는 외부 조회에서 제공된 위치 정보</CardDescription>
       </CardHeader>
       <CardContent className='grid flex-1 auto-rows-fr gap-2.5 sm:grid-cols-2'>
         {data.geo ? (
@@ -26,19 +26,12 @@ export default function IpLookupLocationCard({ data }: Props) {
             <IpLookupResultRow label='위도 (Latitude)' value={data.geo.lat?.toString() ?? UNKNOWN} />
             <IpLookupResultRow label='경도 (Longitude)' value={data.geo.lon?.toString() ?? UNKNOWN} />
             <IpLookupResultRow label='시간대' value={data.geo.timezone ?? UNKNOWN} />
-            <IpLookupResultRow
-              label='위치 정확도 반경'
-              value={
-                data.geo.accuracyRadiusKm != null ? `약 ${data.geo.accuracyRadiusKm}km 이내` : UNKNOWN
-              }
-            />
-            <div className='sm:col-span-2'>
-              <IpLookupResultRow label='데이터 갱신일' value={data.geo.updatedText ?? UNKNOWN} />
-            </div>
           </>
         ) : (
           <div className='sm:col-span-2'>
-            <IpLookupEmptyState message='위치 정보를 가져올 수 없습니다.' />
+            <IpLookupEmptyState
+              message={data.message ?? '위치 정보를 가져올 수 없습니다.'}
+            />
           </div>
         )}
       </CardContent>

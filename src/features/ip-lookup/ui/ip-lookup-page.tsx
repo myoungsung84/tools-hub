@@ -1,7 +1,7 @@
 'use client'
 
 import { isNil } from 'lodash-es'
-import { AlertCircle, FileSearch } from 'lucide-react'
+import { AlertCircle, FileSearch, Info } from 'lucide-react'
 import { FormEvent, useMemo, useRef, useState } from 'react'
 
 import PageHeader from '@/components/layout/page-header'
@@ -66,8 +66,8 @@ export default function IpLookupPage() {
       <PageHeader
         icon={FileSearch}
         kicker='아이피 검색'
-        title='IP 주소로 위치와 ASN 정보를 조회하세요'
-        description='공인 IP 또는 IPv6 주소를 입력해 대략적인 위치와 네트워크 정보를 확인합니다.'
+        title='IP 주소 형식을 확인하세요'
+        description='현재는 입력한 IP의 위치 조회를 제공하지 않고, 유효한 IPv4/IPv6 주소인지 확인합니다.'
       />
 
       <div className='flex w-full flex-col'>
@@ -90,6 +90,17 @@ export default function IpLookupPage() {
 
           {lookupData ? (
             <>
+              {lookupData.lookupStatus === 'unavailable' && (
+                <Alert className='lg:col-span-2'>
+                  <Info />
+                  <AlertTitle>위치 조회 미연동</AlertTitle>
+                  <AlertDescription>
+                    {lookupData.message ??
+                      '입력한 IP의 위치 정보는 현재 버전에서 제공하지 않습니다.'}
+                  </AlertDescription>
+                </Alert>
+              )}
+
               <IpLookupSummaryCard data={lookupData} />
               <IpLookupLocationCard data={lookupData} />
               <IpLookupMapCard data={lookupData} hasMapCoords={hasMapCoords} mapUrl={mapUrl} />

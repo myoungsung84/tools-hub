@@ -2,19 +2,20 @@ export type IpInfo = {
   ip: string
   isPrivate: boolean
   geo: {
-    country: string
-    countryName: string
-    region: string
-    city: string
-    lat: number
-    lon: number
-    timezone: string
-    accuracyRadiusKm: number
+    country: string | null
+    countryName: string | null
+    region: string | null
+    city: string | null
+    lat: number | null
+    lon: number | null
+    timezone: string | null
   } | null
   asn: {
-    asn: number
-    org: string
+    asn: number | null
+    org: string | null
   } | null
+  lookupStatus?: 'available' | 'unavailable'
+  message?: string | null
   ua: {
     raw: string
     browser: string

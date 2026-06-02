@@ -38,7 +38,6 @@ export default function IpLookupMapCard({ data, hasMapCoords, mapUrl }: Props) {
         </div>
         <CardDescription>
           위도 {data.geo?.lat} · 경도 {data.geo?.lon}
-          {data.geo?.accuracyRadiusKm != null && ` · 정확도 반경 약 ${data.geo.accuracyRadiusKm}km`}
         </CardDescription>
       </CardHeader>
       <CardContent>

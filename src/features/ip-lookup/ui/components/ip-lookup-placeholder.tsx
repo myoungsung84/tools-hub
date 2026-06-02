@@ -28,13 +28,13 @@ export default function IpLookupPlaceholder() {
             <p className='text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60'>
               국가 · 위치
             </p>
-            <p className='mt-1.5 text-sm text-muted-foreground/60'>국가, 도시, 시간대</p>
+            <p className='mt-1.5 text-sm text-muted-foreground/60'>외부 조회 미연동</p>
           </div>
           <div className='rounded-lg border border-dashed border-border/60 bg-background/50 px-4 py-3'>
             <p className='text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60'>
               ASN · ISP
             </p>
-            <p className='mt-1.5 text-sm text-muted-foreground/60'>네트워크 사업자 정보</p>
+            <p className='mt-1.5 text-sm text-muted-foreground/60'>외부 조회 미연동</p>
           </div>
         </CardContent>
       </Card>
@@ -43,12 +43,12 @@ export default function IpLookupPlaceholder() {
         <CardHeader>
           <CardTitle>위치 정보 미리보기</CardTitle>
           <CardDescription>
-            조회 후에는 아래 영역에 국가, 지역, 도시, 좌표, 위치 정확도 반경 정보가 표시됩니다.
+            외부 위치 조회 연동 전까지 입력한 IP의 위치 정보는 표시되지 않습니다.
           </CardDescription>
         </CardHeader>
         <CardContent className='grid gap-2.5 sm:grid-cols-2'>
-          <IpLookupEmptyState message='조회 전에는 위치 정보가 여기에 표시됩니다.' />
-          <IpLookupEmptyState message='공인 IP라면 지도도 함께 표시됩니다.' />
+          <IpLookupEmptyState message='조회 전에는 상태 안내가 여기에 표시됩니다.' />
+          <IpLookupEmptyState message='좌표가 없으면 지도는 표시되지 않습니다.' />
         </CardContent>
       </Card>
     </>

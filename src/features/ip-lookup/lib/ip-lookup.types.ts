@@ -9,14 +9,13 @@ export type IpLookupData = {
     lat: number | null
     lon: number | null
     timezone: string | null
-    accuracyRadiusKm: number | null
-    updatedText: string | null
   } | null
   asn: {
     asn: number | null
     org: string | null
-    updatedText: string | null
   } | null
+  lookupStatus?: 'available' | 'unavailable'
+  message?: string | null
 }
 
 export type LookupState =

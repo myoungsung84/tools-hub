@@ -1,6 +1,4 @@
-import { isNil } from 'lodash-es'
-
-import { fetchIpAddrGeo } from '@/app/api/ip/ip-addr.source'
+import { readRequestHeaderGeo } from '@/app/api/ip/ip-addr.source'
 import { handleApi, success } from '@/lib/server'
 import { isPrivateIp, normalizeUserAgent, pickClientIp, readUserAgent } from '@/lib/server/ip-utils'
 
@@ -11,30 +9,20 @@ async function handler(req: Request) {
   const uaRaw = readUserAgent(headers)
   const ua = normalizeUserAgent(uaRaw)
 
-  const isUnknownIp = isNil(ip) || ip === '' || ip === 'unknown'
+  const isUnknownIp = ip === '' || ip === 'unknown'
   const isPrivate = isUnknownIp ? false : isPrivateIp(ip)
-
-  const result = isPrivate ? null : await fetchIpAddrGeo(ip, req.signal)
-
-  const cityUpdatedText = result?.sources?.find(s => s.key === 'mmdb-city')?.updatedText ?? null
-  const asnUpdatedText = result?.sources?.find(s => s.key === 'mmdb-asn')?.updatedText ?? null
+  const geo = isPrivate ? null : readRequestHeaderGeo(headers)
 
   return success(
     {
       ip,
       isPrivate,
-      geo: isNil(result)
+      geo,
+      asn: null,
+      lookupStatus: geo ? 'available' : 'unavailable',
+      message: geo
         ? null
-        : {
-            ...result.geo,
-            updatedText: cityUpdatedText,
-          },
-      asn: isNil(result)
-        ? null
-        : {
-            ...result.asn,
-            updatedText: asnUpdatedText,
-          },
+        : '요청 헤더에서 제공된 위치 정보가 없어 IP 위치를 표시할 수 없습니다.',
       ua: {
         raw: uaRaw,
         browser: ua.browser,

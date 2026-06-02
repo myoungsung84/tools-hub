@@ -39,18 +39,15 @@
 
 - 사용자 IP 주소 확인
 - User Agent 정보 표시
-- IP 위치 정보 조회 (국가, 도시, ASN/ISP)
-- Redis TTL 캐싱으로 성능 최적화 (캐시 사용 시 권장)
+- Vercel/request headers가 제공하는 범위의 위치 정보 표시
 
 ### 🔎 IP 검색 (IP Lookup)
 
 - 입력한 IPv4/IPv6 주소 조회
-- 국가/지역/도시/시간대/좌표 정보 표시
-- ASN/ISP 정보 요약 표시
-- 좌표가 있으면 OpenStreetMap iframe으로 위치를 지도에서 확인
-- IP 기반 위치 정보이므로 실제 위치와 다를 수 있음
+- 유효한 IP 주소 형식 확인
+- 외부 위치 조회 API 연동은 추후 단계에서 지원 예정
 
-> **지도 임베드 참고**: 조회 결과에서 위·경도 좌표가 확인되면, 아래 형식의 URL을 iframe으로 자동 렌더링합니다.  
+> **지도 임베드 참고**: 조회 결과에서 위·경도 좌표가 확인되면, 아래 형식의 URL을 iframe으로 렌더링합니다.  
 > 브라우저 CSP(`frame-src`)에 `https://www.openstreetmap.org`이 허용되어 있어야 합니다.  
 > bbox는 `위도·경도 ± 0.1` 범위로 설정합니다.
 >
@@ -205,7 +202,6 @@ pnpm install
 | 변수                     | 설명                                                   | 필수               | 예시                           |
 | ------------------------ | ------------------------------------------------------ | ------------------ | ------------------------------ |
 | `NEXT_PUBLIC_SITE_URL`   | 사이트 기본 URL (metadata/robots/sitemap). 미설정 시 Vercel URL 또는 localhost를 사용합니다. | 아니오             | `https://tools.yourdomain.com` |
-| `GEO_API_BASE`           | IP Geo API 베이스 URL                                  | 예                 | `https://geo.yourdomain.com`   |
 | `DATA_GO_KR_SERVICE_KEY` | apis.data.go.kr 서비스키(캘린더/공휴일)                | 예(캘린더 사용 시) | `...`                          |
 | `REDIS_URL`              | Redis 연결 문자열 (캐시 사용 시 권장)                  | 아니오             | `redis://localhost:6379`       |
 | `REDIS_PREFIX`           | Redis 키 프리픽스 (캐시 사용 시 권장)                  | 아니오             | `tools-hub`                    |

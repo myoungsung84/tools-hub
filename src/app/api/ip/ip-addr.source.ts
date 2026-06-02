@@ -1,76 +1,56 @@
-import { isNil } from 'lodash-es'
-
-import { ApiErrors } from '@/lib/server'
-
-type SourceInfo = {
-  key: 'mmdb-city' | 'mmdb-asn'
-  enabled: boolean
-  updatedAt: string | null
-  updatedText: string
-  builtAt: string | null
-  builtText: string
-  dbType: string | null
+export type IpGeoInfo = {
+  country: string | null
+  countryName: string | null
+  region: string | null
+  city: string | null
+  lat: number | null
+  lon: number | null
+  timezone: string | null
 }
 
-type IpAddrGeoResponse = {
-  ip: string
-  geo: {
-    country: string | null
-    countryName: string | null
-    region: string | null
-    city: string | null
-    lat: number | null
-    lon: number | null
-    timezone: string | null
-    accuracyRadiusKm: number | null
-  } | null
-  asn: {
-    asn: number | null
-    org: string | null
-  } | null
-  sources: SourceInfo[]
+function readHeader(headers: Headers, key: string) {
+  const value = headers.get(key)?.trim()
+  if (!value) return null
+  return value
 }
 
-type ApiEnvelope<T> = {
-  ok: boolean
-  data?: T
-  meta?: {
-    respondedAt?: string
-    status?: number
-  }
-  error?: {
-    code?: string
-    message?: string
-    details?: unknown
+function decodeHeaderValue(value: string | null) {
+  if (!value) return null
+
+  try {
+    return decodeURIComponent(value.replace(/\+/g, ' '))
+  } catch {
+    return value
   }
 }
 
-const GEO_API_BASE = process.env.GEO_API_BASE ?? ''
+function readNumberHeader(headers: Headers, key: string) {
+  const value = readHeader(headers, key)
+  if (!value) return null
 
-export async function fetchIpAddrGeo(
-  ip: string,
-  signal?: AbortSignal
-): Promise<IpAddrGeoResponse | null> {
-  if (isNil(ip) || ip === '' || ip === 'unknown') return null
+  const numberValue = Number(value)
+  return Number.isFinite(numberValue) ? numberValue : null
+}
 
-  const res = await fetch(`${GEO_API_BASE}/geo?ip=${encodeURIComponent(ip)}`, {
-    signal,
-    headers: { accept: 'application/json' },
-  })
+export function readRequestHeaderGeo(headers: Headers): IpGeoInfo | null {
+  const country = readHeader(headers, 'x-vercel-ip-country')
+  const region = decodeHeaderValue(readHeader(headers, 'x-vercel-ip-country-region'))
+  const city = decodeHeaderValue(readHeader(headers, 'x-vercel-ip-city'))
+  const lat = readNumberHeader(headers, 'x-vercel-ip-latitude')
+  const lon = readNumberHeader(headers, 'x-vercel-ip-longitude')
+  const timezone = decodeHeaderValue(readHeader(headers, 'x-vercel-ip-timezone'))
 
-  if (!res.ok) {
-    throw ApiErrors.upstream(`geo-api bad response: ${res.status}`)
+  if (!country && !region && !city && lat == null && lon == null && !timezone) {
+    return null
   }
 
-  const json = (await res.json()) as ApiEnvelope<IpAddrGeoResponse>
-
-  if (!json.ok) {
-    throw ApiErrors.upstream(
-      `geo-api error: ${json.error?.code ?? 'UNKNOWN'} - ${json.error?.message ?? ''}`
-    )
+  return {
+    country,
+    countryName: country,
+    region,
+    city,
+    lat,
+    lon,
+    timezone,
   }
-
-  if (isNil(json.data)) return null
-
-  return json.data
 }

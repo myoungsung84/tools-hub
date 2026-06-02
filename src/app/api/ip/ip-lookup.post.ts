@@ -1,6 +1,5 @@
 import { z } from 'zod'
 
-import { fetchIpAddrGeo } from '@/app/api/ip/ip-addr.source'
 import { ApiErrors, handleApi, success } from '@/lib/server'
 import { isPrivateIp } from '@/lib/server/ip-utils'
 
@@ -27,22 +26,16 @@ async function handler(req: Request) {
   const { ip } = parsed.data
   const isPrivate = isPrivateIp(ip)
 
-  const result = isPrivate ? null : await fetchIpAddrGeo(ip, req.signal)
-
-  const cityUpdatedText =
-    result?.sources?.find(source => source.key === 'mmdb-city')?.updatedText ?? null
-  const asnUpdatedText =
-    result?.sources?.find(source => source.key === 'mmdb-asn')?.updatedText ?? null
-
-  const geo = result?.geo ?? null
-  const asn = result?.asn ?? null
-
   return success(
     {
       ip,
       isPrivate,
-      geo: geo === null ? null : { ...geo, updatedText: cityUpdatedText },
-      asn: asn === null ? null : { ...asn, updatedText: asnUpdatedText },
+      geo: null,
+      asn: null,
+      lookupStatus: 'unavailable',
+      message: isPrivate
+        ? '사설 IP 주소는 인터넷상의 위치 정보를 조회할 수 없습니다.'
+        : '현재 버전은 요청 헤더 기반 조회만 지원하므로 입력한 IP의 위치 정보는 제공하지 않습니다.',
     },
     {
       headers: {

@@ -63,6 +63,9 @@ export function pickClientIp(headers: Headers): string {
   const xri = header(headers, 'x-real-ip')
   if (xri && isValidIp(xri)) return normalizeLoopback(xri)
 
+  const vercelForwardedPicked = pickFromXForwardedFor(header(headers, 'x-vercel-forwarded-for'))
+  if (vercelForwardedPicked) return normalizeLoopback(vercelForwardedPicked)
+
   const xffPicked = pickFromXForwardedFor(header(headers, 'x-forwarded-for'))
   if (xffPicked) return normalizeLoopback(xffPicked)
 

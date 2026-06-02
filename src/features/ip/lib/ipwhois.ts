@@ -95,6 +95,21 @@ const ipApiCoSchema = z.object({
 
 type IpApiCoRaw = z.infer<typeof ipApiCoSchema>
 
+const CONTINENT_BY_CODE: Record<string, string> = {
+  AF: 'Africa',
+  AN: 'Antarctica',
+  AS: 'Asia',
+  EU: 'Europe',
+  NA: 'North America',
+  OC: 'Oceania',
+  SA: 'South America',
+}
+
+function continentNameFromCode(code: string | null | undefined) {
+  if (!code) return null
+  return CONTINENT_BY_CODE[code.toUpperCase()] ?? null
+}
+
 function normalizeTimezone(raw: IpWhoisRaw['timezone']): IpGeo['timezone'] {
   if (!raw) return null
   if (typeof raw === 'string') {
@@ -134,9 +149,11 @@ function normalizeIpWhois(raw: IpWhoisRaw): IpGeo {
 }
 
 function normalizeIpApiCo(raw: IpApiCoRaw): IpGeo {
+  const continentCode = raw.continent_code ?? null
+
   return {
-    continent: null,
-    continentCode: raw.continent_code ?? null,
+    continent: continentNameFromCode(continentCode),
+    continentCode,
     country: raw.country_name ?? null,
     countryCode: raw.country ?? null,
     region: raw.region ?? null,

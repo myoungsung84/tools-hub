@@ -9,6 +9,8 @@ type Props = {
 }
 
 export default function InfoCard({ icon, title, main, sub, badge }: Props) {
+  const shouldShowSub = sub.trim() !== '' && sub !== '-'
+
   return (
     <div className='group relative overflow-hidden rounded-2xl border bg-neutral-900/40 p-4 text-left transition-all hover:border-white/20 hover:bg-neutral-900/60'>
       <div className='flex items-center justify-between mb-3'>
@@ -28,7 +30,7 @@ export default function InfoCard({ icon, title, main, sub, badge }: Props) {
       </div>
       <div>
         <div className='text-sm font-semibold text-white/90 truncate'>{main}</div>
-        <div className='text-xs text-muted-foreground mt-1'>{sub}</div>
+        {shouldShowSub && <div className='text-xs text-muted-foreground mt-1'>{sub}</div>}
       </div>
     </div>
   )

@@ -3,6 +3,8 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Geist_Mono, Noto_Sans_KR } from 'next/font/google'
 
+import { getSiteUrl } from '@/lib/site-url'
+
 const fontSans = Noto_Sans_KR({
   variable: '--font-sans',
   weight: ['400', '500', '700'],
@@ -19,7 +21,7 @@ const fontMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'Tools Hub',
   description: 'Internal tools',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL!),
+  metadataBase: new URL(getSiteUrl()),
 
   icons: {
     icon: [

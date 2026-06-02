@@ -202,16 +202,16 @@ pnpm install
 
 다음 환경 변수를 설정할 수 있습니다.
 
-| 변수                   | 설명                                    | 필수               | 예시                           |
-| ---------------------- | --------------------------------------- | ------------------ | ------------------------------ |
-| `NEXT_PUBLIC_SITE_URL` | 사이트 기본 URL (robots/sitemap)        | 아니오             | `https://tools.yourdomain.com` |
-| `GEO_API_BASE`         | IP Geo API 베이스 URL                   | 예                 | `https://geo.yourdomain.com`   |
-| `PUBLIC_DATA_API_KEY`  | apis.data.go.kr 서비스키(캘린더/공휴일) | 예(캘린더 사용 시) | `...`                          |
-| `REDIS_URL`            | Redis 연결 문자열 (캐시 사용 시 권장)   | 아니오             | `redis://localhost:6379`       |
-| `REDIS_PREFIX`         | Redis 키 프리픽스 (캐시 사용 시 권장)   | 아니오             | `tools-hub`                    |
+| 변수                     | 설명                                                   | 필수               | 예시                           |
+| ------------------------ | ------------------------------------------------------ | ------------------ | ------------------------------ |
+| `NEXT_PUBLIC_SITE_URL`   | 사이트 기본 URL (metadata/robots/sitemap). 미설정 시 Vercel URL 또는 localhost를 사용합니다. | 아니오             | `https://tools.yourdomain.com` |
+| `GEO_API_BASE`           | IP Geo API 베이스 URL                                  | 예                 | `https://geo.yourdomain.com`   |
+| `DATA_GO_KR_SERVICE_KEY` | apis.data.go.kr 서비스키(캘린더/공휴일)                | 예(캘린더 사용 시) | `...`                          |
+| `REDIS_URL`              | Redis 연결 문자열 (캐시 사용 시 권장)                  | 아니오             | `redis://localhost:6379`       |
+| `REDIS_PREFIX`           | Redis 키 프리픽스 (캐시 사용 시 권장)                  | 아니오             | `tools-hub`                    |
 
-> `PUBLIC_DATA_API_KEY`는 공공데이터포털(apis.data.go.kr) 서비스키를 사용합니다.  
-> (운영 환경에서는 `.env.production` 또는 k8s ConfigMap/Secret로 주입하는 것을 권장)
+> `DATA_GO_KR_SERVICE_KEY`는 공공데이터포털(apis.data.go.kr) 서비스키를 사용합니다.  
+> Vercel에서는 Project Settings > Environment Variables에 필요한 값을 등록하세요.
 
 ### 개발 서버 실행
 
@@ -230,6 +230,8 @@ pnpm build
 # 프로덕션 서버 실행
 pnpm start
 ```
+
+Vercel 배포에서는 `pnpm build`를 사용하며, 런타임 서버는 Vercel이 관리합니다.
 
 ### Lint
 

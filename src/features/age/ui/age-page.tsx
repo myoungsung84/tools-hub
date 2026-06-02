@@ -61,9 +61,10 @@ export default function AgePage() {
 
   const fade: PresenceMotion = React.useMemo(() => buildFade(), [])
 
-  type NewType = PresenceMotion
-
-  const numberIn: NewType = React.useMemo(() => buildNumberIn(!!reduceMotion), [reduceMotion])
+  const numberIn: PresenceMotion = React.useMemo(
+    () => buildNumberIn(!!reduceMotion),
+    [reduceMotion]
+  )
 
   React.useEffect(() => {
     if (birth.trim() === '') {

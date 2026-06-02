@@ -344,5 +344,3 @@ export async function fetchIpGeo(ip: string): Promise<IpGeo | null> {
     return null
   }
 }
-
-export type { IpWhoisRaw }

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 
-import DecidePage from '@/features/decide/ui/decide-page'
+import { DecidePage } from '@/features/decide'
 import { getSiteUrl } from '@/lib/site-url'
 
 export const metadata: Metadata = {

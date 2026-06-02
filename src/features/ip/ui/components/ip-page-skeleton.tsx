@@ -15,7 +15,7 @@ export default function IpPageSkeleton({ wrapClass }: Props) {
       </div>
 
       <div className='w-full max-w-[960px]'>
-        <div className='grid gap-3 sm:grid-cols-2 lg:grid-cols-4'>
+        <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
           {[1, 2, 3, 4].map(i => (
             <Skeleton key={i} className='h-24 w-full rounded-2xl' />
           ))}

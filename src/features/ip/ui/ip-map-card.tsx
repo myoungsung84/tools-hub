@@ -12,7 +12,7 @@ export default function IpMapCard({ latitude, longitude }: Props) {
   const linkUrl = buildOsmLinkUrl(latitude, longitude)
 
   return (
-    <div className='sm:col-span-2 lg:col-span-4 group relative overflow-hidden rounded-2xl border bg-neutral-900/40 transition-all hover:border-white/20 hover:bg-neutral-900/60'>
+    <div className='md:col-span-2 group relative overflow-hidden rounded-2xl border bg-neutral-900/40 transition-all hover:border-white/20 hover:bg-neutral-900/60'>
       <div className='flex items-center justify-between px-4 py-3'>
         <div className='flex items-center gap-2'>
           <div className='p-1.5 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors'>

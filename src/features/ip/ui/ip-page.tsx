@@ -56,7 +56,7 @@ function IpResult({ data }: { data: IpInfo }) {
         )}
       </section>
 
-      <div className='grid w-full gap-3 sm:grid-cols-2 lg:grid-cols-4'>
+      <div className='grid w-full grid-cols-1 gap-3 md:grid-cols-2'>
         <InfoCard
           icon={<MapPin className='w-4 h-4 text-rose-400' />}
           title='Location'
@@ -95,7 +95,7 @@ function IpResult({ data }: { data: IpInfo }) {
           sub={data.ua?.isMobile ? 'Mobile Device' : 'Desktop / Laptop'}
         />
 
-        <div className='sm:col-span-2 lg:col-span-4 group relative overflow-hidden rounded-2xl border bg-neutral-900/40 p-4 text-left transition-all hover:bg-neutral-900/60'>
+        <div className='md:col-span-2 group relative overflow-hidden rounded-2xl border bg-neutral-900/40 p-4 text-left transition-all hover:bg-neutral-900/60'>
           <div className='flex items-center gap-2 mb-1.5'>
             <Info className='w-4 h-4 text-muted-foreground' />
             <span className='text-[11px] font-bold uppercase tracking-wider text-muted-foreground'>

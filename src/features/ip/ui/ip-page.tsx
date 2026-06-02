@@ -24,14 +24,14 @@ function IpResult({ data }: { data: IpInfo }) {
     typeof geo?.latitude === 'number' && typeof geo?.longitude === 'number'
 
   return (
-    <div className='mx-auto flex w-full max-w-[800px] flex-col items-center gap-8'>
-      <div className='flex flex-col items-center gap-4'>
+    <div className='w-full max-w-[960px] space-y-5'>
+      <section className='mx-auto flex w-full max-w-[800px] flex-col items-center gap-2.5 text-center'>
         <div className='inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-medium border border-blue-500/20'>
           <Shield className='w-3.5 h-3.5' />
           Your Public IP Address
         </div>
 
-        <h2 className='font-black leading-none tracking-tight tabular-nums text-[clamp(32px,8vw,80px)] bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent break-all text-center'>
+        <h2 className='font-black leading-none tracking-tight tabular-nums text-[clamp(30px,6vw,64px)] bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent break-all text-center'>
           {geo?.flagEmoji && <span className='mr-3'>{geo.flagEmoji}</span>}
           {data.ip}
         </h2>
@@ -54,9 +54,9 @@ function IpResult({ data }: { data: IpInfo }) {
               : '위치 정보를 조회할 수 없습니다.'}
           </p>
         )}
-      </div>
+      </section>
 
-      <div className='grid w-full gap-4 sm:grid-cols-2'>
+      <div className='grid w-full gap-3 sm:grid-cols-2 lg:grid-cols-4'>
         <InfoCard
           icon={<MapPin className='w-4 h-4 text-rose-400' />}
           title='Location'
@@ -95,21 +95,21 @@ function IpResult({ data }: { data: IpInfo }) {
           sub={data.ua?.isMobile ? 'Mobile Device' : 'Desktop / Laptop'}
         />
 
-        {hasCoords && (
-          <IpMapCard latitude={geo!.latitude!} longitude={geo!.longitude!} />
-        )}
-
-        <div className='sm:col-span-2 group relative overflow-hidden rounded-2xl border bg-neutral-900/40 p-5 text-left transition-all hover:bg-neutral-900/60'>
-          <div className='flex items-center gap-2 mb-2'>
+        <div className='sm:col-span-2 lg:col-span-4 group relative overflow-hidden rounded-2xl border bg-neutral-900/40 p-4 text-left transition-all hover:bg-neutral-900/60'>
+          <div className='flex items-center gap-2 mb-1.5'>
             <Info className='w-4 h-4 text-muted-foreground' />
             <span className='text-[11px] font-bold uppercase tracking-wider text-muted-foreground'>
               Raw User Agent
             </span>
           </div>
-          <p className='break-all text-xs leading-relaxed text-muted-foreground/80 font-mono'>
+          <p className='break-all text-[11px] leading-snug text-muted-foreground/80 font-mono'>
             {data.ua?.raw ?? '-'}
           </p>
         </div>
+
+        {hasCoords && (
+          <IpMapCard latitude={geo!.latitude!} longitude={geo!.longitude!} />
+        )}
       </div>
     </div>
   )
@@ -123,18 +123,19 @@ export default function IpPage() {
     { revalidateOnFocus: false, shouldRetryOnError: false }
   )
 
-  const wrapClass = 'w-full flex flex-col items-center'
-
   return (
-    <div className={`${wrapClass} relative overflow-x-hidden pt-4 pb-10`} data-testid='ip-page'>
+    <div
+      className='relative flex w-full flex-1 flex-col items-center justify-center'
+      data-testid='ip-page'
+    >
       <div
-        className='pointer-events-none absolute top-36 left-1/2 -translate-x-1/2
+        className='pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
                  w-[320px] sm:w-[500px] h-[320px] sm:h-[500px]
                  bg-blue-500/10 rounded-full blur-[100px] sm:blur-[120px] -z-10'
       />
 
       {myLoading || isNil(myData) ? (
-        <IpPageSkeleton wrapClass='w-full max-w-[800px] mx-auto' />
+        <IpPageSkeleton wrapClass='w-full' />
       ) : (
         <IpResult data={myData} />
       )}

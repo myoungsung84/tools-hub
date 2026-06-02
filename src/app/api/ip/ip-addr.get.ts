@@ -12,6 +12,8 @@ const NO_CACHE_HEADERS = {
   Expires: '0',
 }
 
+const isDev = process.env.NODE_ENV !== 'production'
+
 async function handler(req: Request) {
   const { searchParams } = new URL(req.url)
   const ipParam = searchParams.get('ip')?.trim() || undefined
@@ -40,7 +42,27 @@ async function handler(req: Request) {
       ? 'IPv6'
       : 'IPv4'
 
-  const geo = isPrivate || isUnknown ? null : await fetchIpGeo(targetIp)
+  if (isDev) {
+    console.error('[api.ip.addr] resolved target ip', {
+      ip: targetIp,
+      ipParam: ipParam ?? null,
+      isPrivate,
+      isUnknown,
+      xForwardedFor: headers.get('x-forwarded-for'),
+      xVercelForwardedFor: headers.get('x-vercel-forwarded-for'),
+      xRealIp: headers.get('x-real-ip'),
+      cfConnectingIp: headers.get('cf-connecting-ip'),
+    })
+  }
+
+  let geo: Awaited<ReturnType<typeof fetchIpGeo>> = null
+  if (isPrivate || isUnknown) {
+    if (isDev) {
+      console.error('[ipwhois] skip private ip', { ip: targetIp, isPrivate, isUnknown })
+    }
+  } else {
+    geo = await fetchIpGeo(targetIp)
+  }
 
   return success(
     {

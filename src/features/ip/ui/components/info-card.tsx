@@ -10,10 +10,10 @@ type Props = {
 
 export default function InfoCard({ icon, title, main, sub, badge }: Props) {
   return (
-    <div className='group relative overflow-hidden rounded-2xl border bg-neutral-900/40 p-5 text-left transition-all hover:border-white/20 hover:bg-neutral-900/60'>
-      <div className='flex items-center justify-between mb-4'>
+    <div className='group relative overflow-hidden rounded-2xl border bg-neutral-900/40 p-4 text-left transition-all hover:border-white/20 hover:bg-neutral-900/60'>
+      <div className='flex items-center justify-between mb-3'>
         <div className='flex items-center gap-2'>
-          <div className='p-2 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors'>
+          <div className='p-1.5 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors'>
             {icon}
           </div>
           <span className='text-[11px] font-bold uppercase tracking-wider text-muted-foreground'>
@@ -27,7 +27,7 @@ export default function InfoCard({ icon, title, main, sub, badge }: Props) {
         )}
       </div>
       <div>
-        <div className='text-base font-semibold text-white/90 truncate'>{main}</div>
+        <div className='text-sm font-semibold text-white/90 truncate'>{main}</div>
         <div className='text-xs text-muted-foreground mt-1'>{sub}</div>
       </div>
     </div>

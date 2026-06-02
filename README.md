@@ -38,11 +38,12 @@
 ### 🌍 IP 주소 조회 / IP 검색 (IP)
 
 - 내 IP 주소 및 상세 위치·네트워크 정보 확인
-- IP 검색 입력창으로 임의의 IPv4/IPv6 주소 조회 가능
-- [ipwho.is](https://ipwho.is) 기반으로 위치·ISP·타임존 정보 제공 (API Key 불필요)
+- `/ip`는 내 IP 확인 전용, `/ip-lookup`은 임의의 IPv4/IPv6 주소 검색 전용
+- 기본 provider는 [ipwho.is](https://ipwho.is)이며, 로컬/환경에 따라 403이 발생하면 서버에서 [ipapi.co](https://ipapi.co) fallback provider를 사용
+- 위치·ISP·타임존 정보 제공 (API Key 불필요)
 - IP 단위 24시간 서버 메모리 TTL 캐시 적용
 - 위·경도가 있으면 OpenStreetMap embed 지도 표시 (API Key 불필요)
-- 브라우저에서 ipwho.is를 직접 호출하지 않고, Next.js 서버 API(`/api/ip`)에서만 호출합니다
+- 브라우저에서 geo provider를 직접 호출하지 않고, Next.js 서버 API(`/api/ip`)에서만 호출합니다
 
 ### 🔤 글자 수 세기 (Count)
 
@@ -114,7 +115,7 @@
 
 - **Weather**: Open-Meteo (API Key 불필요)
 - **Calendar Holiday API**: apis.data.go.kr (공공데이터포털)
-- **IP Geo**: [ipwho.is](https://ipwho.is) (API Key 불필요, 서버에서만 호출)
+- **IP Geo**: [ipwho.is](https://ipwho.is) 기본 사용, 로컬/환경 403 시 [ipapi.co](https://ipapi.co) fallback 사용 (API Key 불필요, 서버에서만 호출)
 - **IP 지도**: OpenStreetMap embed iframe (API Key 불필요)
 - **Cache**: Next.js fetch cache/revalidate + 서버 메모리 TTL 캐시 (IP geo 24시간)
 - **배포**: Vercel
@@ -132,7 +133,8 @@ tools-hub/
 │   │   │   ├── count/
 │   │   │   ├── decide/
 │   │   │   ├── home/
-│   │   │   ├── ip/             # IP 조회 + 검색 통합 페이지
+│   │   │   ├── ip/             # 내 IP 확인 페이지
+│   │   │   ├── ip-lookup/      # IP 검색 페이지
 │   │   │   ├── lorem/
 │   │   │   ├── qr/
 │   │   │   ├── time/
@@ -184,7 +186,7 @@ pnpm install
 | `NEXT_PUBLIC_SITE_URL`   | 사이트 기본 URL (metadata/robots/sitemap). 미설정 시 Vercel URL 또는 localhost | 아니오             |
 | `DATA_GO_KR_SERVICE_KEY` | apis.data.go.kr 서비스키 (캘린더/공휴일)                                       | 예(캘린더 사용 시) |
 
-> **ipwho.is**: API Key 불필요. 서버 API(`/api/ip`)에서만 호출합니다.  
+> **IP Geo**: 기본 provider는 ipwho.is입니다. 로컬/환경에 따라 403이 발생할 수 있어 서버 API(`/api/ip`)에서 ipapi.co fallback provider를 사용합니다. API Key는 필요 없습니다.  
 > **OpenStreetMap embed**: API Key 불필요.  
 > **Vercel 배포**: Project Settings → Environment Variables에 필요한 값을 등록하세요.
 

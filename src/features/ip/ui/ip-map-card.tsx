@@ -12,10 +12,10 @@ export default function IpMapCard({ latitude, longitude }: Props) {
   const linkUrl = buildOsmLinkUrl(latitude, longitude)
 
   return (
-    <div className='sm:col-span-2 group relative overflow-hidden rounded-2xl border bg-neutral-900/40 transition-all hover:border-white/20 hover:bg-neutral-900/60'>
-      <div className='flex items-center justify-between px-5 py-4'>
+    <div className='sm:col-span-2 lg:col-span-4 group relative overflow-hidden rounded-2xl border bg-neutral-900/40 transition-all hover:border-white/20 hover:bg-neutral-900/60'>
+      <div className='flex items-center justify-between px-4 py-3'>
         <div className='flex items-center gap-2'>
-          <div className='p-2 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors'>
+          <div className='p-1.5 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors'>
             <Map className='w-4 h-4 text-cyan-400' />
           </div>
           <span className='text-[11px] font-bold uppercase tracking-wider text-muted-foreground'>
@@ -36,7 +36,7 @@ export default function IpMapCard({ latitude, longitude }: Props) {
         src={embedUrl}
         title='IP 위치 지도'
         width='100%'
-        height='240'
+        height='180'
         loading='lazy'
         referrerPolicy='no-referrer-when-downgrade'
         className='w-full border-t border-white/5'

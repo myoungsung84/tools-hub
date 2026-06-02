@@ -1,5 +1,6 @@
 import './globals.css'
 
+import { Analytics } from '@vercel/analytics/react'
 import type { Metadata } from 'next'
 import { Geist_Mono, Noto_Sans_KR } from 'next/font/google'
 
@@ -40,7 +41,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang='ko' className='dark'>
-      <body className={`${fontSans.variable} ${fontMono.variable} min-h-dvh`}>{children}</body>
+      <body className={`${fontSans.variable} ${fontMono.variable} min-h-dvh`}>
+        {children}
+        <Analytics />
+      </body>
     </html>
   )
 }

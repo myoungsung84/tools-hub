@@ -1,6 +1,5 @@
 import dayjs from 'dayjs'
 import { isNil, round, sortBy } from 'lodash-es'
-import { Agent, fetch as undiciFetch } from 'undici'
 
 import type {
   WeatherNowManyApiResponse,
@@ -8,7 +7,6 @@ import type {
   WeatherNowManyLocationInput,
 } from '@/features/weather/types'
 import { ApiErrors } from '@/lib/server'
-import { cacheGetJson, cacheSetJson } from '@/lib/server/cache'
 
 type WeatherNowManyFromOpenMeteo = Omit<WeatherNowManyApiResponse, 'fetchedAt'>
 
@@ -38,12 +36,9 @@ function cacheKey(locations: WeatherNowManyLocationInput[]) {
   return `weather:now-many:${normalized.join('|')}`
 }
 
-function resolveTtlSec(revalidateSec?: number) {
+function resolveRevalidateSec(revalidateSec?: number) {
   const base = revalidateSec ?? 30 * 60
-  const bounded = Math.min(Math.max(Math.floor(base), 60), 60 * 60)
-  const jitterMax = Math.max(30, Math.floor(bounded * 0.1))
-  const jitter = Math.floor(Math.random() * jitterMax)
-  return bounded + jitter
+  return Math.min(Math.max(Math.floor(base), 60), 60 * 60)
 }
 
 function toWeatherLabel(code?: number) {
@@ -95,22 +90,12 @@ function mapCurrentToWeatherNowItem(
   }
 }
 
-const openMeteoAgent = new Agent({
-  connect: { family: 4 },
-})
-
 export async function fetchWeatherNowManyFromOpenMeteo(
   locations: WeatherNowManyLocationInput[],
   opts: { signal?: AbortSignal; revalidateSec?: number }
 ): Promise<WeatherNowManyFromOpenMeteo> {
-  const ttlSec = resolveTtlSec(opts.revalidateSec)
+  const revalidateSec = resolveRevalidateSec(opts.revalidateSec)
   const key = cacheKey(locations)
-
-  const cached = await cacheGetJson<WeatherNowManyFromOpenMeteo>(key)
-  if (!isNil(cached)) {
-    console.log(`[weather-now-many.source] redis cache hit: ${key}`)
-    return cached
-  }
 
   const inFlight = inFlightRequests.get(key)
   if (!isNil(inFlight)) {
@@ -140,9 +125,9 @@ export async function fetchWeatherNowManyFromOpenMeteo(
 
     let res
     try {
-      res = await undiciFetch(url, {
+      res = await fetch(url, {
         signal: opts.signal,
-        dispatcher: openMeteoAgent,
+        next: { revalidate: revalidateSec },
       })
     } catch (e) {
       console.error('[open-meteo] multi current fetch failed', {
@@ -186,7 +171,6 @@ export async function fetchWeatherNowManyFromOpenMeteo(
       items,
     }
 
-    await cacheSetJson(key, out, ttlSec)
     return out
   })()
 

@@ -24,6 +24,7 @@ export async function fetchSpcdeInfo(params: {
   year: number
   month: number
   numOfRows?: number
+  revalidateSec?: number
 }): Promise<DataGoKrItem[]> {
   const serviceKey = process.env.DATA_GO_KR_SERVICE_KEY
   if (!serviceKey) throw ApiErrors.internal('DATA_GO_KR_SERVICE_KEY is missing')
@@ -42,7 +43,9 @@ export async function fetchSpcdeInfo(params: {
 
   let res: Response
   try {
-    res = await fetch(url)
+    res = await fetch(url, {
+      next: { revalidate: params.revalidateSec ?? 60 * 60 * 12 },
+    })
   } catch {
     throw ApiErrors.upstream('data.go.kr fetch failed')
   }

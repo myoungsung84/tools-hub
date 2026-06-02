@@ -124,10 +124,9 @@
 
 ### Backend & Infra
 
-- **API Client**: undici
 - **Weather**: Open-Meteo
 - **Calendar Holiday API**: apis.data.go.kr (공공데이터포털)
-- **Cache**: Redis (ioredis, 캐시 사용 시 권장)
+- **Cache**: Next.js fetch cache/revalidate (Weather/Calendar 외부 API)
 
 ## 📁 프로젝트 구조
 
@@ -203,11 +202,10 @@ pnpm install
 | ------------------------ | ------------------------------------------------------ | ------------------ | ------------------------------ |
 | `NEXT_PUBLIC_SITE_URL`   | 사이트 기본 URL (metadata/robots/sitemap). 미설정 시 Vercel URL 또는 localhost를 사용합니다. | 아니오             | `https://tools.yourdomain.com` |
 | `DATA_GO_KR_SERVICE_KEY` | apis.data.go.kr 서비스키(캘린더/공휴일)                | 예(캘린더 사용 시) | `...`                          |
-| `REDIS_URL`              | Redis 연결 문자열 (캐시 사용 시 권장)                  | 아니오             | `redis://localhost:6379`       |
-| `REDIS_PREFIX`           | Redis 키 프리픽스 (캐시 사용 시 권장)                  | 아니오             | `tools-hub`                    |
 
 > `DATA_GO_KR_SERVICE_KEY`는 공공데이터포털(apis.data.go.kr) 서비스키를 사용합니다.  
 > Vercel에서는 Project Settings > Environment Variables에 필요한 값을 등록하세요.
+> 날씨와 캘린더 외부 API 응답은 Next.js fetch cache/revalidate를 사용합니다.
 
 ### 개발 서버 실행
 

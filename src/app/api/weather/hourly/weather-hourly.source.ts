@@ -1,10 +1,8 @@
 import dayjs from 'dayjs'
 import { isNil, round } from 'lodash-es'
-import { Agent, fetch as undiciFetch } from 'undici'
 
 import type { Coords, WeatherHourlyPointApi } from '@/features/weather/types'
 import { ApiErrors } from '@/lib/server'
-import { cacheGetJson, cacheSetJson } from '@/lib/server/cache'
 
 type WeatherHourlyFromOpenMeteo = {
   timezone: string
@@ -24,17 +22,10 @@ function normalizeHours(hours: number) {
   return Math.min(Math.max(Math.floor(hours), 1), 48)
 }
 
-function resolveTtlSec(revalidateSec?: number) {
+function resolveRevalidateSec(revalidateSec?: number) {
   const base = revalidateSec ?? 45 * 60
-  const bounded = Math.min(Math.max(Math.floor(base), 60), 2 * 60 * 60)
-  const jitterMax = Math.max(60, Math.floor(bounded * 0.1))
-  const jitter = Math.floor(Math.random() * jitterMax)
-  return bounded + jitter
+  return Math.min(Math.max(Math.floor(base), 60), 2 * 60 * 60)
 }
-
-const openMeteoAgent = new Agent({
-  connect: { family: 4 },
-})
 
 function toWeatherLabel(code?: number) {
   if (code == null) return '날씨 정보 없음'
@@ -66,14 +57,8 @@ export async function fetchWeatherHourlyFromOpenMeteo(
   const safeHours = normalizeHours(opts.hours)
   const latitude = round(coords.latitude, 2)
   const longitude = round(coords.longitude, 2)
-  const ttlSec = resolveTtlSec(opts.revalidateSec)
+  const revalidateSec = resolveRevalidateSec(opts.revalidateSec)
   const key = cacheKey(coords, opts.timezone, safeHours)
-
-  const cached = await cacheGetJson<WeatherHourlyFromOpenMeteo>(key)
-  if (!isNil(cached)) {
-    console.log(`[weather-hourly.source] redis cache hit: ${key}`)
-    return cached
-  }
 
   const inFlight = inFlightRequests.get(key)
   if (!isNil(inFlight)) {
@@ -94,9 +79,9 @@ export async function fetchWeatherHourlyFromOpenMeteo(
 
     let res
     try {
-      res = await undiciFetch(url, {
+      res = await fetch(url, {
         signal: opts.signal,
-        dispatcher: openMeteoAgent,
+        next: { revalidate: revalidateSec },
       })
     } catch (e) {
       console.error('[open-meteo] hourly fetch failed', { requestedAtIso, url, err: String(e) })
@@ -147,7 +132,6 @@ export async function fetchWeatherHourlyFromOpenMeteo(
       points,
     }
 
-    await cacheSetJson(key, out, ttlSec)
     return out
   })()
 

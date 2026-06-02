@@ -154,7 +154,7 @@ tools-hub/
 │   │   └── ui/
 │   ├── features/
 │   │   ├── ip/
-│   │   │   ├── lib/            # ipwhois.ts, ip-map.ts
+│   │   │   ├── lib/            # ipwhois.ts(ipwho.is → ipapi.co fallback), ip-map.ts
 │   │   │   ├── types/
 │   │   │   └── ui/             # ip-page.tsx, ip-map-card.tsx
 │   │   └── ...

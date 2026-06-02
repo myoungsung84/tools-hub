@@ -11,7 +11,7 @@ const PROVIDER_HEADERS = {
   'User-Agent': `tools-hub/1.0 (+${SITE_URL})`,
 }
 
-const isDev = process.env.NODE_ENV !== 'production'
+const isDev = process.env.NODE_ENV === 'development'
 
 const nullableNumber = z.any().transform(value => {
   if (typeof value === 'number') return Number.isFinite(value) ? value : null

@@ -14,8 +14,6 @@ export type IpLookupData = {
     asn: number | null
     org: string | null
   } | null
-  lookupStatus?: 'available' | 'unavailable'
-  message?: string | null
 }
 
 export type LookupState =

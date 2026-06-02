@@ -29,9 +29,7 @@ export default function IpLookupLocationCard({ data }: Props) {
           </>
         ) : (
           <div className='sm:col-span-2'>
-            <IpLookupEmptyState
-              message={data.message ?? '위치 정보를 가져올 수 없습니다.'}
-            />
+            <IpLookupEmptyState message='위치 정보를 가져올 수 없습니다.' />
           </div>
         )}
       </CardContent>

@@ -1,7 +1,7 @@
 'use client'
 
 import { isNil } from 'lodash-es'
-import { AlertCircle, FileSearch, Info } from 'lucide-react'
+import { AlertCircle, FileSearch } from 'lucide-react'
 import { FormEvent, useMemo, useRef, useState } from 'react'
 
 import PageHeader from '@/components/layout/page-header'
@@ -55,8 +55,15 @@ export default function IpLookupPage() {
       const data = await lookupIp(ip)
       setState({ status: 'success', data })
     } catch (err) {
-      const message =
-        err instanceof ApiClientError ? err.message : 'IP 조회 중 오류가 발생했습니다.'
+      let message = 'IP 정보를 조회하지 못했습니다. 잠시 후 다시 시도해 주세요.'
+      if (err instanceof ApiClientError) {
+        if (err.status === 400) {
+          message = '유효한 IP 주소를 입력해 주세요.'
+        } else if (err.status === 429) {
+          message = '요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.'
+        }
+        console.error('[ip-lookup] ApiClientError', err.status, err.message)
+      }
       setState({ status: 'error', message })
     }
   }
@@ -66,8 +73,8 @@ export default function IpLookupPage() {
       <PageHeader
         icon={FileSearch}
         kicker='아이피 검색'
-        title='IP 주소 형식을 확인하세요'
-        description='현재는 입력한 IP의 위치 조회를 제공하지 않고, 유효한 IPv4/IPv6 주소인지 확인합니다.'
+        title='IP 주소 위치 조회'
+        description='다른 IP 주소의 위치, 네트워크, 시간대 정보를 조회합니다.'
       />
 
       <div className='flex w-full flex-col'>
@@ -90,18 +97,7 @@ export default function IpLookupPage() {
 
           {lookupData ? (
             <>
-              {lookupData.lookupStatus === 'unavailable' && (
-                <Alert className='lg:col-span-2'>
-                  <Info />
-                  <AlertTitle>위치 조회 미연동</AlertTitle>
-                  <AlertDescription>
-                    {lookupData.message ??
-                      '입력한 IP의 위치 정보는 현재 버전에서 제공하지 않습니다.'}
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              <IpLookupSummaryCard data={lookupData} />
+<IpLookupSummaryCard data={lookupData} />
               <IpLookupLocationCard data={lookupData} />
               <IpLookupMapCard data={lookupData} hasMapCoords={hasMapCoords} mapUrl={mapUrl} />
 

@@ -4,6 +4,7 @@ import type { IpGeo } from '@/features/ip/types'
 import { ttlGet, ttlSet } from '@/lib/server/ttl-cache'
 
 const TTL_MS = 24 * 60 * 60 * 1000 // 24시간
+const TTL_ERROR_MS = 5 * 60 * 1000 // 실패 캐시는 5분
 const CACHE_PREFIX = 'ipwhois:'
 
 const ipWhoisSchema = z.object({
@@ -74,12 +75,12 @@ export async function fetchIpGeo(ip: string): Promise<IpGeo | null> {
   if (cached !== undefined) return cached
 
   try {
-    const res = await fetch(`https://ipwho.is/${ip}`, {
-      next: { revalidate: 86400 },
-    })
+    const res = await fetch(`https://ipwho.is/${ip}`, { cache: 'no-store' })
 
     if (!res.ok) {
-      ttlSet(cacheKey, null, TTL_MS)
+      // 4xx (잘못된 IP 등)는 캐시하지 않음 — 재시도 여지를 남김
+      if (res.status < 500) return null
+      ttlSet(cacheKey, null, TTL_ERROR_MS)
       return null
     }
 
@@ -87,7 +88,7 @@ export async function fetchIpGeo(ip: string): Promise<IpGeo | null> {
     const parsed = ipWhoisSchema.safeParse(json)
 
     if (!parsed.success || !parsed.data.success) {
-      ttlSet(cacheKey, null, TTL_MS)
+      ttlSet(cacheKey, null, TTL_ERROR_MS)
       return null
     }
 

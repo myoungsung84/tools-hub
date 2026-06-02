@@ -28,13 +28,13 @@ export default function IpLookupPlaceholder() {
             <p className='text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60'>
               국가 · 위치
             </p>
-            <p className='mt-1.5 text-sm text-muted-foreground/60'>외부 조회 미연동</p>
+            <p className='mt-1.5 text-sm text-muted-foreground/60'>조회 전</p>
           </div>
           <div className='rounded-lg border border-dashed border-border/60 bg-background/50 px-4 py-3'>
             <p className='text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60'>
               ASN · ISP
             </p>
-            <p className='mt-1.5 text-sm text-muted-foreground/60'>외부 조회 미연동</p>
+            <p className='mt-1.5 text-sm text-muted-foreground/60'>조회 전</p>
           </div>
         </CardContent>
       </Card>
@@ -43,7 +43,7 @@ export default function IpLookupPlaceholder() {
         <CardHeader>
           <CardTitle>위치 정보 미리보기</CardTitle>
           <CardDescription>
-            외부 위치 조회 연동 전까지 입력한 IP의 위치 정보는 표시되지 않습니다.
+            IP를 조회하면 국가, 지역, 시간대 정보가 여기에 표시됩니다.
           </CardDescription>
         </CardHeader>
         <CardContent className='grid gap-2.5 sm:grid-cols-2'>

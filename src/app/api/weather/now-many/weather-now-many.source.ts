@@ -6,7 +6,7 @@ import type {
   WeatherNowManyItemApi,
   WeatherNowManyLocationInput,
 } from '@/features/weather/types'
-import { ApiErrors } from '@/lib/server'
+import { ApiErrors, fetchWithTimeout } from '@/lib/server'
 
 type WeatherNowManyFromOpenMeteo = Omit<WeatherNowManyApiResponse, 'fetchedAt'>
 
@@ -69,7 +69,7 @@ function mapCurrentToWeatherNowItem(
 ): WeatherNowManyItemApi {
   const current = response.current
   if (!current || typeof current.temperature_2m !== 'number') {
-    throw ApiErrors.internal('open-meteo response missing temperature_2m')
+    throw ApiErrors.upstream('open-meteo invalid response')
   }
 
   const code = current.weather_code
@@ -125,7 +125,7 @@ export async function fetchWeatherNowManyFromOpenMeteo(
 
     let res
     try {
-      res = await fetch(url, {
+      res = await fetchWithTimeout(url, {
         signal: opts.signal,
         next: { revalidate: revalidateSec },
       })
@@ -135,30 +135,28 @@ export async function fetchWeatherNowManyFromOpenMeteo(
         url,
         err: String(e),
       })
-      throw ApiErrors.upstream(`open-meteo multi current fetch failed (${requestedAtIso})`)
+      throw ApiErrors.upstream('open-meteo multi current fetch failed')
     }
 
     if (!res.ok) {
-      throw ApiErrors.upstream(
-        `open-meteo multi current bad response: ${res.status} (${requestedAtIso})`
-      )
+      throw ApiErrors.upstream('open-meteo multi current bad response')
     }
 
     const json = (await res.json()) as unknown
 
     if (!Array.isArray(json)) {
-      throw ApiErrors.internal('open-meteo multi current response must be an array')
+      throw ApiErrors.upstream('open-meteo multi current invalid response')
     }
 
     const rows = json as OpenMeteoCurrentResponse[]
 
     if (rows.length !== locations.length) {
-      throw ApiErrors.internal('open-meteo multi current response size mismatch')
+      throw ApiErrors.upstream('open-meteo multi current invalid response')
     }
 
-    rows.forEach((row, index) => {
+    rows.forEach(row => {
       if (!hasRequiredCurrentFields(row)) {
-        throw ApiErrors.internal(`open-meteo multi current row missing required fields (${index})`)
+        throw ApiErrors.upstream('open-meteo multi current invalid response')
       }
     })
 

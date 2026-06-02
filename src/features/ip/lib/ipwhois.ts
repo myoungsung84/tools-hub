@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import type { IpGeo } from '@/features/ip/types'
+import { fetchWithTimeout } from '@/lib/server'
 import { ttlGet, ttlSet } from '@/lib/server/ttl-cache'
 
 const TTL_MS = 24 * 60 * 60 * 1000 // 24시간
@@ -222,7 +223,7 @@ async function fetchIpWhoisGeo(ip: string): Promise<IpGeo | null> {
   const url = `https://ipwho.is/${ip}`
   logIpWhois('request', { provider, ip, url }, true)
 
-  const res = await fetch(url, { cache: 'no-store', headers: PROVIDER_HEADERS })
+  const res = await fetchWithTimeout(url, { cache: 'no-store', headers: PROVIDER_HEADERS })
   const contentType = res.headers.get('content-type')
   logIpWhois('response', { provider, ip, status: res.status, contentType }, true)
 
@@ -275,7 +276,7 @@ async function fetchIpApiCoGeo(ip: string): Promise<IpGeo | null> {
   const url = `https://ipapi.co/${ip}/json/`
   logIpWhois('request', { provider, ip, url }, true)
 
-  const res = await fetch(url, { cache: 'no-store', headers: PROVIDER_HEADERS })
+  const res = await fetchWithTimeout(url, { cache: 'no-store', headers: PROVIDER_HEADERS })
   const contentType = res.headers.get('content-type')
   logIpWhois('response', { provider, ip, status: res.status, contentType }, true)
 

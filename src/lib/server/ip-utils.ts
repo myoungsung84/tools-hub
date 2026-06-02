@@ -1,5 +1,4 @@
 export type NormalizedUserAgent = {
-  raw: string
   browser: 'Chrome' | 'Edge' | 'Safari' | 'Unknown'
   os: 'Windows' | 'macOS' | 'Android' | 'iOS' | 'Unknown'
   isMobile: boolean
@@ -54,20 +53,20 @@ function pickFromXForwardedFor(xff: string | null) {
 }
 
 export function pickClientIp(headers: Headers): string {
-  const cf = header(headers, 'cf-connecting-ip')
-  if (cf && isValidIp(cf)) return normalizeLoopback(cf)
-
-  const tci = header(headers, 'true-client-ip')
-  if (tci && isValidIp(tci)) return normalizeLoopback(tci)
-
-  const xri = header(headers, 'x-real-ip')
-  if (xri && isValidIp(xri)) return normalizeLoopback(xri)
-
   const vercelForwardedPicked = pickFromXForwardedFor(header(headers, 'x-vercel-forwarded-for'))
   if (vercelForwardedPicked) return normalizeLoopback(vercelForwardedPicked)
 
   const xffPicked = pickFromXForwardedFor(header(headers, 'x-forwarded-for'))
   if (xffPicked) return normalizeLoopback(xffPicked)
+
+  const xri = header(headers, 'x-real-ip')
+  if (xri && isValidIp(xri)) return normalizeLoopback(xri)
+
+  const cf = header(headers, 'cf-connecting-ip')
+  if (cf && isValidIp(cf)) return normalizeLoopback(cf)
+
+  const tci = header(headers, 'true-client-ip')
+  if (tci && isValidIp(tci)) return normalizeLoopback(tci)
 
   return 'unknown'
 }
@@ -101,14 +100,19 @@ export function normalizeUserAgent(uaRaw: string | null | undefined): Normalized
           ? 'iOS'
           : 'Unknown'
 
-  return { raw, browser, os, isMobile }
+  return { browser, os, isMobile }
 }
 
 export function isPrivateIp(ip: string): boolean {
   if (!ip) return false
-  if (ip === '::1') return true
+  const normalized = ip.toLowerCase()
+  if (normalized === '::1') return true
 
-  if (ip.startsWith('fc') || ip.startsWith('fd') || ip.startsWith('fe80')) {
+  if (
+    normalized.startsWith('fc') ||
+    normalized.startsWith('fd') ||
+    normalized.startsWith('fe80')
+  ) {
     return true
   }
 

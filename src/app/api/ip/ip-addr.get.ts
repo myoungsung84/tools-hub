@@ -51,7 +51,6 @@ async function handler(req: Request) {
       xForwardedFor: headers.get('x-forwarded-for'),
       xVercelForwardedFor: headers.get('x-vercel-forwarded-for'),
       xRealIp: headers.get('x-real-ip'),
-      cfConnectingIp: headers.get('cf-connecting-ip'),
     })
   }
 
@@ -71,7 +70,6 @@ async function handler(req: Request) {
       ipType,
       geo,
       ua: {
-        raw: uaRaw,
         browser: ua.browser,
         os: ua.os,
         isMobile: ua.isMobile,

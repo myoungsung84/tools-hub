@@ -1,4 +1,4 @@
-import { ApiErrors } from '@/lib/server'
+import { ApiErrors, fetchWithTimeout } from '@/lib/server'
 
 export type DataGoKrItem = {
   locdate?: number | string
@@ -27,7 +27,7 @@ export async function fetchSpcdeInfo(params: {
   revalidateSec?: number
 }): Promise<DataGoKrItem[]> {
   const serviceKey = process.env.DATA_GO_KR_SERVICE_KEY
-  if (!serviceKey) throw ApiErrors.internal('DATA_GO_KR_SERVICE_KEY is missing')
+  if (!serviceKey) throw ApiErrors.internal('calendar provider is not configured')
 
   const baseUrl =
     process.env.DATA_GO_KR_SPCDE_BASE_URL ??
@@ -43,7 +43,7 @@ export async function fetchSpcdeInfo(params: {
 
   let res: Response
   try {
-    res = await fetch(url, {
+    res = await fetchWithTimeout(url, {
       next: { revalidate: params.revalidateSec ?? 60 * 60 * 12 },
     })
   } catch {
@@ -51,7 +51,7 @@ export async function fetchSpcdeInfo(params: {
   }
 
   if (!res.ok) {
-    throw ApiErrors.upstream(`data.go.kr bad response: ${res.status}`)
+    throw ApiErrors.upstream('data.go.kr bad response')
   }
 
   let json: DataGoKrResponse
@@ -63,8 +63,7 @@ export async function fetchSpcdeInfo(params: {
 
   const resultCode = json.response?.header?.resultCode
   if (resultCode !== '00') {
-    const msg = json.response?.header?.resultMsg ?? 'unknown'
-    throw ApiErrors.upstream(`data.go.kr error: ${resultCode ?? 'undefined'} ${msg}`)
+    throw ApiErrors.upstream('data.go.kr error')
   }
 
   const item = json.response?.body?.items?.item

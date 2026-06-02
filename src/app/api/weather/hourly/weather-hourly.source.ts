@@ -2,7 +2,7 @@ import dayjs from 'dayjs'
 import { isNil, round } from 'lodash-es'
 
 import type { Coords, WeatherHourlyPointApi } from '@/features/weather/types'
-import { ApiErrors } from '@/lib/server'
+import { ApiErrors, fetchWithTimeout } from '@/lib/server'
 
 type WeatherHourlyFromOpenMeteo = {
   timezone: string
@@ -79,17 +79,17 @@ export async function fetchWeatherHourlyFromOpenMeteo(
 
     let res
     try {
-      res = await fetch(url, {
+      res = await fetchWithTimeout(url, {
         signal: opts.signal,
         next: { revalidate: revalidateSec },
       })
     } catch (e) {
       console.error('[open-meteo] hourly fetch failed', { requestedAtIso, url, err: String(e) })
-      throw ApiErrors.upstream(`open-meteo hourly fetch failed (${requestedAtIso})`)
+      throw ApiErrors.upstream('open-meteo hourly fetch failed')
     }
 
     if (!res.ok) {
-      throw ApiErrors.upstream(`open-meteo hourly bad response: ${res.status} (${requestedAtIso})`)
+      throw ApiErrors.upstream('open-meteo hourly bad response')
     }
 
     const json = (await res.json()) as {
@@ -105,7 +105,7 @@ export async function fetchWeatherHourlyFromOpenMeteo(
 
     const hourly = json.hourly
     if (!hourly?.time || !hourly.temperature_2m) {
-      throw ApiErrors.internal('open-meteo hourly response missing required fields')
+      throw ApiErrors.upstream('open-meteo hourly invalid response')
     }
 
     const points: WeatherHourlyPointApi[] = hourly.time.map((time, index) => {

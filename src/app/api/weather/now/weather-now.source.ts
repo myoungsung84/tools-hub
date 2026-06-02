@@ -2,7 +2,7 @@ import dayjs from 'dayjs'
 import { isNil, round } from 'lodash-es'
 
 import type { Coords, WeatherNowApiResponse } from '@/features/weather/types'
-import { ApiErrors } from '@/lib/server'
+import { ApiErrors, fetchWithTimeout } from '@/lib/server'
 
 type WeatherNowFromOpenMeteo = Omit<WeatherNowApiResponse, 'fetchedAt' | 'locationLabel'>
 
@@ -46,17 +46,17 @@ export async function fetchWeatherNowFromOpenMeteo(
 
     let res
     try {
-      res = await fetch(url, {
+      res = await fetchWithTimeout(url, {
         signal: opts.signal,
         next: { revalidate: revalidateSec },
       })
     } catch (e) {
       console.error('[open-meteo] fetch failed', { requestedAtIso, url, err: String(e) })
-      throw ApiErrors.upstream(`open-meteo fetch failed (${requestedAtIso})`)
+      throw ApiErrors.upstream('open-meteo fetch failed')
     }
 
     if (!res.ok) {
-      throw ApiErrors.upstream(`open-meteo bad response: ${res.status} (${requestedAtIso})`)
+      throw ApiErrors.upstream('open-meteo bad response')
     }
 
     const json = (await res.json()) as {
@@ -70,7 +70,7 @@ export async function fetchWeatherNowFromOpenMeteo(
 
     const current = json.current
     if (!current || typeof current.temperature_2m !== 'number') {
-      throw ApiErrors.internal('open-meteo response missing temperature_2m')
+      throw ApiErrors.upstream('open-meteo invalid response')
     }
 
     const tempC = round(current.temperature_2m, 0)

@@ -25,7 +25,6 @@ export type IpInfo = {
   ipType: 'IPv4' | 'IPv6' | null
   geo: IpGeo | null
   ua: {
-    raw: string
     browser: string
     os: string
     isMobile: boolean

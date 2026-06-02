@@ -1,7 +1,7 @@
 'use client'
 
 import { isNil } from 'lodash-es'
-import { Clock, Globe, Info, MapPin, Monitor, Network, Shield } from 'lucide-react'
+import { Clock, Globe, MapPin, Monitor, Network, Shield } from 'lucide-react'
 import useSWR from 'swr'
 
 import type { IpInfo } from '@/features/ip/types'
@@ -94,18 +94,6 @@ function IpResult({ data }: { data: IpInfo }) {
           main={`${data.ua?.browser ?? 'Unknown'} on ${data.ua?.os ?? 'Unknown'}`}
           sub={data.ua?.isMobile ? 'Mobile Device' : 'Desktop / Laptop'}
         />
-
-        <div className='md:col-span-2 group relative overflow-hidden rounded-2xl border bg-neutral-900/40 p-4 text-left transition-all hover:bg-neutral-900/60'>
-          <div className='flex items-center gap-2 mb-1.5'>
-            <Info className='w-4 h-4 text-muted-foreground' />
-            <span className='text-[11px] font-bold uppercase tracking-wider text-muted-foreground'>
-              Raw User Agent
-            </span>
-          </div>
-          <p className='break-all text-[11px] leading-snug text-muted-foreground/80 font-mono'>
-            {data.ua?.raw ?? '-'}
-          </p>
-        </div>
 
         {hasCoords && (
           <IpMapCard latitude={geo!.latitude!} longitude={geo!.longitude!} />

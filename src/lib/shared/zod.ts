@@ -88,8 +88,8 @@ export const zCoords = z.object({
  * - 외부 API/query에서 lon 쓰는 경우용
  */
 export const zLatLon = z.object({
-  lat: zFiniteNumberFromString,
-  lon: zFiniteNumberFromString,
+  lat: zFiniteNumberFromString.pipe(z.number().min(-90).max(90)),
+  lon: zFiniteNumberFromString.pipe(z.number().min(-180).max(180)),
 })
 
 /* ------------------------------------------------------------------

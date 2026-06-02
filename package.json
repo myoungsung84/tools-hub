@@ -9,12 +9,9 @@
     "start": "next start",
     "lint": "eslint",
     "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit",
     "qa:e2e": "playwright test tests/e2e",
-    "qa:e2e:headed": "playwright test --headed",
-    "docker:build": "docker build --no-cache -f docker/dockerfile -t tools-hub:local .",
-    "docker:run": "docker run --rm -p 3000:3000 --name tools-hub-local tools-hub:local",
-    "docker:stop": "docker rm -f tools-hub-local || true",
-    "docker": "pnpm docker:build && pnpm docker:run"
+    "qa:e2e:headed": "playwright test --headed"
   },
   "dependencies": {
     "@fullstackfamily/manseryeok": "^1.0.3",

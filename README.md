@@ -206,6 +206,17 @@ pnpm install
 > `DATA_GO_KR_SERVICE_KEY`는 공공데이터포털(apis.data.go.kr) 서비스키를 사용합니다.  
 > Vercel에서는 Project Settings > Environment Variables에 필요한 값을 등록하세요.
 > 날씨와 캘린더 외부 API 응답은 Next.js fetch cache/revalidate를 사용합니다.
+> 기존 로컬 또는 self-hosted 배포 파일에 실제 서비스키를 넣어 사용한 적이 있다면 키 회전을 권장합니다.
+
+### Vercel 배포
+
+1. Vercel에서 저장소를 연결합니다.
+2. Framework Preset은 Next.js를 사용합니다.
+3. Install Command는 `pnpm install --frozen-lockfile`, Build Command는 `pnpm build`를 사용합니다.
+4. 필요한 환경 변수를 Project Settings > Environment Variables에 등록합니다.
+5. Preview 배포에서 주요 페이지와 API를 확인한 뒤 Production으로 배포합니다.
+
+IP 조회는 현재 요청 헤더 기반으로 동작합니다. Vercel이 제공하는 geo header가 없으면 위치 정보는 표시되지 않습니다.
 
 ### 개발 서버 실행
 
@@ -233,6 +244,9 @@ Vercel 배포에서는 `pnpm build`를 사용하며, 런타임 서버는 Vercel�
 # 코드 검사
 pnpm lint
 
+# 타입 검사
+pnpm typecheck
+
 # 자동 수정
 pnpm lint:fix
 ```
@@ -256,20 +270,6 @@ pnpm qa:e2e:headed
 
 - 요약: `test-results/qa-summary.md`
 - 실패 시에만 screenshot / trace / video 등 Playwright artifact 생성
-
-### Docker
-
-```bash
-# Docker 이미지 빌드 및 실행
-pnpm docker
-
-# 또는 개별 실행
-pnpm docker:build  # 이미지 빌드
-pnpm docker:run    # 컨테이너 실행
-pnpm docker:stop   # 컨테이너 중지
-```
-
-컨테이너가 실행되면 http://localhost:3000 에서 접근할 수 있습니다.
 
 ## 🎨 UI 컴포넌트
 
@@ -300,13 +300,9 @@ npx shadcn@latest add [component-name]
 
 ## 🌐 배포
 
-### Vercel (권장)
+### Vercel
 
-가장 쉬운 배포 방법은 Next.js 제작자인 Vercel을 사용하는 것입니다.
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/tools-hub)
-
-자세한 내용은 [Next.js 배포 문서](https://nextjs.org/docs/app/building-your-application/deploying)를 참조하세요.
+이 프로젝트는 Vercel 배포를 기본 기준으로 둡니다. 배포 전 `pnpm lint`, `pnpm typecheck`, `pnpm build`를 실행해 확인합니다.
 
 ## 📄 라이선스
 

@@ -1,18 +1,7 @@
 'use client'
 
 import { isNil } from 'lodash-es'
-import {
-  Clock,
-  Cpu,
-  Globe,
-  Info,
-  MapPin,
-  Monitor,
-  Network,
-  Search,
-  Shield,
-} from 'lucide-react'
-import { useState } from 'react'
+import { Clock, Globe, Info, MapPin, Monitor, Network, Shield } from 'lucide-react'
 import useSWR from 'swr'
 
 import type { IpInfo } from '@/features/ip/types'
@@ -22,12 +11,7 @@ import InfoCard from './components/info-card'
 import IpPageSkeleton from './components/ip-page-skeleton'
 import IpMapCard from './ip-map-card'
 
-function buildApiPath(searchIp?: string) {
-  if (!searchIp) return '/api/ip'
-  return `/api/ip?ip=${encodeURIComponent(searchIp)}`
-}
-
-function IpResult({ data, isSearch }: { data: IpInfo; isSearch: boolean }) {
+function IpResult({ data }: { data: IpInfo }) {
   const geo = data.geo
   const locationParts = [geo?.city, geo?.region, geo?.country].filter(Boolean)
   const locationLabel = locationParts.join(', ')
@@ -44,7 +28,7 @@ function IpResult({ data, isSearch }: { data: IpInfo; isSearch: boolean }) {
       <div className='flex flex-col items-center gap-4'>
         <div className='inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-medium border border-blue-500/20'>
           <Shield className='w-3.5 h-3.5' />
-          {isSearch ? '검색된 IP 주소' : 'Your Public IP Address'}
+          Your Public IP Address
         </div>
 
         <h2 className='font-black leading-none tracking-tight tabular-nums text-[clamp(32px,8vw,80px)] bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent break-all text-center'>
@@ -132,9 +116,6 @@ function IpResult({ data, isSearch }: { data: IpInfo; isSearch: boolean }) {
 }
 
 export default function IpPage() {
-  const [searchInput, setSearchInput] = useState('')
-  const [searchIp, setSearchIp] = useState<string | undefined>(undefined)
-
   const myIpKey = '/api/ip'
   const { data: myData, isLoading: myLoading } = useSWR<IpInfo>(
     myIpKey,
@@ -142,80 +123,21 @@ export default function IpPage() {
     { revalidateOnFocus: false, shouldRetryOnError: false }
   )
 
-  const searchKey = searchIp ? buildApiPath(searchIp) : null
-  const {
-    data: searchData,
-    isLoading: searchLoading,
-    error: searchError,
-  } = useSWR<IpInfo>(searchKey, (path: string) => apiGet<IpInfo>({ path }), {
-    revalidateOnFocus: false,
-    shouldRetryOnError: false,
-  })
-
-  const wrapClass = 'w-full flex flex-1 flex-col items-center justify-center'
-
-  function handleSearch(e: React.FormEvent) {
-    e.preventDefault()
-    const trimmed = searchInput.trim()
-    if (trimmed) setSearchIp(trimmed)
-  }
+  const wrapClass = 'w-full flex flex-col items-center'
 
   return (
-    <div className={`${wrapClass} relative overflow-x-hidden gap-10 py-12`} data-testid='ip-page'>
+    <div className={`${wrapClass} relative overflow-x-hidden pt-4 pb-10`} data-testid='ip-page'>
       <div
-        className='pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+        className='pointer-events-none absolute top-36 left-1/2 -translate-x-1/2
                  w-[320px] sm:w-[500px] h-[320px] sm:h-[500px]
                  bg-blue-500/10 rounded-full blur-[100px] sm:blur-[120px] -z-10'
       />
 
-      {/* 내 IP 섹션 */}
       {myLoading || isNil(myData) ? (
         <IpPageSkeleton wrapClass='w-full max-w-[800px] mx-auto' />
       ) : (
-        <IpResult data={myData} isSearch={false} />
+        <IpResult data={myData} />
       )}
-
-      {/* IP 검색 섹션 */}
-      <div className='mx-auto w-full max-w-[800px] flex flex-col gap-6'>
-        <div className='flex items-center gap-2'>
-          <Cpu className='w-4 h-4 text-purple-400' />
-          <span className='text-[11px] font-bold uppercase tracking-wider text-muted-foreground'>
-            IP 검색 / IP 찾기
-          </span>
-        </div>
-
-        <form onSubmit={handleSearch} className='flex gap-2'>
-          <input
-            type='text'
-            value={searchInput}
-            onChange={e => setSearchInput(e.target.value)}
-            placeholder='IP 주소를 입력하세요. 예: 8.8.8.8'
-            className='flex-1 rounded-xl border border-white/10 bg-neutral-900/60 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-blue-500/50 transition-colors'
-          />
-          <button
-            type='submit'
-            disabled={!searchInput.trim()}
-            className='inline-flex items-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed px-4 py-2.5 text-sm font-medium text-white transition-colors'
-          >
-            <Search className='w-3.5 h-3.5' />
-            IP 찾기
-          </button>
-        </form>
-
-        {searchLoading && (
-          <IpPageSkeleton wrapClass='w-full' />
-        )}
-
-        {!searchLoading && searchError && (
-          <div className='rounded-2xl border border-red-500/20 bg-red-500/5 px-5 py-4 text-sm text-red-400'>
-            유효한 IP 주소를 입력해 주세요.
-          </div>
-        )}
-
-        {!searchLoading && !searchError && searchData && (
-          <IpResult data={searchData} isSearch={true} />
-        )}
-      </div>
     </div>
   )
 }

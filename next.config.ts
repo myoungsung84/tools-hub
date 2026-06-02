@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
         ? "script-src 'self' 'unsafe-inline' https:"
         : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
       "connect-src 'self' https: wss:",
-      "frame-src 'self' https://www.openstreetmap.org",
+      "frame-src 'self' https://www.openstreetmap.org https://vercel.live",
       "form-action 'self'",
       isProd ? 'upgrade-insecure-requests' : null,
     ]

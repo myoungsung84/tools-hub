@@ -17,8 +17,6 @@ type Props = {
   calendar: CalendarMonthData
   isLoading: boolean
   todayKey: string
-  showSonEobsneun: boolean
-  showSolarTerm: boolean
 }
 
 function getDotClass(kind: HolidayKind | 'solarTerm' | 'sonEobsneun') {
@@ -40,8 +38,6 @@ export default function CalendarGrid({
   calendar,
   isLoading,
   todayKey,
-  showSonEobsneun,
-  showSolarTerm,
 }: Props) {
   const cells = useMemo(() => calendar.weeks.flatMap(week => week), [calendar.weeks])
   const [manualSelectedKey, setManualSelectedKey] = useState<string | null>(null)
@@ -78,8 +74,6 @@ export default function CalendarGrid({
                   cell={cell}
                   colIndex={colIndex}
                   todayKey={todayKey}
-                  showSonEobsneun={showSonEobsneun}
-                  showSolarTerm={showSolarTerm}
                 />
               )
             })
@@ -92,12 +86,11 @@ export default function CalendarGrid({
           {cells.map(cell => {
             const isSelected = selectedCell?.key === cell.key
             const isToday = cell.key === todayKey
-            const isSonEobsneun =
-              showSonEobsneun && isSonEobsneunByLunarDay(getLunarDayNumber(cell))
+            const isSonEobsneun = isSonEobsneunByLunarDay(getLunarDayNumber(cell))
             const dots: Array<HolidayKind | 'solarTerm' | 'sonEobsneun'> = [
               ...(cell.holidays.some(holiday => holiday.kind === 'public') ? ['public' as const] : []),
               ...(isSonEobsneun ? ['sonEobsneun' as const] : []),
-              ...(showSolarTerm && cell.solarTerm ? ['solarTerm' as const] : []),
+              ...(cell.solarTerm ? ['solarTerm' as const] : []),
               ...(cell.holidays.some(holiday => holiday.kind === 'anniversary')
                 ? ['anniversary' as const]
                 : []),
@@ -156,7 +149,7 @@ export default function CalendarGrid({
             </div>
 
             <div className='mt-3 flex flex-wrap gap-1.5'>
-              {showSonEobsneun && isSonEobsneunByLunarDay(getLunarDayNumber(selectedCell)) && (
+              {isSonEobsneunByLunarDay(getLunarDayNumber(selectedCell)) && (
                 <Badge
                   variant='outline'
                   className='border-emerald-500/25 bg-emerald-500/10 text-emerald-600'
@@ -164,7 +157,7 @@ export default function CalendarGrid({
                   손없는날
                 </Badge>
               )}
-              {showSolarTerm && selectedCell.solarTerm && (
+              {selectedCell.solarTerm && (
                 <Badge
                   variant='outline'
                   className='border-amber-500/25 bg-amber-500/10 text-amber-600'
@@ -181,9 +174,9 @@ export default function CalendarGrid({
                   {holiday.name}
                 </Badge>
               ))}
-              {!(showSolarTerm && selectedCell.solarTerm) &&
+              {!selectedCell.solarTerm &&
                 selectedCell.holidays.length === 0 &&
-                !(showSonEobsneun && isSonEobsneunByLunarDay(getLunarDayNumber(selectedCell))) && (
+                !isSonEobsneunByLunarDay(getLunarDayNumber(selectedCell)) && (
                   <span className='text-xs text-muted-foreground'>표시할 일정이 없습니다.</span>
                 )}
             </div>

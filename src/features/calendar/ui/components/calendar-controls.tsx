@@ -9,7 +9,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
 
 const YEAR_MIN = 2000
 const YEAR_MAX = 2100
@@ -29,21 +28,11 @@ type Props = {
   yearValue: string
   monthValue: string
   isLoading: boolean
-  showPublic: boolean
-  showAnniversary: boolean
-  showSundry: boolean
-  showSonEobsneun: boolean
-  showSolarTerm: boolean
   onChangeYear: (value: string) => void
   onChangeMonth: (value: string) => void
   onPrevMonth: () => void
   onNextMonth: () => void
   onToday: () => void
-  onTogglePublic: (checked: boolean) => void
-  onToggleAnniversary: (checked: boolean) => void
-  onToggleSundry: (checked: boolean) => void
-  onToggleSonEobsneun: (checked: boolean) => void
-  onToggleSolarTerm: (checked: boolean) => void
 }
 
 export default function CalendarControls(props: Props) {
@@ -52,26 +41,16 @@ export default function CalendarControls(props: Props) {
     yearValue,
     monthValue,
     isLoading,
-    showPublic,
-    showAnniversary,
-    showSundry,
-    showSonEobsneun,
-    showSolarTerm,
     onChangeYear,
     onChangeMonth,
     onPrevMonth,
     onNextMonth,
     onToday,
-    onTogglePublic,
-    onToggleAnniversary,
-    onToggleSundry,
-    onToggleSonEobsneun,
-    onToggleSolarTerm,
   } = props
 
   return (
-    <CardHeader className='gap-3'>
-      <div className='flex items-center justify-between gap-3'>
+    <CardHeader className='gap-2 pb-3'>
+      <div className='hidden items-center justify-between gap-3 sm:flex'>
         <CardTitle className='flex items-center gap-2 text-base sm:text-lg'>
           <Sparkles className='h-4 w-4 text-primary' />
           {calendarTitle}
@@ -134,49 +113,26 @@ export default function CalendarControls(props: Props) {
         </div>
       </div>
 
-      <div className='flex flex-wrap items-center gap-4 text-sm'>
-        <label className='flex items-center gap-2'>
-          <Switch checked={showPublic} onCheckedChange={onTogglePublic} />
-          <span className='flex items-center gap-1.5'>
-            <span className='inline-block h-2 w-2 rounded-full bg-rose-500' />
-            공휴일
-          </span>
-        </label>
+      <div className='flex items-center justify-between gap-2 sm:hidden'>
+        <Button type='button' variant='outline' size='icon' aria-label='이전 달' onClick={onPrevMonth}>
+          <ChevronLeft className='h-4 w-4' />
+        </Button>
 
-        <label className='flex items-center gap-2'>
-          <Switch checked={showSonEobsneun} onCheckedChange={onToggleSonEobsneun} />
-          <span className='flex items-center gap-1.5'>
-            <span className='inline-block h-2 w-2 rounded-full bg-emerald-500' />
-            손없는날
-          </span>
-        </label>
+        <CardTitle className='flex min-w-0 flex-1 items-center justify-center gap-1.5 text-base'>
+          <Sparkles className='h-4 w-4 shrink-0 text-primary' />
+          <span className='truncate'>{calendarTitle}</span>
+        </CardTitle>
 
-        <label className='flex items-center gap-2'>
-          <Switch checked={showSolarTerm} onCheckedChange={onToggleSolarTerm} />
-          <span className='flex items-center gap-1.5'>
-            <span className='inline-block h-2 w-2 rounded-full bg-amber-500' />
-            절기
-          </span>
-        </label>
+        <Button type='button' variant='secondary' size='sm' onClick={onToday}>
+          오늘
+        </Button>
 
-        <label className='flex items-center gap-2'>
-          <Switch checked={showAnniversary} onCheckedChange={onToggleAnniversary} />
-          <span className='flex items-center gap-1.5'>
-            <span className='inline-block h-2 w-2 rounded-full bg-blue-500' />
-            기념일
-          </span>
-        </label>
-
-        <label className='flex items-center gap-2'>
-          <Switch checked={showSundry} onCheckedChange={onToggleSundry} />
-          <span className='flex items-center gap-1.5'>
-            <span className='inline-block h-2 w-2 rounded-full bg-muted-foreground/60' />
-            잡절
-          </span>
-        </label>
-
-        {isLoading && <span className='text-xs text-muted-foreground'>업데이트 중…</span>}
+        <Button type='button' variant='outline' size='icon' aria-label='다음 달' onClick={onNextMonth}>
+          <ChevronRight className='h-4 w-4' />
+        </Button>
       </div>
+
+      {isLoading && <div className='text-right text-xs text-muted-foreground'>업데이트 중…</div>}
     </CardHeader>
   )
 }

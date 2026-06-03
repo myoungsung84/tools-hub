@@ -56,21 +56,13 @@ type Props = {
   cell: CalendarDayCell
   colIndex: number
   todayKey: string
-  showSonEobsneun: boolean
-  showSolarTerm: boolean
 }
 
-export default function CalendarDayCell({
-  cell,
-  colIndex,
-  todayKey,
-  showSonEobsneun,
-  showSolarTerm,
-}: Props) {
+export default function CalendarDayCell({ cell, colIndex, todayKey }: Props) {
   const isToday = isTodayCell(cell, todayKey)
 
   const lunarDayNumber = getLunarDayNumber(cell)
-  const isSonEobsneun = showSonEobsneun && isSonEobsneunByLunarDay(lunarDayNumber)
+  const isSonEobsneun = isSonEobsneunByLunarDay(lunarDayNumber)
   const hasPublicHoliday = cell.holidays.some(holiday => holiday.kind === 'public' && holiday.isHoliday)
 
   return (
@@ -126,7 +118,7 @@ export default function CalendarDayCell({
         <span>{cell.lunar?.label ?? '-'}</span>
       </div>
 
-      {showSolarTerm && cell.solarTerm && (
+      {cell.solarTerm && (
         <Badge
           variant='outline'
           className='border-amber-500/25 bg-amber-500/10 text-amber-600 dark:text-amber-400'

@@ -33,6 +33,7 @@ type Props = {
   showAnniversary: boolean
   showSundry: boolean
   showSonEobsneun: boolean
+  showSolarTerm: boolean
   onChangeYear: (value: string) => void
   onChangeMonth: (value: string) => void
   onPrevMonth: () => void
@@ -42,6 +43,7 @@ type Props = {
   onToggleAnniversary: (checked: boolean) => void
   onToggleSundry: (checked: boolean) => void
   onToggleSonEobsneun: (checked: boolean) => void
+  onToggleSolarTerm: (checked: boolean) => void
 }
 
 export default function CalendarControls(props: Props) {
@@ -54,6 +56,7 @@ export default function CalendarControls(props: Props) {
     showAnniversary,
     showSundry,
     showSonEobsneun,
+    showSolarTerm,
     onChangeYear,
     onChangeMonth,
     onPrevMonth,
@@ -63,6 +66,7 @@ export default function CalendarControls(props: Props) {
     onToggleAnniversary,
     onToggleSundry,
     onToggleSonEobsneun,
+    onToggleSolarTerm,
   } = props
 
   return (
@@ -140,9 +144,25 @@ export default function CalendarControls(props: Props) {
         </label>
 
         <label className='flex items-center gap-2'>
-          <Switch checked={showAnniversary} onCheckedChange={onToggleAnniversary} />
+          <Switch checked={showSonEobsneun} onCheckedChange={onToggleSonEobsneun} />
+          <span className='flex items-center gap-1.5'>
+            <span className='inline-block h-2 w-2 rounded-full bg-emerald-500' />
+            손없는날
+          </span>
+        </label>
+
+        <label className='flex items-center gap-2'>
+          <Switch checked={showSolarTerm} onCheckedChange={onToggleSolarTerm} />
           <span className='flex items-center gap-1.5'>
             <span className='inline-block h-2 w-2 rounded-full bg-amber-500' />
+            절기
+          </span>
+        </label>
+
+        <label className='flex items-center gap-2'>
+          <Switch checked={showAnniversary} onCheckedChange={onToggleAnniversary} />
+          <span className='flex items-center gap-1.5'>
+            <span className='inline-block h-2 w-2 rounded-full bg-blue-500' />
             기념일
           </span>
         </label>
@@ -155,15 +175,7 @@ export default function CalendarControls(props: Props) {
           </span>
         </label>
 
-        <label className='flex items-center gap-2'>
-          <Switch checked={showSonEobsneun} onCheckedChange={onToggleSonEobsneun} />
-          <span className='flex items-center gap-1.5'>
-            <span className='inline-block h-2 w-2 rounded-full bg-emerald-500' />
-            손없는날
-          </span>
-        </label>
-
-        <span className='text-xs text-muted-foreground'>{isLoading ? '불러오는 중…' : '완료'}</span>
+        {isLoading && <span className='text-xs text-muted-foreground'>업데이트 중…</span>}
       </div>
     </CardHeader>
   )

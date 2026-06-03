@@ -13,6 +13,10 @@ type DataGoKrResponse = {
   }
 }
 
+// Official calendar metadata rarely changes after publication; a 7-day revalidate
+// reduces repeated upstream calls on Vercel while still allowing correction updates.
+export const SPCDE_REVALIDATE_SEC = 60 * 60 * 24 * 7
+
 export function toIsoDate(locdate: string | number): string | null {
   const raw = String(locdate).trim()
   if (!/^\d{8}$/.test(raw)) return null
@@ -44,7 +48,7 @@ export async function fetchSpcdeInfo(params: {
   let res: Response
   try {
     res = await fetchWithTimeout(url, {
-      next: { revalidate: params.revalidateSec ?? 60 * 60 * 12 },
+      next: { revalidate: params.revalidateSec ?? SPCDE_REVALIDATE_SEC },
     })
   } catch {
     throw ApiErrors.upstream('data.go.kr fetch failed')

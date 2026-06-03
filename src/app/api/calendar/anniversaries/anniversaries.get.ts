@@ -20,11 +20,7 @@ async function handler(req: Request) {
     { message: 'Invalid query' }
   )
 
-  const external = await fetchCalendarAnniversariesExternal({
-    year,
-    month,
-    revalidateSec: 60 * 60 * 12,
-  })
+  const external = await fetchCalendarAnniversariesExternal({ year, month })
 
   const holidays: HolidayMap = {}
   for (const item of external) {

@@ -1,12 +1,10 @@
-import {
-  getSolarTermsByYear,
-  type SolarTermWithDate,
-  solarToLunar,
-} from '@fullstackfamily/manseryeok'
+import { getSolarTermsByYear, type SolarTermWithDate, solarToLunar } from '@fullstackfamily/manseryeok'
 import dayjs from 'dayjs'
 
 import type { CalendarDayCell, CalendarMonthData, SolarTermItem } from '../types/calendar.types'
-import type { HolidayMap } from '../types/calendar-holiday-api.types'
+import type { HolidayItem, HolidayMap } from '../types/calendar-holiday-api.types'
+
+const solarTermMapCache = new Map<number, Map<string, SolarTermItem>>()
 
 function formatDateKey(year: number, month: number, day: number) {
   return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
@@ -16,6 +14,9 @@ function toSolarTermMap(year: number) {
   if (year < 2020 || year > 2030) {
     return new Map<string, SolarTermItem>()
   }
+
+  const cached = solarTermMapCache.get(year)
+  if (cached) return cached
 
   const items = getSolarTermsByYear(year)
   const map = new Map<string, SolarTermItem>()
@@ -32,7 +33,19 @@ function toSolarTermMap(year: number) {
     })
   })
 
+  solarTermMapCache.set(year, map)
+
   return map
+}
+
+function sortHolidays(items: HolidayItem[]) {
+  const priority: Record<HolidayItem['kind'], number> = {
+    public: 0,
+    anniversary: 1,
+    sundry: 2,
+  }
+
+  return [...items].sort((a, b) => priority[a.kind] - priority[b.kind])
 }
 
 function toCell(
@@ -59,7 +72,7 @@ function toCell(
         label: `${lunar.lunar.isLeapMonth ? '윤' : ''}${lunar.lunar.month}.${lunar.lunar.day}`,
       },
       solarTerm: termMap.get(solarDate) ?? null,
-      holidays: holidayMap[solarDate] ?? [],
+      holidays: sortHolidays(holidayMap[solarDate] ?? []),
     }
 
     return dayCell
@@ -71,7 +84,7 @@ function toCell(
       inCurrentMonth: cursor.month() + 1 === month,
       lunar: null,
       solarTerm: termMap.get(solarDate) ?? null,
-      holidays: holidayMap[solarDate] ?? [],
+      holidays: sortHolidays(holidayMap[solarDate] ?? []),
     }
   }
 }

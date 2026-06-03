@@ -13,19 +13,42 @@ import {
   ExternalAnniversaryProvider,
   ExternalPublicHolidayProvider,
   ExternalSundryProvider,
+  hasCachedHolidayMap,
   type HolidayProvider,
 } from '../lib/providers/holiday-provider'
 import { buildCalendarMonthData } from '../lib/services/calendar-builder'
 import type { HolidayMap } from '../lib/types/calendar-holiday-api.types'
 import CalendarControls from './components/calendar-controls'
 import CalendarGrid from './components/calendar-grid'
+import CalendarMonthSummary from './components/calendar-month-summary'
 import CalendarWeekdayRow from './components/calendar-weekday-row'
+
+type VisibilityState = {
+  public: boolean
+  anniversary: boolean
+  sundry: boolean
+}
+
+function hasSelectedMonthCache(cursor: dayjs.Dayjs, visibility: VisibilityState) {
+  const year = cursor.year()
+  const month = cursor.month() + 1
+
+  return (
+    (!visibility.public ||
+      hasCachedHolidayMap({ path: '/api/calendar/holidays', year, month })) &&
+    (!visibility.anniversary ||
+      hasCachedHolidayMap({ path: '/api/calendar/anniversaries', year, month })) &&
+    (!visibility.sundry ||
+      hasCachedHolidayMap({ path: '/api/calendar/sundry', year, month }))
+  )
+}
 
 export default function CalendarPage() {
   const [cursor, setCursor] = useState(() => dayjs().startOf('month'))
   const [showPublic, setShowPublic] = useState(true)
   const [showAnniversary, setShowAnniversary] = useState(true)
   const [showSundry, setShowSundry] = useState(true)
+  const [showSolarTerm, setShowSolarTerm] = useState(true)
 
   const [showSonEobsneun, setShowSonEobsneun] = useState(true)
 
@@ -33,6 +56,10 @@ export default function CalendarPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   const todayKey = dayjs().format('YYYY-MM-DD')
+  const visibility = useMemo(
+    () => ({ public: showPublic, anniversary: showAnniversary, sundry: showSundry }),
+    [showAnniversary, showPublic, showSundry]
+  )
 
   useEffect(() => {
     const providers: HolidayProvider[] = []
@@ -106,40 +133,57 @@ export default function CalendarPage() {
             showAnniversary={showAnniversary}
             showSundry={showSundry}
             showSonEobsneun={showSonEobsneun}
+            showSolarTerm={showSolarTerm}
             onChangeYear={value => {
-              setIsLoading(true)
-              setCursor(prev => prev.year(Number(value)).startOf('month'))
+              setCursor(prev => {
+                const next = prev.year(Number(value)).startOf('month')
+                setIsLoading(!hasSelectedMonthCache(next, visibility))
+                return next
+              })
             }}
             onChangeMonth={value => {
-              setIsLoading(true)
-              setCursor(prev => prev.month(Number(value) - 1).startOf('month'))
+              setCursor(prev => {
+                const next = prev.month(Number(value) - 1).startOf('month')
+                setIsLoading(!hasSelectedMonthCache(next, visibility))
+                return next
+              })
             }}
             onPrevMonth={() => {
-              setIsLoading(true)
-              setCursor(prev => prev.subtract(1, 'month'))
+              setCursor(prev => {
+                const next = prev.subtract(1, 'month')
+                setIsLoading(!hasSelectedMonthCache(next, visibility))
+                return next
+              })
             }}
             onToday={() => {
-              setIsLoading(true)
-              setCursor(dayjs().startOf('month'))
+              const next = dayjs().startOf('month')
+              setIsLoading(!hasSelectedMonthCache(next, visibility))
+              setCursor(next)
             }}
             onNextMonth={() => {
-              setIsLoading(true)
-              setCursor(prev => prev.add(1, 'month'))
+              setCursor(prev => {
+                const next = prev.add(1, 'month')
+                setIsLoading(!hasSelectedMonthCache(next, visibility))
+                return next
+              })
             }}
             onTogglePublic={checked => {
-              setIsLoading(true)
+              setIsLoading(!hasSelectedMonthCache(cursor, { ...visibility, public: checked }))
               setShowPublic(checked)
             }}
             onToggleAnniversary={checked => {
-              setIsLoading(true)
+              setIsLoading(!hasSelectedMonthCache(cursor, { ...visibility, anniversary: checked }))
               setShowAnniversary(checked)
             }}
             onToggleSundry={checked => {
-              setIsLoading(true)
+              setIsLoading(!hasSelectedMonthCache(cursor, { ...visibility, sundry: checked }))
               setShowSundry(checked)
             }}
             onToggleSonEobsneun={checked => {
               setShowSonEobsneun(checked)
+            }}
+            onToggleSolarTerm={checked => {
+              setShowSolarTerm(checked)
             }}
           />
 
@@ -150,6 +194,15 @@ export default function CalendarPage() {
               isLoading={isLoading}
               todayKey={todayKey}
               showSonEobsneun={showSonEobsneun}
+              showSolarTerm={showSolarTerm}
+            />
+            <CalendarMonthSummary
+              calendar={calendar}
+              showPublic={showPublic}
+              showSonEobsneun={showSonEobsneun}
+              showSolarTerm={showSolarTerm}
+              showAnniversary={showAnniversary}
+              showSundry={showSundry}
             />
           </CardContent>
         </Card>

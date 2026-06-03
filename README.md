@@ -1,6 +1,6 @@
 # 🛠️ Tools Hub
 
-개발자를 위한 유용한 도구 모음 웹 애플리케이션입니다.  
+개발자를 위한 유용한 도구 모음 웹 애플리케이션입니다.
 자주 쓰는 계산/조회 도구를 빠르게 실행하고, 결과를 한 화면에서 확인할 수 있도록 구성했습니다.
 
 ## ✨ 주요 기능
@@ -94,8 +94,7 @@
 
 ### Analytics
 
-- **Vercel Analytics**: 사용 (페이지뷰 및 이벤트 수집)
-- **Vercel Speed Insights**: 미사용 — Hobby 플랜에서 프로젝트 1개 제한이며, 현재 다른 프로젝트(onnuri-center)에서 사용 중
+- **Vercel Analytics**: 페이지뷰 및 이벤트 수집
 
 ### Development Tools
 
@@ -164,7 +163,7 @@ tools-hub/
 │       └── shared/
 ```
 
-## 🚀 시작하기
+## 🚀 로컬 실행 방법
 
 ### 필수 요구사항
 
@@ -176,6 +175,14 @@ tools-hub/
 ```bash
 pnpm install
 ```
+
+### 개발 서버 실행
+
+```bash
+pnpm dev
+```
+
+브라우저에서 http://localhost:3000 을 열어 확인하세요.
 
 ### 환경 변수
 
@@ -189,23 +196,6 @@ pnpm install
 > **IP Geo**: 기본 provider는 ipwho.is입니다. 로컬/환경에 따라 403이 발생할 수 있어 서버 API(`/api/ip`)에서 ipapi.co fallback provider를 사용합니다. API Key는 필요 없습니다.  
 > **OpenStreetMap embed**: API Key 불필요.  
 > **Vercel 배포**: Project Settings → Environment Variables에 필요한 값을 등록하세요.
-
-### Vercel 배포
-
-1. Vercel에서 저장소를 연결합니다.
-2. Framework Preset: **Next.js**
-3. Install Command: `pnpm install --frozen-lockfile`
-4. Build Command: `pnpm build`
-5. 필요한 환경 변수를 Project Settings → Environment Variables에 등록합니다.
-6. Preview 배포에서 주요 페이지와 API를 확인한 뒤 Production으로 배포합니다.
-
-### 개발 서버 실행
-
-```bash
-pnpm dev
-```
-
-브라우저에서 http://localhost:3000 을 열어 확인하세요.
 
 ### 빌드 / 검증
 
@@ -228,12 +218,21 @@ pnpm qa:e2e:headed
 
 결과: `test-results/qa-summary.md`
 
+## 🚀 배포 (Vercel)
+
+1. Vercel에서 저장소를 연결합니다.
+2. Framework Preset: **Next.js**
+3. Install Command: `pnpm install --frozen-lockfile`
+4. Build Command: `pnpm build`
+5. 필요한 환경 변수를 Project Settings → Environment Variables에 등록합니다.
+6. Preview 배포에서 주요 페이지와 API를 확인한 뒤 Production으로 배포합니다.
+
 ## 🎨 UI 컴포넌트
 
 이 프로젝트는 shadcn/ui를 사용합니다.
 
 ```bash
-npx shadcn@latest add [component-name]
+pnpm dlx shadcn@latest add [component-name]
 ```
 
 ## 📝 개발 가이드
@@ -248,7 +247,7 @@ npx shadcn@latest add [component-name]
 ### 코드 스타일
 
 - **Import 순서**: eslint-plugin-simple-import-sort에 의해 자동 정렬
-- **미사용 Import**: eslint-plugin-unused-imports에 의해 자동 제거
+- **사용하지 않는 Import**: eslint-plugin-unused-imports에 의해 자동 제거
 - **컴포넌트**: React Server Components 우선 사용
 - **클라이언트 컴포넌트**: 필요한 경우에만 `use client` 지시어 사용
 - **Feature 구조**: page는 얇게 유지하고, 기능 구현은 `src/features/*` 중심으로 구성

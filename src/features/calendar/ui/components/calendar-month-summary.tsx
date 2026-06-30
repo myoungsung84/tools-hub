@@ -1,7 +1,7 @@
 'use client'
 
 import dayjs from 'dayjs'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -80,6 +80,21 @@ function countDays(entries: SummaryEntry[]) {
 
 const CATEGORY_LIMIT = 5
 
+function useDelayedVisible(visible: boolean, delay = 200) {
+  const [delayedVisible, setDelayedVisible] = useState(false)
+
+  useEffect(() => {
+    if (!visible) {
+      setDelayedVisible(false)
+      return
+    }
+    const timer = window.setTimeout(() => setDelayedVisible(true), delay)
+    return () => window.clearTimeout(timer)
+  }, [visible, delay])
+
+  return delayedVisible
+}
+
 function SummaryColumn({ group }: { group: SummaryGroup }) {
   const [isExpanded, setIsExpanded] = useState(false)
   const canCollapseEntries = group.canLimit && group.entries.length >= CATEGORY_LIMIT + 1
@@ -133,6 +148,7 @@ export default function CalendarMonthSummary({
   isLoading,
   onToggleCollapsed,
 }: Props) {
+  const showLoadingHint = useDelayedVisible(isLoading)
   const cells = calendar.weeks.flatMap(week => week).filter(cell => cell.inCurrentMonth)
   const publicEntries = toHolidayEntries(cells, 'public')
   const sonEobsneunEntries = toSonEobsneunEntries(cells)
@@ -196,6 +212,17 @@ export default function CalendarMonthSummary({
         <Button type='button' variant='ghost' size='sm' onClick={onToggleCollapsed}>
           {isCollapsed ? '펼치기' : '접기'}
         </Button>
+      </div>
+
+      <div className='min-h-5'>
+        <p
+          className={cn(
+            'text-xs text-muted-foreground transition-opacity duration-150',
+            showLoadingHint ? 'opacity-100' : 'opacity-0'
+          )}
+        >
+          이번 달 정보를 불러오는 중
+        </p>
       </div>
 
       {isLoading ? (

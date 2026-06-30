@@ -9,10 +9,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/shared'
 
 import {
-  CompositeHolidayProvider,
-  ExternalAnniversaryProvider,
-  ExternalPublicHolidayProvider,
-  ExternalSundryProvider,
+  CalendarMonthProvider,
   hasCachedHolidayMap,
   type HolidayProvider,
 } from '../lib/providers/holiday-provider'
@@ -27,11 +24,7 @@ function hasSelectedMonthCache(cursor: dayjs.Dayjs) {
   const year = cursor.year()
   const month = cursor.month() + 1
 
-  return (
-    hasCachedHolidayMap({ path: '/api/calendar/holidays', year, month }) &&
-    hasCachedHolidayMap({ path: '/api/calendar/anniversaries', year, month }) &&
-    hasCachedHolidayMap({ path: '/api/calendar/sundry', year, month })
-  )
+  return hasCachedHolidayMap({ year, month })
 }
 
 export default function CalendarPage() {
@@ -43,16 +36,10 @@ export default function CalendarPage() {
   const todayKey = dayjs().format('YYYY-MM-DD')
 
   useEffect(() => {
-    const providers: HolidayProvider[] = [
-      new ExternalPublicHolidayProvider(),
-      new ExternalAnniversaryProvider(),
-      new ExternalSundryProvider(),
-    ]
-
     const controller = new AbortController()
-    const composite = new CompositeHolidayProvider(providers)
+    const provider: HolidayProvider = new CalendarMonthProvider()
 
-    const request = composite.getMonth({
+    const request = provider.getMonth({
       year: cursor.year(),
       month: cursor.month() + 1,
       signal: controller.signal,
@@ -107,7 +94,6 @@ export default function CalendarPage() {
             calendarTitle={`${calendar.year}.${String(calendar.month).padStart(2, '0')}`}
             yearValue={yearValue}
             monthValue={monthValue}
-            isLoading={isLoading}
             onChangeYear={value => {
               setCursor(prev => {
                 const next = prev.year(Number(value)).startOf('month')
@@ -147,7 +133,6 @@ export default function CalendarPage() {
             <CalendarWeekdayRow />
             <CalendarGrid
               calendar={calendar}
-              isLoading={isLoading}
               todayKey={todayKey}
             />
             <CalendarMonthSummary

@@ -16,13 +16,24 @@ function buildCalendarApiResponse(
   month: number,
   holidays: Record<string, CalendarEntry[]>
 ) {
+  const fetchedAt = '2026-03-19T12:34:56+09:00'
+
   return {
     success: true as const,
     data: {
       year,
       month,
       holidays,
-      fetchedAt: '2026-03-19T12:34:56+09:00',
+      fetchedAt,
+      meta: {
+        cached: false,
+        generatedAt: fetchedAt,
+        sources: {
+          holidays: 'success',
+          anniversaries: 'success',
+          sundry: 'success',
+        },
+      },
     },
   }
 }
@@ -32,26 +43,47 @@ test.describe('/calendar', () => {
     setQaSummaryMetadata(testInfo, {
       parameters: {
         initialMonth: '2026-03',
-        toggles: ['공휴일 off', '공휴일 on', '다음 달 이동'],
+        actions: ['초기 월 진입', '다음 달 이동'],
       },
       checks: {
         marchEntries: ['테스트 공휴일', '화이트데이', '경칩'],
-        toggleEffect: '공휴일 off 시 테스트 공휴일 숨김',
         nextMonthEntry: '2026.04 / 4월 공휴일',
+        apiFlow: '월당 /api/calendar/month 1회 호출',
       },
     })
 
     await freezeBrowserTime(page, '2026-03-19T12:34:56+09:00')
 
+    const calendarApiRequests: string[] = []
+
     await page.route('**/api/calendar/**', async route => {
       const url = new URL(route.request().url())
       const year = Number(url.searchParams.get('year'))
       const month = Number(url.searchParams.get('month'))
-      const pathname = url.pathname
 
-      const holidays: Record<string, CalendarEntry[]> = pathname.endsWith('/holidays')
-        ? month === 3
+      calendarApiRequests.push(`${url.pathname}?${url.searchParams.toString()}`)
+
+      const holidays: Record<string, CalendarEntry[]> =
+        month === 3
           ? {
+              '2026-03-05': [
+                {
+                  date: '2026-03-05',
+                  name: '경칩',
+                  source: 'external',
+                  isHoliday: false,
+                  kind: 'sundry',
+                },
+              ],
+              '2026-03-14': [
+                {
+                  date: '2026-03-14',
+                  name: '화이트데이',
+                  source: 'external',
+                  isHoliday: false,
+                  kind: 'anniversary',
+                },
+              ],
               '2026-03-19': [
                 {
                   date: '2026-03-19',
@@ -73,29 +105,6 @@ test.describe('/calendar', () => {
                 },
               ],
             }
-        : pathname.endsWith('/anniversaries')
-          ? {
-              '2026-03-14': [
-                {
-                  date: '2026-03-14',
-                  name: '화이트데이',
-                  source: 'external',
-                  isHoliday: false,
-                  kind: 'anniversary',
-                },
-              ],
-            }
-          : {
-              '2026-03-05': [
-                {
-                  date: '2026-03-05',
-                  name: '경칩',
-                  source: 'external',
-                  isHoliday: false,
-                  kind: 'sundry',
-                },
-              ],
-            }
 
       await route.fulfill({
         status: 200,
@@ -110,14 +119,14 @@ test.describe('/calendar', () => {
     await expect(grid).toContainText('테스트 공휴일')
     await expect(grid).toContainText('화이트데이')
     await expect(grid).toContainText('경칩')
+    expect(calendarApiRequests).toEqual(['/api/calendar/month?year=2026&month=3'])
 
-    await page.getByRole('switch', { name: '공휴일' }).click()
-    await expect(grid).not.toContainText('테스트 공휴일')
-    await expect(grid).toContainText('화이트데이')
-
-    await page.getByRole('switch', { name: '공휴일' }).click()
     await page.getByLabel('다음 달').click()
     await expect(page.getByText('2026.04')).toBeVisible()
     await expect(grid).toContainText('4월 공휴일')
+    expect(calendarApiRequests).toEqual([
+      '/api/calendar/month?year=2026&month=3',
+      '/api/calendar/month?year=2026&month=4',
+    ])
   })
 })

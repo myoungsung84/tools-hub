@@ -15,7 +15,6 @@ import CalendarDayCell, {
 
 type Props = {
   calendar: CalendarMonthData
-  isLoading: boolean
   todayKey: string
 }
 
@@ -36,7 +35,6 @@ function getDotClass(kind: HolidayKind | 'solarTerm' | 'sonEobsneun') {
 
 export default function CalendarGrid({
   calendar,
-  isLoading,
   todayKey,
 }: Props) {
   const cells = useMemo(() => calendar.weeks.flatMap(week => week), [calendar.weeks])
@@ -55,15 +53,7 @@ export default function CalendarGrid({
   return (
     <div className='space-y-3' data-testid='calendar-grid'>
       <div className='relative hidden overflow-x-auto sm:block'>
-        {isLoading && (
-          <div className='absolute right-2 top-2 z-10 rounded-full border bg-background/90 px-2 py-1 text-[11px] text-muted-foreground shadow-sm'>
-            업데이트 중
-          </div>
-        )}
-        <div
-          className='grid min-w-[720px] grid-cols-7 gap-2 text-sm transition-opacity'
-          style={{ opacity: isLoading ? 0.82 : 1 }}
-        >
+        <div className='grid min-w-[720px] grid-cols-7 gap-2 text-sm'>
           {calendar.weeks.flatMap((week, _wi) =>
             week.map((cell, di) => {
               const colIndex = di % 7

@@ -27,7 +27,6 @@ type Props = {
   calendarTitle: string
   yearValue: string
   monthValue: string
-  isLoading: boolean
   onChangeYear: (value: string) => void
   onChangeMonth: (value: string) => void
   onPrevMonth: () => void
@@ -40,7 +39,6 @@ export default function CalendarControls(props: Props) {
     calendarTitle,
     yearValue,
     monthValue,
-    isLoading,
     onChangeYear,
     onChangeMonth,
     onPrevMonth,
@@ -132,7 +130,6 @@ export default function CalendarControls(props: Props) {
         </Button>
       </div>
 
-      {isLoading && <div className='text-right text-xs text-muted-foreground'>업데이트 중…</div>}
     </CardHeader>
   )
 }

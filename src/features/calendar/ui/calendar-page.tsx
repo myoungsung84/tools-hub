@@ -94,7 +94,6 @@ export default function CalendarPage() {
             calendarTitle={`${calendar.year}.${String(calendar.month).padStart(2, '0')}`}
             yearValue={yearValue}
             monthValue={monthValue}
-            isLoading={isLoading}
             onChangeYear={value => {
               setCursor(prev => {
                 const next = prev.year(Number(value)).startOf('month')
@@ -134,7 +133,6 @@ export default function CalendarPage() {
             <CalendarWeekdayRow />
             <CalendarGrid
               calendar={calendar}
-              isLoading={isLoading}
               todayKey={todayKey}
             />
             <CalendarMonthSummary

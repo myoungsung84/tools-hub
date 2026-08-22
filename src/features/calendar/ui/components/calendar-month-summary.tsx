@@ -84,12 +84,13 @@ function useDelayedVisible(visible: boolean, delay = 200) {
   const [delayedVisible, setDelayedVisible] = useState(false)
 
   useEffect(() => {
-    if (!visible) {
-      setDelayedVisible(false)
-      return
-    }
+    if (!visible) return undefined
+
     const timer = window.setTimeout(() => setDelayedVisible(true), delay)
-    return () => window.clearTimeout(timer)
+    return () => {
+      window.clearTimeout(timer)
+      setDelayedVisible(false)
+    }
   }, [visible, delay])
 
   return delayedVisible
